@@ -2,6 +2,7 @@
 
 import { TextField } from '@mui/material'
 import { useState } from 'react'
+import styles from './search-bar.module.css'
 
 export default function SearchBar() {
     const [userAddress, setUserAddress] = useState<string>('')
@@ -38,7 +39,7 @@ export default function SearchBar() {
     }
     return (
         <TextField
-            id="location-search-bar"
+            id={styles.searchBar}
             label="Location"
             variant="outlined"
             onChange={(e) => handleChange(e)}
