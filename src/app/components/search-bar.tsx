@@ -39,9 +39,10 @@ export default function SearchBar() {
     }
     return (
         <TextField
-            id={styles.searchBar}
+            className={styles.searchBar}
             label="Location"
-            variant="outlined"
+            variant="filled"
+            sx={{ borderRadius: '1rem' }}
             onChange={(e) => handleChange(e)}
             onKeyDown={(e) => handleEnterKey(e)}
             value={userAddress}

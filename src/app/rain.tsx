@@ -1,4 +1,3 @@
-import styles from './rain.module.css'
 import './rain.css'
 
 export default function RainBackground() {
@@ -41,7 +40,7 @@ export default function RainBackground() {
         )
     }
     return (
-        < div className={styles.rainContainer} >
+        < div className="rainContainer" >
             <div className="rain front-row">
                 {drops}
             </div>

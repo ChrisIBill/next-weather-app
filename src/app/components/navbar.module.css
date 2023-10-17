@@ -1,5 +1,10 @@
 .header {
     position: sticky;
     width: 100%;
+    z-index: 3;
     height: fit-content;
+}
+.AppBar {
+    background-color: inherit;
+    border-bottom: 0.1rem solid #505050;
 }
