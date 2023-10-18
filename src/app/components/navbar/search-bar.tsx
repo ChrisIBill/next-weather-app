@@ -1,14 +1,23 @@
 'use client'
 
 import { TextField } from '@mui/material'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import styles from './search-bar.module.css'
 
+export interface CoordinatesType {
+    latitude: number
+    longitude: number
+}
+
 export default function SearchBar() {
+    const router = useRouter()
+
     const [userAddress, setUserAddress] = useState<string>('')
     const [isInputError, setIsInputError] = useState<boolean>(false)
     const [isValid, setIsValid] = useState<boolean>(false)
     const [helperText, setHelperText] = useState<string>('')
+    const [location, setLocation] = useState<CoordinatesType>()
 
     const zipCodeRegEx = /(^\d{5}$)|(^\d{9}$)|(^\d{5}-\d{4}$)/
     const handleEnterKey = async (e: { keyCode: number }) => {
@@ -16,7 +25,8 @@ export default function SearchBar() {
             if (zipCodeRegEx.test(userAddress)) {
                 console.log('Enter key pressed')
                 setIsInputError(false)
-                getGeocode(zipCode).then((value) => submitCoords(value))
+                router.replace(`/weather/${userAddress}`)
+                //getGeocode(zipCode).then((value) => submitCoords(value))
                 //setIsValid(true);
             } else {
                 setHelperText('Please enter a valid 5 digit US Zip Code')
@@ -37,6 +47,15 @@ export default function SearchBar() {
             setHelperText('Please enter numbers only')
         }
     }
+    useEffect(() => {
+        if ('geolocation' in navigator) {
+            // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
+            navigator.geolocation.getCurrentPosition(({ coords }) => {
+                const { latitude, longitude } = coords
+                setLocation({ latitude, longitude })
+            })
+        }
+    }, [])
     return (
         <TextField
             className={styles.searchBar}
