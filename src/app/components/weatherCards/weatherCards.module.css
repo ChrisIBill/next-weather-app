@@ -1,0 +1,11 @@
+.cardsList {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+.cardsListWrapper {
+    flex: 1;
+}
+.cardWrapper {
+    margin: 0.5rem;
+}
