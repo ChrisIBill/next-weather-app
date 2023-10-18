@@ -5,10 +5,6 @@ import RainBackground from './rain'
 export default function Home() {
     return (
         <main className={styles.main}>
-            <header className={styles.header}>
-                <h1>Drizzle</h1>
-                <h3>(Yet Another Weather App)</h3>
-            </header>
             <RainBackground />
         </main>
     )
