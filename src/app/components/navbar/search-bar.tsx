@@ -5,11 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import styles from './search-bar.module.css'
 
-export interface CoordinatesType {
-    latitude: number
-    longitude: number
-}
-
 export default function SearchBar() {
     const router = useRouter()
 
@@ -25,7 +20,7 @@ export default function SearchBar() {
             if (zipCodeRegEx.test(userAddress)) {
                 console.log('Enter key pressed')
                 setIsInputError(false)
-                router.replace(`/weather/${userAddress}`)
+                router.replace(`/weather?zipCode={}`)
                 //getGeocode(zipCode).then((value) => submitCoords(value))
                 //setIsValid(true);
             } else {
@@ -53,9 +48,10 @@ export default function SearchBar() {
             navigator.geolocation.getCurrentPosition(({ coords }) => {
                 const { latitude, longitude } = coords
                 setLocation({ latitude, longitude })
+                router.replace(`/weather?lat=${latitude}&lon=${longitude}`)
             })
         }
-    }, [])
+    }, [router])
     return (
         <TextField
             className={styles.searchBar}

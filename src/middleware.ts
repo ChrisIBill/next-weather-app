@@ -4,7 +4,7 @@ import countries from './lib/countries.json'
 
 // run only on homepage
 export const config = {
-    matcher: '/',
+    matcher: '/deprecated/:path',
 }
 
 export async function middleware(req: NextRequest) {

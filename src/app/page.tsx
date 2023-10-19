@@ -4,9 +4,12 @@ import RainBackground from './rain'
 import WeatherCards from './components/weatherCards/weatherCards'
 
 export default function Home() {
+    async function getWeather() {
+        'use server'
+    }
     return (
         <main className={styles.main}>
-            <WeatherCards />
+            <WeatherCards getWeather={getWeather} />
             <RainBackground />
         </main>
     )
