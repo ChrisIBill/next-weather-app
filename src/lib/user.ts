@@ -2,7 +2,7 @@ const TemperatureUnits = ['Fahrenheit', 'Celsius', 'Kelvin'] as const
 const WindSpeedUnits = ['Mph', 'Kph', 'Mps'] as const
 const PrecipitationUnits = ['in', 'mm', 'cm'] as const
 // exporting constants array of string literals to allow for iteration and type-checking
-export const Units = {
+export const MeasurementUnits = {
     TemperatureUnits,
     WindSpeedUnits,
     PrecipitationUnits,
@@ -16,30 +16,6 @@ export interface UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
-}
-
-export const defaultUserPreferences: UserPreferencesInterface = {
-    tempUnit: 'Fahrenheit',
-    windSpeedUnit: 'Mph',
-    precipitationUnit: 'in',
-}
-
-export function getLocalUserPreferences(): UserPreferencesInterface {
-    if (!localStorage || !localStorage.getItem('hasLocalPrefs'))
-        return defaultUserPreferences
-    else {
-        const tempUnit = localStorage.getItem('tempUnit')
-        const windSpeedUnit = localStorage.getItem('windSpeedUnit')
-        const precipitationUnit = localStorage.getItem('precipitationUnit')
-    }
-    return defaultUserPreferences
-}
-
-export function setUserPreferences(userPrefs: UserPreferencesInterface) {
-    let prop: keyof UserPreferencesInterface
-    for (prop in userPrefs) {
-        console.log(prop)
-    }
 }
 
 export default class UserPrefs implements UserPreferencesInterface {
@@ -92,6 +68,25 @@ export default class UserPrefs implements UserPreferencesInterface {
     }
 
     //Setters
+    setTempUnit(unit: TemperatureUnitType) {
+        if (this.isTemperatureUnit(unit)) {
+            this.tempUnit = unit
+            localStorage.setItem('tempUnit', unit)
+        } else throw new Error('Invalid Temperature Unit')
+    }
+    setWindSpeedUnit(unit: WindSpeedUnitType) {
+        if (this.isWindSpeedUnit(unit)) {
+            this.windSpeedUnit = unit
+            localStorage.setItem('windSpeedUnit', unit)
+        } else throw new Error('Invalid Wind Speed Unit')
+    }
+    setPrecipitationUnit(unit: PrecipitationUnitType) {
+        if (this.isPrecipitationUnit(unit)) {
+            this.precipitationUnit = unit
+            localStorage.setItem('precipitationUnit', unit)
+        } else throw new Error('Invalid Precipitation Unit')
+    }
+
     setUserPreferencesFromLocal() {
         if (!localStorage || !localStorage.getItem('hasLocalPrefs'))
             return defaultUserPreferences
