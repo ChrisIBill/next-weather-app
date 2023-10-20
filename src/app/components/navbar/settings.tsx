@@ -4,7 +4,12 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './settings.module.css'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
-import getUserPreferences, { UserPreferencesInterface } from '@/lib/user'
+import UserPrefs, {
+    MeasurementUnits,
+    TemperatureUnitType,
+    PrecipitationUnitType,
+    WindSpeedUnitType,
+} from '@/lib/user'
 
 interface Preferences {
     TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
@@ -15,13 +20,16 @@ interface Preferences {
 export default function Settings() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
-    const [userPrefs, setUserPrefs] = React.useState<Preferences>({
-        TempUnit: 'Fahrenheit',
-        WindSpeedUnit: 'Mph',
-        PrecipitationUnit: 'in',
-    })
 
-    console.log(userPrefs)
+    const tempUnits = MeasurementUnits.TemperatureUnits
+    const windUnits = MeasurementUnits.WindSpeedUnits
+    const precipUnits = MeasurementUnits.PrecipitationUnits
+
+    const [tempPref, setTempPref] =
+        React.useState<TemperatureUnitType>('Fahrenheit')
+    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>('Mph')
+    const [precipPref, setPrecipPref] =
+        React.useState<PrecipitationUnitType>('in')
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -30,8 +38,52 @@ export default function Settings() {
         setAnchorEl(null)
     }
     const handleTemperatureItem = () => {
-        localStorage.setItem('tempUnit', 'Celsius')
-        handleClose()
+        switch (tempPref) {
+            case tempUnits[0]: {
+                setTempPref(tempUnits[1])
+                break
+            }
+            case tempUnits[1]: {
+                setTempPref(tempUnits[2])
+                break
+            }
+            case tempUnits[2]: {
+                setTempPref(tempUnits[0])
+                break
+            }
+        }
+    }
+    const handleWindSpeedItem = () => {
+        switch (windPref) {
+            case windUnits[0]: {
+                setWindPref(windUnits[1])
+                break
+            }
+            case windUnits[1]: {
+                setWindPref(windUnits[2])
+                break
+            }
+            case windUnits[2]: {
+                setWindPref(windUnits[0])
+                break
+            }
+        }
+    }
+    const handlePrecipitationItem = () => {
+        switch (precipPref) {
+            case precipUnits[0]: {
+                setPrecipPref(precipUnits[1])
+                break
+            }
+            case precipUnits[1]: {
+                setPrecipPref(precipUnits[2])
+                break
+            }
+            case precipUnits[2]: {
+                setPrecipPref(precipUnits[0])
+                break
+            }
+        }
     }
 
     return (
@@ -50,16 +102,13 @@ export default function Settings() {
             >
                 <MenuItem onClick={handleClose}>Animations</MenuItem>
                 <MenuItem onClick={handleTemperatureItem}>
-                    Temperature Unit:{' '}
-                    {userPrefs.TempUnit ? userPrefs.TempUnit : 'Fahrenheit'}
+                    Temperature Unit: {tempPref}
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
-                    {userPrefs.PrecipitationUnit
-                        ? userPrefs.PrecipitationUnit
-                        : 'in'}
+                <MenuItem onClick={handleWindSpeedItem}>
+                    Wind Speed Unit: {windPref}
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
-                    {userPrefs.WindSpeedUnit ? userPrefs.WindSpeedUnit : 'Mph'}
+                <MenuItem onClick={handlePrecipitationItem}>
+                    Precipitation Unit: {precipPref}
                 </MenuItem>
             </Menu>
         </div>
