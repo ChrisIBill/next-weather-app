@@ -2,20 +2,22 @@
 
 import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './settings.module.css'
-import { Menu, MenuItem } from '@mui/material'
+import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
+import getUserPreferences from '@/lib/user'
+
+interface Preferences {
+    TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin',
+    WindSpeedUnit: 'Mph' | 'Kph' | 'Mps',
+    PrecipitationUnit: 'in' | 'mm' | 'cm',
+}
 
 export default function Settings() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
-    const User = {
-        preferences: {
-            tempUnit: localStorage.getItem('tempUnit') || 'Fahrenheit',
-            windSpeedUnit: localStorage.getItem('windSpeedUnit') || 'Mph',
-            precipitationUnit:
-                localStorage.getItem('precipitationUnit') || 'in',
-        },
-    }
+
+    const userPrefs = getUserPreferences()
+    console.log(userPrefs)
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -23,10 +25,16 @@ export default function Settings() {
     const handleClose = () => {
         setAnchorEl(null)
     }
+    const handleTemperatureItem = () => {
+        localStorage.setItem('tempUnit', 'Celsius')
+        handleClose()
+    }
 
     return (
-        <div className={styles.settingsButton}>
-            <SettingsIcon onClick={handleClick} />
+        <div className={styles.settingsWrapper}>
+            <IconButton aria-label="settings" onClick={handleClick}>
+                <SettingsIcon />
+            </IconButton>
             <Menu
                 className={styles.settingsMenu}
                 anchorEl={anchorEl}
@@ -37,14 +45,14 @@ export default function Settings() {
                 }}
             >
                 <MenuItem onClick={handleClose}>Animations</MenuItem>
-                <MenuItem onClick={handleClose}>
-                    {User.preferences.tempUnit}
+                <MenuItem onClick={handleTemperatureItem}>
+                    Temperature Unit: {userPrefs.TempUnit ? userPrefs.TempUnit : 'Fahrenheit'}
                 </MenuItem>
                 <MenuItem onClick={handleClose}>
-                    {User.preferences.windSpeedUnit}
+                    {userPrefs.PrecipitationUnit ? userPrefs.PrecipitationUnit : 'in'}
                 </MenuItem>
                 <MenuItem onClick={handleClose}>
-                    {User.preferences.precipitationUnit}
+                    {userPrefs.WindSpeedUnit ? userPrefs.WindSpeedUnit : 'Mph'}
                 </MenuItem>
             </Menu>
         </div>
