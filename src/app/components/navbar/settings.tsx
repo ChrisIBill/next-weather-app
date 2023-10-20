@@ -4,19 +4,23 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './settings.module.css'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
-import getUserPreferences from '@/lib/user'
+import getUserPreferences, { UserPreferencesInterface } from '@/lib/user'
 
 interface Preferences {
-    TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin',
-    WindSpeedUnit: 'Mph' | 'Kph' | 'Mps',
-    PrecipitationUnit: 'in' | 'mm' | 'cm',
+    TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
+    WindSpeedUnit: 'Mph' | 'Kph' | 'Mps'
+    PrecipitationUnit: 'in' | 'mm' | 'cm'
 }
 
 export default function Settings() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
+    const [userPrefs, setUserPrefs] = React.useState<Preferences>({
+        TempUnit: 'Fahrenheit',
+        WindSpeedUnit: 'Mph',
+        PrecipitationUnit: 'in',
+    })
 
-    const userPrefs = getUserPreferences()
     console.log(userPrefs)
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -46,10 +50,13 @@ export default function Settings() {
             >
                 <MenuItem onClick={handleClose}>Animations</MenuItem>
                 <MenuItem onClick={handleTemperatureItem}>
-                    Temperature Unit: {userPrefs.TempUnit ? userPrefs.TempUnit : 'Fahrenheit'}
+                    Temperature Unit:{' '}
+                    {userPrefs.TempUnit ? userPrefs.TempUnit : 'Fahrenheit'}
                 </MenuItem>
                 <MenuItem onClick={handleClose}>
-                    {userPrefs.PrecipitationUnit ? userPrefs.PrecipitationUnit : 'in'}
+                    {userPrefs.PrecipitationUnit
+                        ? userPrefs.PrecipitationUnit
+                        : 'in'}
                 </MenuItem>
                 <MenuItem onClick={handleClose}>
                     {userPrefs.WindSpeedUnit ? userPrefs.WindSpeedUnit : 'Mph'}
