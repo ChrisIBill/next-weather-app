@@ -34,16 +34,16 @@ export default class UserPrefs implements UserPreferencesInterface {
     }
 
     //Type-Guards
-    isTemperatureUnit(unit: string): unit is TemperatureUnitType {
+    public isTemperatureUnit(unit: string): unit is TemperatureUnitType {
         return TemperatureUnits.includes(unit as TemperatureUnitType)
     }
-    isWindSpeedUnit(unit: string): unit is WindSpeedUnitType {
+    public isWindSpeedUnit(unit: string): unit is WindSpeedUnitType {
         return WindSpeedUnits.includes(unit as WindSpeedUnitType)
     }
-    isPrecipitationUnit(unit: string): unit is PrecipitationUnitType {
+    public isPrecipitationUnit(unit: string): unit is PrecipitationUnitType {
         return PrecipitationUnits.includes(unit as PrecipitationUnitType)
     }
-    isUserPreferences(
+    public isUserPreferences(
         userPrefs: UserPreferencesInterface
     ): userPrefs is UserPreferencesInterface {
         //TODO: Testing
@@ -53,13 +53,13 @@ export default class UserPrefs implements UserPreferencesInterface {
 
     //Getters
     // prettier-ignore
-    getTempUnit() { return this.tempUnit }
+    public getTempUnit() { return this.tempUnit }
     // prettier-ignore
-    getWindSpeedUnit() { return this.windSpeedUnit }
+    public getWindSpeedUnit() { return this.windSpeedUnit }
     // prettier-ignore
-    getPrecipitationUnit() { return this.precipitationUnit }
+    public getPrecipitationUnit() { return this.precipitationUnit }
 
-    getUserPreferences(): UserPreferencesInterface {
+    public getUserPreferences(): UserPreferencesInterface {
         return {
             tempUnit: this.tempUnit,
             windSpeedUnit: this.windSpeedUnit,
@@ -68,28 +68,28 @@ export default class UserPrefs implements UserPreferencesInterface {
     }
 
     //Setters
-    setTempUnit(unit: TemperatureUnitType) {
+    public setTempUnit(unit: TemperatureUnitType) {
         if (this.isTemperatureUnit(unit)) {
             this.tempUnit = unit
             localStorage.setItem('tempUnit', unit)
         } else throw new Error('Invalid Temperature Unit')
     }
-    setWindSpeedUnit(unit: WindSpeedUnitType) {
+    public setWindSpeedUnit(unit: WindSpeedUnitType) {
         if (this.isWindSpeedUnit(unit)) {
             this.windSpeedUnit = unit
             localStorage.setItem('windSpeedUnit', unit)
         } else throw new Error('Invalid Wind Speed Unit')
     }
-    setPrecipitationUnit(unit: PrecipitationUnitType) {
+    public setPrecipitationUnit(unit: PrecipitationUnitType) {
         if (this.isPrecipitationUnit(unit)) {
             this.precipitationUnit = unit
             localStorage.setItem('precipitationUnit', unit)
         } else throw new Error('Invalid Precipitation Unit')
     }
 
-    setUserPreferencesFromLocal() {
+    public setUserPreferencesFromLocal() {
         if (!localStorage || !localStorage.getItem('hasLocalPrefs'))
-            return defaultUserPreferences
+            return
         const tempUnit = localStorage.getItem('tempUnit')
         const windSpeedUnit = localStorage.getItem('windSpeedUnit')
         const precipitationUnit = localStorage.getItem('precipitationUnit')
@@ -105,7 +105,7 @@ export default class UserPrefs implements UserPreferencesInterface {
         }
     }
 
-    setUserPreferences(userPrefs: UserPreferencesInterface) {
+    public setUserPreferences(userPrefs: UserPreferencesInterface) {
         // TODO:
         if (!this.isUserPreferences(userPrefs)) {
             console.error('Error: Bad preferences form')
@@ -119,5 +119,16 @@ export default class UserPrefs implements UserPreferencesInterface {
             console.log(userPrefs[prop])
             console.log(this[prop])
         }
+    }
+
+    public setPrefsToLocal() {
+        if (!localStorage) return
+        localStorage.setItem('hasLocalPrefs', 'true')
+        if (this.tempUnit)
+            localStorage.setItem('tempUnit', this.tempUnit)
+        if (this.windSpeedUnit)
+            localStorage.setItem('windSpeedUnit', this.windSpeedUnit)
+        if (this.precipitationUnit)
+            localStorage.setItem('precipitationUnit', this.precipitationUnit)
     }
 }
