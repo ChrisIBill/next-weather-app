@@ -38,9 +38,6 @@ export default function Page({
     return (
         <div className={styles.weatherPage}>
             <WeatherCards />
-            <h1>My Page</h1>
-            <h2>params: {params.slug}</h2>
-            <h2>searchParams: {JSON.stringify(searchParams)}</h2>
         </div>
     )
 }
