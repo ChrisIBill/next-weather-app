@@ -45,13 +45,17 @@ export default function SearchBar() {
     useEffect(() => {
         if ('geolocation' in navigator) {
             // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
+            console.log("here")
             navigator.geolocation.getCurrentPosition(({ coords }) => {
+                console.log("here2")
                 const { latitude, longitude } = coords
+                console.log("Coords: ", coords)
                 setLocation({ latitude, longitude })
                 router.replace(`/weather?lat=${latitude}&lon=${longitude}`)
             })
         }
     }, [router])
+
     return (
         <TextField
             className={styles.searchBar}

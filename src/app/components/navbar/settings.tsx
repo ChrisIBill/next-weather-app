@@ -3,7 +3,7 @@
 import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './settings.module.css'
 import { IconButton, Menu, MenuItem } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import UserPrefs, {
     MeasurementUnits,
     TemperatureUnitType,
@@ -17,7 +17,7 @@ interface Preferences {
     PrecipitationUnit: 'in' | 'mm' | 'cm'
 }
 
-export default function Settings() {
+export default function Settings(User: UserPrefs) {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
 
@@ -26,10 +26,10 @@ export default function Settings() {
     const precipUnits = MeasurementUnits.PrecipitationUnits
 
     const [tempPref, setTempPref] =
-        React.useState<TemperatureUnitType>('Fahrenheit')
-    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>('Mph')
+        React.useState<TemperatureUnitType>(User.tempUnit ? User.tempUnit : 'Fahrenheit')
+    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(User.windSpeedUnit ? User.windSpeedUnit : 'Mph')
     const [precipPref, setPrecipPref] =
-        React.useState<PrecipitationUnitType>('in')
+        React.useState<PrecipitationUnitType>(User.precipitationUnit ? User.precipitationUnit : 'in')
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -52,6 +52,7 @@ export default function Settings() {
                 break
             }
         }
+        //User.setTempUnit(tempPref)
     }
     const handleWindSpeedItem = () => {
         switch (windPref) {
@@ -68,6 +69,7 @@ export default function Settings() {
                 break
             }
         }
+        //User.setWindSpeedUnit(windPref)
     }
     const handlePrecipitationItem = () => {
         switch (precipPref) {
@@ -84,7 +86,19 @@ export default function Settings() {
                 break
             }
         }
+        //User.setPrecipitationUnit(precipPref)
     }
+
+    useEffect(() => {
+        let ignore = true
+        if (!open && !ignore) {
+            //TODO: Make this more efficient
+            User.setPrefsToLocal()
+        } else if (!ignore) {
+            //need to ignore on initial render, so on first run just set ignore to true
+            ignore = false
+        }
+    }, [open, User, tempPref, windPref, precipPref])
 
     return (
         <div className={styles.settingsWrapper}>
