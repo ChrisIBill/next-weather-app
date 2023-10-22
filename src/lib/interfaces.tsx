@@ -1,3 +1,38 @@
+export interface WeatherMetadata {
+    latitude: string;
+    longitude: string;
+    elevation: string;
+    generationTime: string;
+    timezone: string;
+}
+export interface CurrentWeatherReportType {
+    units: {}
+    weather: {
+
+    }
+}
+export interface DailyWeatherCardType {
+    daily_weather?: {
+        weathercode: string;
+        temperature_2m_max: string;
+        temperature_2m_min: string;
+        apparent_temperature_max: string;
+        apparent_temperature_min: string;
+        sunrise: string;
+        sunset: string;
+        uv_index_max: string;
+        precipitation_sum: string;
+        rain_sum: string;
+        showers_sum: string;
+        snowfall_sum: string;
+        precipitation_hours: string;
+        precipitation_probability_max: string;
+        windspeed_10m_max: string;
+        windgusts_10m_max: string;
+        winddirection_10m_dominant: string;
+        hourly_weather: []
+    }
+}
 export interface CoordinatesType {
     latitude: number
     longitude: number
@@ -154,4 +189,4 @@ export interface CurrentWeatherData {
         feels: number
     }
 }
-export interface SanitizedWeekWeatherData {}
+export interface SanitizedWeekWeatherData { }
