@@ -1,16 +1,18 @@
 'use client'
 
 import { TextField } from '@mui/material'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 import styles from './search-bar.module.css'
+import { CoordinatesType } from '@/lib/interfaces'
 
 export default function SearchBar() {
     const router = useRouter()
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
 
     const [userAddress, setUserAddress] = useState<string>('')
     const [isInputError, setIsInputError] = useState<boolean>(false)
-    const [isValid, setIsValid] = useState<boolean>(false)
     const [helperText, setHelperText] = useState<string>('')
     const [location, setLocation] = useState<CoordinatesType>()
 
@@ -20,9 +22,6 @@ export default function SearchBar() {
             if (zipCodeRegEx.test(userAddress)) {
                 console.log('Enter key pressed')
                 setIsInputError(false)
-                router.replace(`/weather?zipCode={}`)
-                //getGeocode(zipCode).then((value) => submitCoords(value))
-                //setIsValid(true);
             } else {
                 setHelperText('Please enter a valid 5 digit US Zip Code')
                 setIsInputError(true)
@@ -42,19 +41,34 @@ export default function SearchBar() {
             setHelperText('Please enter numbers only')
         }
     }
+
+    const createQueryString = useCallback(
+        (name: string, value: string) => {
+            const params = new URLSearchParams(searchParams)
+            params.set(name, value)
+
+            return params.toString()
+        },
+        [searchParams]
+    )
+
     useEffect(() => {
         if ('geolocation' in navigator) {
             // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
-            console.log("here")
             navigator.geolocation.getCurrentPosition(({ coords }) => {
-                console.log("here2")
                 const { latitude, longitude } = coords
-                console.log("Coords: ", coords)
-                setLocation({ latitude, longitude })
-                router.replace(`/weather?lat=${latitude}&lon=${longitude}`)
+                console.log('Coords: ', coords)
+                //TODO: cant update router and state at same time, need to decide if state is needed
+                //setLocation({ latitude, longitude })
+                router.push(
+                    '/weather?' +
+                        createQueryString('lat', latitude.toString()) +
+                        '&' +
+                        createQueryString('lon', longitude.toString())
+                )
             })
         }
-    }, [router])
+    }, [createQueryString, router])
 
     return (
         <TextField
