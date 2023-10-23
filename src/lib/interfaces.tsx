@@ -1,3 +1,8 @@
+export interface UserWeatherDataType {
+    metadata: WeatherMetadata
+    current: CurrentWeatherDataType
+    daily: DailyWeatherCardType[]
+}
 export interface WeatherMetadata {
     latitude: string
     longitude: string
@@ -5,7 +10,7 @@ export interface WeatherMetadata {
     timezone: string
     generationTime?: string
 }
-export interface CurrentWeatherReportType {
+export interface CurrentWeatherDataType {
     units: {}
     weather: {}
 }

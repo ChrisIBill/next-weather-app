@@ -1,4 +1,8 @@
-import { DailyWeatherCardType, HourlyWeatherDataType } from './interfaces'
+import {
+    DailyWeatherCardType,
+    HourlyWeatherDataType,
+    UserWeatherDataType,
+} from './interfaces'
 
 function getApiMetadata(weatherApiData: any) {
     try {
@@ -13,7 +17,7 @@ function getApiMetadata(weatherApiData: any) {
     }
 }
 
-export function forecastFormater(weatherApiData: any) {
+export function forecastFormater(weatherApiData: any): string {
     //TODO: add error handling
     const metadata = getApiMetadata(weatherApiData)
     const current_weather = {
@@ -24,7 +28,7 @@ export function forecastFormater(weatherApiData: any) {
     const weather_forecast: DailyWeatherCardType[] = new Array(8).fill({})
     const adf = weatherApiData.daily
     const hdf = weatherApiData.hourly
-    const hdf_keys = weatherApiData.hourly.Object.keys()
+    const hdf_keys = Object.keys(weatherApiData.hourly)
 
     function getHourlyWeather(
         date: string,
@@ -42,6 +46,7 @@ export function forecastFormater(weatherApiData: any) {
         })
         return ret
     }
+    console.log('adf', adf)
 
     weather_forecast.forEach((day, index) => {
         day = {
@@ -70,6 +75,10 @@ export function forecastFormater(weatherApiData: any) {
             },
         }
     })
-    return { metadata, current_weather, weather_forecast }
+    return JSON.stringify({
+        metadata: metadata,
+        current: current_weather,
+        daily: weather_forecast,
+    })
     //return {metadata, current_weather, weather_forecast[8]}
 }

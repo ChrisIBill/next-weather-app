@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import styles from './layout.module.css'
 import NavBar from './components/navbar/navbar'
+import UserPrefs from '../lib/user'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,6 +17,7 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
+    const User = new UserPrefs()
     return (
         <html lang="en">
             <body className={inter.className}>

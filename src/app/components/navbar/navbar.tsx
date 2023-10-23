@@ -2,8 +2,9 @@ import { AppBar, Toolbar } from '@mui/material'
 import styles from './navbar.module.css'
 import SearchBar from './search-bar'
 import Settings from './settings'
+import UserPrefs from '@/lib/user'
 
-export default function NavBar() {
+const NavBar: React.FC<UserPrefs> = () => {
     //TODO: If mobile, render navbar in footer
     return (
         <header className={styles.header}>
@@ -16,10 +17,12 @@ export default function NavBar() {
                     </div>
                     <div className={styles.itemsWrapper}>
                         <SearchBar />
-                        <Settings />
+                        {/*<Settings />*/}
                     </div>
                 </Toolbar>
             </AppBar>
         </header>
     )
 }
+
+export default NavBar

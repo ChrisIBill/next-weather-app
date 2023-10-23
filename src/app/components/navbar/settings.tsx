@@ -17,7 +17,7 @@ interface Preferences {
     PrecipitationUnit: 'in' | 'mm' | 'cm'
 }
 
-export default function Settings(User: UserPrefs) {
+export default function Settings() {
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
 
@@ -25,11 +25,15 @@ export default function Settings(User: UserPrefs) {
     const windUnits = MeasurementUnits.WindSpeedUnits
     const precipUnits = MeasurementUnits.PrecipitationUnits
 
-    const [tempPref, setTempPref] =
-        React.useState<TemperatureUnitType>(User.tempUnit ? User.tempUnit : 'Fahrenheit')
-    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(User.windSpeedUnit ? User.windSpeedUnit : 'Mph')
-    const [precipPref, setPrecipPref] =
-        React.useState<PrecipitationUnitType>(User.precipitationUnit ? User.precipitationUnit : 'in')
+    const [tempPref, setTempPref] = React.useState<TemperatureUnitType>(
+        User.tempUnit ? User.tempUnit : 'Fahrenheit'
+    )
+    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(
+        User.windSpeedUnit ? User.windSpeedUnit : 'Mph'
+    )
+    const [precipPref, setPrecipPref] = React.useState<PrecipitationUnitType>(
+        User.precipitationUnit ? User.precipitationUnit : 'in'
+    )
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)

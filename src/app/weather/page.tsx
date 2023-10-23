@@ -4,6 +4,11 @@ import WeatherCards from '../components/weatherCards/weatherCards'
 import styles from './page.module.css'
 import { getWeather } from './actions'
 import { CoordinatesType } from '../geolocation/geolocation'
+import {
+    CurrentWeatherDataType,
+    DailyWeatherCardType,
+    WeatherMetadata,
+} from '@/lib/interfaces'
 
 const WeatherAPISrc = `FarTestWeatherData.json`
 
@@ -14,6 +19,11 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
+    const [currentWeather, setCurrentWeather] =
+        useState<CurrentWeatherDataType>()
+    const [weatherForecast, setWeatherForecast] =
+        useState<DailyWeatherCardType[]>()
     const [userWeather, setUserWeather] = useState<any>()
 
     //get user coordinates from search params
@@ -28,8 +38,16 @@ export default function Page({
     //use server action to fetch weather data from API
     if (!userWeather) {
         getWeather(coords)
-            .then((value) => setUserWeather(value))
-            .then(() => console.log(userWeather))
+            .then((value) => {
+                setWeatherMetadata(value.metadata)
+                setCurrentWeather(value.current)
+                setWeatherForecast(value.daily)
+            })
+            .then(() => {
+                console.log(weatherMetadata)
+                console.log(currentWeather)
+                console.log(weatherForecast)
+            })
     } else {
         console.log('user weather already set')
         console.log(userWeather)
@@ -37,7 +55,7 @@ export default function Page({
 
     return (
         <div className={styles.weatherPage}>
-            <WeatherCards />
+            <WeatherCards getWeather={getWeather} />
         </div>
     )
 }

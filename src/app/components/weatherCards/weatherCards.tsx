@@ -1,7 +1,11 @@
 import WeatherCard from './weatherCard'
 import styles from './weatherCards.module.css'
 
-export default function WeatherCards() {
+export default function WeatherCards({
+    getWeather,
+}: {
+    getWeather: () => void
+}) {
     //need a generator to create the formatted data for the cards
     const cardData = [
         {

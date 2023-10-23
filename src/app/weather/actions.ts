@@ -1,5 +1,6 @@
 'use server'
 
+import { forecastFormater } from '@/lib/forecast-shaper'
 import { CoordinatesType } from '@/lib/interfaces'
 
 const WeatherAPISrc = '/SampleWeatherData.json'
@@ -11,8 +12,8 @@ export async function getWeather(coords: CoordinatesType) {
         console.error(result.status)
         throw new Error('Error with fetching weather data')
     }
-
-    return result.json()
+    return forecastFormater(await result.json())
+    //return result.json()
     //    return fetch(process.env.URL + WeatherAPISrc)
     //        .then((res) => res.json())
     //        .then(
