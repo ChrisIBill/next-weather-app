@@ -20,27 +20,36 @@ function dayLengthCalculator(
     if (sunsetMinutes > sunriseMinutes) return sunsetMinutes - sunriseMinutes
     else return 1440 - sunriseMinutes + sunsetMinutes
 }
+export function numberToHourString(num: number): string {
+    return num < 10 ? '0' + num.toString() : num.toString()
+}
 function calcDayNightColorGradient(
     curTime: number,
     sunrise: number,
     sunset: number,
     dayLength: number
-) {
+): string {
     //calculates the percentage of the day that has passed, and returns a number between 6 and 18
     //or if before sunrise or after sunset, returns a number between 0 and 6 or 18 and 24
     if (curTime < sunrise) {
         console.info('Good Morning')
         const timeBeforeSunrise = sunrise - curTime
-        return Math.round((timeBeforeSunrise / dayLength) * 6)
+        return numberToHourString(
+            Math.round((timeBeforeSunrise / dayLength) * 6)
+        )
     } else if (curTime > sunset) {
         console.info('Good Evening')
         const timeAfterSunset = curTime - sunset
-        return Math.round((timeAfterSunset / dayLength) * 6) + 18
+        return numberToHourString(
+            Math.round((timeAfterSunset / dayLength) * 6) + 18
+        )
     } else {
         //should be daytime
         console.info('Good Day')
         const timeSinceSunrise = curTime - sunrise
-        return Math.round((timeSinceSunrise / dayLength) * 12) + 6
+        return numberToHourString(
+            Math.round((timeSinceSunrise / dayLength) * 12) + 6
+        )
     }
 }
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
@@ -71,9 +80,7 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
             <div
                 id={styles.dayNightColorLayer}
                 className={styles[dayNightColorStyle]}
-            >
-                {dayNightColorStyle}
-            </div>
+            ></div>
         </div>
     )
 }
