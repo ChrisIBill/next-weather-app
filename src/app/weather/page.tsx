@@ -65,9 +65,9 @@ export default function Page({
             <WeatherCards getWeather={getWeather} />
             {currentWeather ? (
                 <DayNightColorLayer
-                    time={currentWeather.time}
-                    sunrise={currentWeather.sunrise}
-                    sunset={currentWeather.sunset}
+                    time={currentWeather.time.split('T')[1]}
+                    sunrise={currentWeather.sunrise.split('T')[1]}
+                    sunset={currentWeather.sunset.split('T')[1]}
                 />
             ) : (
                 <></>
