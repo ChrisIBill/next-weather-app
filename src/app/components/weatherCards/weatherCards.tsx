@@ -1,10 +1,11 @@
+import { CoordinatesType } from '@/app/geolocation/page'
 import WeatherCard from './weatherCard'
 import styles from './weatherCards.module.css'
 
 export default function WeatherCards({
     getWeather,
 }: {
-    getWeather: () => void
+    getWeather: (coords: CoordinatesType) => Promise<string>
 }) {
     //need a generator to create the formatted data for the cards
     const cardData = [

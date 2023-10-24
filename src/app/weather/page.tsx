@@ -36,25 +36,28 @@ export default function Page({
     } else console.log(coords)
 
     //use server action to fetch weather data from API
-    if (!userWeather) {
+    if (!weatherMetadata) {
         getWeather(coords)
+            .then((response) => {
+                console.log('response from getWeather')
+                console.log(response)
+                return JSON.parse(response)
+            })
             .then((value) => {
+                console.log('value from getWeather')
+                console.log(value)
                 setWeatherMetadata(value.metadata)
                 setCurrentWeather(value.current)
                 setWeatherForecast(value.daily)
             })
-            .then(() => {
-                console.log(weatherMetadata)
-                console.log(currentWeather)
-                console.log(weatherForecast)
-            })
     } else {
         console.log('user weather already set')
-        console.log(userWeather)
+        console.log(weatherMetadata)
     }
 
     return (
         <div className={styles.weatherPage}>
+            <WeatherReport getWeather={getWeather} />
             <WeatherCards getWeather={getWeather} />
         </div>
     )

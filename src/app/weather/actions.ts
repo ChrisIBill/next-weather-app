@@ -6,7 +6,10 @@ import { CoordinatesType } from '@/lib/interfaces'
 const WeatherAPISrc = '/SampleWeatherData.json'
 
 export async function getWeather(coords: CoordinatesType) {
-    const result = await fetch(process.env.URL + WeatherAPISrc)
+    //TODO: cache handling
+    const result = await fetch(process.env.URL + WeatherAPISrc, {
+        cache: 'no-store',
+    })
 
     if (!result.ok) {
         console.error(result.status)

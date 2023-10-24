@@ -46,7 +46,6 @@ export function forecastFormater(weatherApiData: any): string {
         })
         return ret
     }
-    console.log('adf', adf)
 
     weather_forecast.forEach((day, index) => {
         day = {
