@@ -23,6 +23,8 @@ function dayLengthCalculator(
 export function numberToHourString(num: number): string {
     return num < 10 ? '0' + num.toString() : num.toString()
 }
+//
+function calcPercentOfDayNight() {}
 function calcDayNightColorGradient(
     curTime: number,
     sunrise: number,
@@ -31,15 +33,22 @@ function calcDayNightColorGradient(
 ): string {
     //calculates the percentage of the day that has passed, and returns a number between 6 and 18
     //or if before sunrise or after sunset, returns a number between 0 and 6 or 18 and 24
+    const nightLength = 1440 - dayLength
+    const morningTime = nightLength - sunrise
     if (curTime < sunrise) {
         console.info('Good Morning')
         const timeBeforeSunrise = sunrise - curTime
+        //TODO: Move this elsewhere
+        const nightPercent = (morningTime + curTime) / nightLength
+        console.log('nightPercent', nightPercent)
         return numberToHourString(
             Math.round((timeBeforeSunrise / dayLength) * 6)
         )
     } else if (curTime > sunset) {
         console.info('Good Evening')
         const timeAfterSunset = curTime - sunset
+        const nightPercent = timeAfterSunset / nightLength
+        console.log('nightPercent', nightPercent)
         return numberToHourString(
             Math.round((timeAfterSunset / dayLength) * 6) + 18
         )
@@ -47,6 +56,8 @@ function calcDayNightColorGradient(
         //should be daytime
         console.info('Good Day')
         const timeSinceSunrise = curTime - sunrise
+        const dayPercent = timeSinceSunrise / dayLength
+        console.log('dayPercent', dayPercent)
         return numberToHourString(
             Math.round((timeSinceSunrise / dayLength) * 12) + 6
         )
