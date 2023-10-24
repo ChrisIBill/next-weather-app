@@ -20,10 +20,10 @@ function getApiMetadata(weatherApiData: any) {
 export function forecastFormater(weatherApiData: any): string {
     //TODO: add error handling
     const metadata = getApiMetadata(weatherApiData)
-    const current_weather = {
-        units: weatherApiData.current_units,
-        weather: weatherApiData.current,
-    }
+    const current_weather = weatherApiData.current
+    //NOTE: are we certain that the first index of each array is the current weather?
+    current_weather.sunrise = weatherApiData.daily.sunrise[0]
+    current_weather.sunset = weatherApiData.daily.sunset[0]
 
     const weather_forecast: DailyWeatherCardType[] = new Array(8).fill({})
     const adf = weatherApiData.daily

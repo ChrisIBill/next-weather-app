@@ -9,8 +9,8 @@ import {
     DailyWeatherCardType,
     WeatherMetadata,
 } from '@/lib/interfaces'
-
-const WeatherAPISrc = `FarTestWeatherData.json`
+import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
+import { DayNightColorLayer } from '../components/dayNightColorLayer'
 
 export default function Page({
     params,
@@ -57,8 +57,21 @@ export default function Page({
 
     return (
         <div className={styles.weatherPage}>
-            <WeatherReport getWeather={getWeather} />
+            {currentWeather ? (
+                <WeatherReport currentWeather={currentWeather} />
+            ) : (
+                <>Loading</>
+            )}
             <WeatherCards getWeather={getWeather} />
+            {currentWeather ? (
+                <DayNightColorLayer
+                    time={currentWeather.time}
+                    sunrise={currentWeather.sunrise}
+                    sunset={currentWeather.sunset}
+                />
+            ) : (
+                <></>
+            )}
         </div>
     )
 }

@@ -11,8 +11,24 @@ export interface WeatherMetadata {
     generationTime?: string
 }
 export interface CurrentWeatherDataType {
-    units: {}
-    weather: {}
+    time: string
+    interval: string
+    temperature_2m: string
+    relativehumidity_2m: string
+    apparent_temperature: string
+    precipitation: string
+    rain: string
+    showers: string
+    snowfall: string
+    weathercode: string
+    cloudcover: string
+    pressure_msl: string
+    surface_pressure: string
+    windspeed_10m: string
+    winddirection_10m: string
+    windgusts_10m: string
+    sunrise: string
+    sunset: string
 }
 export interface HourlyWeatherDataType {
     [propName: string]: string
