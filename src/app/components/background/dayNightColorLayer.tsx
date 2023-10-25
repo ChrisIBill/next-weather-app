@@ -3,7 +3,6 @@
 import { clockTimeToMinutes } from '@/lib/lib'
 import styles from './dayNightColorLayer.module.css'
 import { CelestialIconsHandler } from './celestialIcons'
-import { useCircularInputContext } from 'react-circular-input'
 
 export interface ColorLayerProps {
     time: string
