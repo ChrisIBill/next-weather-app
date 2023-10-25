@@ -25,6 +25,12 @@ export function weatherImgGenerator(str: string | undefined) {
     }
 }
 
+/**
+ * Returns a promis that resolves if cancelled
+ *
+ * @param {Promise<any | void>} promise - [TODO:description]
+ * @returns {[TODO:type]} [TODO:description]
+ */
 export const cancellablePromise = (promise: Promise<any | void>) => {
     const isCancelled = { value: false }
     const wrappedPromise = new Promise((resolve, reject) => {
@@ -45,7 +51,13 @@ export const cancellablePromise = (promise: Promise<any | void>) => {
     }
 }
 
-export function clockTimeToMinutes(time: string) {
+/**
+ * @description HH:MM to minutes
+ *
+ * @param {string} time - [string of format HH:MM]
+ * @returns {number} - [number of minutes]
+ */
+export function clockTimeToMinutes(time: string): number {
     const [hours, minutes] = time.split(':')
     return parseInt(hours) * 60 + parseInt(minutes)
 }
