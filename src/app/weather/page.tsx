@@ -10,7 +10,8 @@ import {
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
-import { DayNightColorLayer } from '../components/dayNightColorLayer'
+import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
+import { MoonIcon, SunIcon } from '../components/icons'
 
 export default function Page({
     params,

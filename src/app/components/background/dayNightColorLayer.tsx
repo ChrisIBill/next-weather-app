@@ -2,6 +2,8 @@
 //      as might appear in the far north or south.  For example, in Tromso, Norway,
 import { clockTimeToMinutes } from '@/lib/lib'
 import styles from './dayNightColorLayer.module.css'
+import { CelestialIconsHandler } from './celestialIcons'
+import { useCircularInputContext } from 'react-circular-input'
 
 export interface ColorLayerProps {
     time: string
@@ -23,46 +25,61 @@ function dayLengthCalculator(
 export function numberToHourString(num: number): string {
     return num < 10 ? '0' + num.toString() : num.toString()
 }
-//
-function calcPercentOfDayNight() {}
-function calcDayNightColorGradient(
+/**
+ * @description Calculates the percentage of the day/night that has passed.
+ *
+ * @param {number} curTime - [Current time in minutes]
+ * @param {number} sunrise - [Sunrise time in minutes]
+ * @param {number} sunset - [Sunset time in minutes]
+ * @param {number} dayLength - [length of day in minutes]
+ * @returns {number} [Number ranging from -1 to 1, with negatives representing night percentage]
+ */
+function calcPercentOfDayNight(
     curTime: number,
     sunrise: number,
     sunset: number,
     dayLength: number
-): string {
-    //calculates the percentage of the day that has passed, and returns a number between 6 and 18
-    //or if before sunrise or after sunset, returns a number between 0 and 6 or 18 and 24
+): { isDay: boolean; timePercent: number } {
+    //In standard time, night is from 6pm to 6am, or 18 to 6
     const nightLength = 1440 - dayLength
-    const morningTime = nightLength - sunrise
+
     if (curTime < sunrise) {
-        console.info('Good Morning')
-        const timeBeforeSunrise = sunrise - curTime
-        //TODO: Move this elsewhere
-        const nightPercent = (morningTime + curTime) / nightLength
+        //Time after sunset but before midnight
+        const eveningTime = nightLength - sunrise
+        const nightPercent = (eveningTime + curTime) / nightLength
         console.log('nightPercent', nightPercent)
-        return numberToHourString(
-            Math.round((timeBeforeSunrise / dayLength) * 6)
-        )
+        return { isDay: false, timePercent: nightPercent }
     } else if (curTime > sunset) {
-        console.info('Good Evening')
         const timeAfterSunset = curTime - sunset
         const nightPercent = timeAfterSunset / nightLength
         console.log('nightPercent', nightPercent)
-        return numberToHourString(
-            Math.round((timeAfterSunset / dayLength) * 6) + 18
-        )
+        return { isDay: false, timePercent: nightPercent }
     } else {
         //should be daytime
         console.info('Good Day')
         const timeSinceSunrise = curTime - sunrise
         const dayPercent = timeSinceSunrise / dayLength
         console.log('dayPercent', dayPercent)
-        return numberToHourString(
-            Math.round((timeSinceSunrise / dayLength) * 12) + 6
-        )
+        return { isDay: true, timePercent: dayPercent }
     }
 }
+/**
+ * Maps percentage of day/night to a number between 0 and 23
+ *
+ * @param {boolean} isDay - [TODO:description]
+ * @param {number} percent - [TODO:description]
+ * @returns {string} [TODO:description]
+ */
+function percentToGradientStringMapper(
+    isDay: boolean,
+    percent: number
+): string {
+    //Maps a number ranging from 0 to 1 to a number ranging from 0 to 11
+    //This is used to select the appropriate color gradient
+    if (isDay) return numberToHourString(Math.round(percent * 11) + 7)
+    else return numberToHourString((Math.round(percent * 11) + 19) % 24)
+}
+
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     time,
     sunrise,
@@ -77,17 +94,18 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
         sunrise && sunset
             ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
             : 720
-
-    const gradientHour = calcDayNightColorGradient(
+    const { isDay, timePercent } = calcPercentOfDayNight(
         curTimeMinutes,
         sunriseMinutes,
         sunsetMinutes,
         dayLength
     )
+    const gradientHour = percentToGradientStringMapper(isDay, timePercent)
     const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
     const className = styles[dayNightColorStyle + gradientHour]
     return (
         <div className={styles.wrapper}>
+            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
             <div
                 id={styles.dayNightColorLayer}
                 className={styles[dayNightColorStyle]}
