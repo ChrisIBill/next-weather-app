@@ -11,23 +11,6 @@ export const MoonIcon: React.FC<MoonIconProps> = ({
     inputContext,
     phase,
 }: MoonIconProps) => {
-    // console.log('inputContext')
-    // console.log(inputContext)
-    // const {
-    //     value,
-    //     radius,
-    //     center,
-    //     isFocused,
-    //     setFocused,
-    //     onChange,
-    //     getPointFromValue,
-    //     getValueFromPointerEvent,
-    // } = inputContext()
-    // const coords = getPointFromValue(value)
-    // console.log('coords: ', coords)
-    // const x = coords ? coords.x : 0
-    // const y = coords ? coords.y : 0
-    // return <text x={x} y={y} className={styles.moon}></text>
     return <div className={styles.moon}>Moon</div>
 }
 export interface SunIconProps {

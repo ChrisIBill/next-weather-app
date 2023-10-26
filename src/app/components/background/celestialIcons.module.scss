@@ -26,3 +26,23 @@
     width: 100%;
     height: 100%;
 }
+
+#textS {
+    color: #000;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Oswald', tahoma;
+    font-size: 40vw;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0.2;
+}
+
+.CelestialsSVG {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
