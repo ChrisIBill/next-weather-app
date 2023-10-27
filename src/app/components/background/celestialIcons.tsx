@@ -1,5 +1,4 @@
 'use client'
-import './celestialIcons.css'
 import React from 'react'
 import styles from './celestialIcons.module.scss'
 import { MoonIcon, SunIcon } from '../icons'
