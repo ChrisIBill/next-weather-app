@@ -23,7 +23,7 @@ export const MoonIcon: React.FC<MoonIconProps> = ({
     phase,
     condition,
 }: MoonIconProps) => {
-    return <div className={styles.moon}></div>
+    return <div className={styles.moonIcon}></div>
 }
 export interface SunIconProps extends IconProps {
     eclipse?: boolean
@@ -38,5 +38,5 @@ export const SunIcon: React.FC<SunIconProps> = ({
     eclipse,
     condition,
 }: SunIconProps) => {
-    return <div className={styles.sunIcon}>Sun</div>
+    return <div className={styles.sunIcon}></div>
 }
