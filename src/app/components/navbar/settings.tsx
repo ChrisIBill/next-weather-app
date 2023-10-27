@@ -9,6 +9,7 @@ import UserPrefs, {
     TemperatureUnitType,
     PrecipitationUnitType,
     WindSpeedUnitType,
+    UserPreferencesInterface,
 } from '@/lib/user'
 
 interface Preferences {
@@ -17,7 +18,10 @@ interface Preferences {
     PrecipitationUnit: 'in' | 'mm' | 'cm'
 }
 
-export default function Settings() {
+export interface SettingsProps {}
+
+export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
+    const User = new UserPrefs()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
 
@@ -39,6 +43,9 @@ export default function Settings() {
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
+        User.setTempUnit(tempPref)
+        User.setWindSpeedUnit(windPref)
+        User.setPrecipitationUnit(precipPref)
         setAnchorEl(null)
     }
     const handleTemperatureItem = () => {
@@ -92,17 +99,6 @@ export default function Settings() {
         }
         //User.setPrecipitationUnit(precipPref)
     }
-
-    useEffect(() => {
-        let ignore = true
-        if (!open && !ignore) {
-            //TODO: Make this more efficient
-            User.setPrefsToLocal()
-        } else if (!ignore) {
-            //need to ignore on initial render, so on first run just set ignore to true
-            ignore = false
-        }
-    }, [open, User, tempPref, windPref, precipPref])
 
     return (
         <div className={styles.settingsWrapper}>

@@ -17,7 +17,6 @@ export default function RootLayout({
 }: {
     children: React.ReactNode
 }) {
-    const User = new UserPrefs()
     return (
         <html lang="en">
             <body className={inter.className}>
