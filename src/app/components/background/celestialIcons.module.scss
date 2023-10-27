@@ -42,7 +42,14 @@
 
 .CelestialsSVG {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+}
+.svgCircle {
+    display: flex;
+    width: 16 rem;
+    height: 16rem;
+}
+.svgIconObject {
+    position: relative;
+    display: flex;
+    align-items: center;
 }

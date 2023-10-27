@@ -2,8 +2,8 @@
 }
 .moon {
     position: relative;
-    min-width: 8rem;
-    min-height: 8rem;
+    width: 100%;
+    height: 100%;
     background: #fff77e;
     border-radius: 50%;
     z-index: 1;
