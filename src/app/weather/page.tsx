@@ -12,6 +12,7 @@ import {
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
 import { MoonIcon, SunIcon } from '../components/icons'
+import { Background } from '../components/background/background'
 
 export default function Page({
     params,
@@ -64,15 +65,13 @@ export default function Page({
                 <>Loading</>
             )}
             <WeatherCards getWeather={getWeather} />
-            {currentWeather ? (
-                <DayNightColorLayer
-                    time={currentWeather.time.split('T')[1]}
-                    sunrise={currentWeather.sunrise.split('T')[1]}
-                    sunset={currentWeather.sunset.split('T')[1]}
-                />
-            ) : (
-                <></>
-            )}
+            <Background
+                timeObject={{
+                    currentTime: currentWeather?.time.split('T')[1],
+                    sunrise: currentWeather?.sunrise.split('T')[1],
+                    sunset: currentWeather?.sunset.split('T')[1],
+                }}
+            />
         </div>
     )
 }
