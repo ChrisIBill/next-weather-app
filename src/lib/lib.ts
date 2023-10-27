@@ -47,9 +47,42 @@ export const cancellablePromise = (promise: Promise<any | void>) => {
     }
 }
 
-export function clockTimeToMinutes(time: string) {
+/**
+ * converts a time string [HH:MM] to minutes
+ *
+ * @param {string} time - ["HH:MM"]
+ * @returns {number} time - minutes
+ */
+export function clockTimeToMinutes(time: string): number {
     const [hours, minutes] = time.split(':')
     return parseInt(hours) * 60 + parseInt(minutes)
+}
+
+/**
+ * takes number [0-23] and converts to string [00-23]
+ *
+ * @param {number} num - number [0-23]
+ * @returns {string} ["00"-"23"]
+ */
+export function numberToHourString(num: number): string {
+    return num < 10 ? '0' + num.toString() : num.toString()
+}
+
+/**
+ * @description calculates the length of the day in minutes
+ *
+ * @param {number} sunriseMinutes
+ * @param {number} sunsetMinutes
+ * @returns {number} - minutes in the day that the sun is up
+ */
+export function dayLengthCalculator(
+    sunriseMinutes: number,
+    sunsetMinutes: number
+): number {
+    // TODO: this likely fails tests, maintenance needed
+    return sunsetMinutes > sunriseMinutes
+        ? sunsetMinutes - sunriseMinutes
+        : 1440 - sunriseMinutes + sunsetMinutes
 }
 
 /**

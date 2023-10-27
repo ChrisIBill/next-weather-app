@@ -1,6 +1,10 @@
 //NOTE: Current implementation will struggle with unusual sunrise/sunset times
 //      as might appear in the far north or south.  For example, in Tromso, Norway,
-import { clockTimeToMinutes } from '@/lib/lib'
+import {
+    clockTimeToMinutes,
+    dayLengthCalculator,
+    numberToHourString,
+} from '@/lib/lib'
 import styles from './dayNightColorLayer.module.css'
 import { CelestialIconsHandler } from './celestialIcons'
 
@@ -10,20 +14,6 @@ export interface ColorLayerProps {
     sunset?: string
 }
 
-function dayLengthCalculator(
-    sunriseMinutes: number,
-    sunsetMinutes: number
-): number {
-    const dayLength =
-        sunriseMinutes > sunsetMinutes
-            ? 1440 - sunriseMinutes + sunsetMinutes
-            : sunsetMinutes - sunriseMinutes
-    if (sunsetMinutes > sunriseMinutes) return sunsetMinutes - sunriseMinutes
-    else return 1440 - sunriseMinutes + sunsetMinutes
-}
-export function numberToHourString(num: number): string {
-    return num < 10 ? '0' + num.toString() : num.toString()
-}
 /**
  * @description Calculates the percentage of the day/night that has passed.
  *
@@ -101,7 +91,6 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     )
     const gradientHour = percentToGradientStringMapper(isDay, timePercent)
     const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
-    const className = styles[dayNightColorStyle + gradientHour]
     return (
         <div className={styles.wrapper}>
             <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
