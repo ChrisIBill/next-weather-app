@@ -53,22 +53,32 @@ export default function SearchBar() {
     )
 
     useEffect(() => {
-        if ('geolocation' in navigator) {
+        console.log("LOC: ", location, typeof location)
+        if ('geolocation' in navigator && location === undefined) {
             // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
             navigator.geolocation.getCurrentPosition(({ coords }) => {
                 const { latitude, longitude } = coords
                 console.log('Coords: ', coords)
                 //TODO: cant update router and state at same time, need to decide if state is needed
-                //setLocation({ latitude, longitude })
-                router.push(
+                setLocation({ latitude, longitude })
+                router.replace(
                     '/weather?' +
-                        createQueryString('lat', latitude.toString()) +
-                        '&' +
-                        createQueryString('lon', longitude.toString())
+                    createQueryString('lat', latitude.toString()) +
+                    '&' +
+                    createQueryString('lon', longitude.toString())
                 )
             })
+        } else if (location !== undefined) {
+            if (pathname === '/') {
+                //Need to reroute to weather page
+                router.replace(
+                    '/weather?' +
+                    createQueryString('lat', location.latitude.toString()) +
+                    '&' +
+                    createQueryString('lon', location.longitude.toString()))
+            }
         }
-    }, [createQueryString, router])
+    }, [createQueryString, router, location, pathname])
 
     return (
         <TextField
