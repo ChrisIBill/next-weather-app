@@ -1,0 +1,55 @@
+.MuiSlider-track {
+    color: #fff;
+}
+.MuiSlider-thumb {
+    color: #fff;
+}
+.MuiSlider-rail {
+    color: #fff;
+}
+.wrapper {
+    box-sizing: content-box;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+}
+.celestialRail {
+    background-color: #fff;
+    color: #fff;
+}
+.celestialTrack {
+    background-color: #fff;
+    color: #fff;
+}
+.celestialIconWrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#textS {
+    color: #000;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Oswald', tahoma;
+    font-size: 40vw;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0.2;
+}
+
+.CelestialsSVG {
+    position: absolute;
+}
+.svgCircle {
+    display: flex;
+    width: 16 rem;
+    height: 16rem;
+}
+.svgIconObject {
+    position: relative;
+    display: flex;
+    align-items: center;
+}

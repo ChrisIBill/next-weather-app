@@ -25,7 +25,7 @@
         "windgusts_10m": "mp/h"
     },
     "current": {
-        "time": "2023-10-21T18:00",
+        "time": "2023-10-21T08:00",
         "interval": 900,
         "temperature_2m": 49.1,
         "relativehumidity_2m": 92,
