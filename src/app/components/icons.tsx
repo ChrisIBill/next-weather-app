@@ -1,6 +1,5 @@
 import React from 'react'
 import styles from './icons.module.css'
-import { useCircularInputContext } from 'react-circular-input'
 import { PosCoordinates } from '@/lib/interfaces'
 
 export interface IconProps {
