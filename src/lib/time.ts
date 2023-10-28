@@ -14,3 +14,11 @@ export function getDayOfWeek(date: string): string {
             cause: date,
         })
 }
+export function getDateObject(date: string): dayjs.Dayjs {
+    if (dayjs(date, 'YYYY-MM-DD', true).isValid()) {
+        return dayjs(date)
+    } else
+        throw new SyntaxError('Invalid date format, require YYYY-MM-DD', {
+            cause: date,
+        })
+}
