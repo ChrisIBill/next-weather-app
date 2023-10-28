@@ -6,11 +6,17 @@ import {
 
 function getApiMetadata(weatherApiData: any) {
     try {
+        const units = {
+            current: weatherApiData.current_units,
+            hourly: weatherApiData.hourly_units,
+            daily: weatherApiData.daily_units,
+        }
         return {
             latitude: weatherApiData.latitude,
             longitude: weatherApiData.longitude,
             timezone: weatherApiData.timezone,
             elevation: weatherApiData.elevation,
+            units: units,
         }
     } catch (e) {
         throw new Error('Error getting metadata from weatherApiData')
@@ -47,34 +53,36 @@ export function forecastFormater(weatherApiData: any): string {
         return ret
     }
 
-    const weather_forecast: DailyWeatherForecastType[] = new Array(8).fill({}).map(
-        (day, index) =>
-        (day = {
-            date: adf.time[index],
-            weathercode: adf.weathercode[index],
-            temperature_2m_max: adf.temperature_2m_max[index],
-            temperature_2m_min: adf.temperature_2m_min[index],
-            apparent_temperature_max:
-                adf.apparent_temperature_max[index],
-            apparent_temperature_min:
-                adf.apparent_temperature_min[index],
-            sunrise: adf.sunrise[index],
-            sunset: adf.sunset[index],
-            uv_index_max: adf.uv_index_max[index],
-            precipitation_sum: adf.precipitation_sum[index],
-            rain_sum: adf.rain_sum[index],
-            showers_sum: adf.showers_sum[index],
-            snowfall_sum: adf.snowfall_sum[index],
-            precipitation_hours: adf.precipitation_hours[index],
-            precipitation_probability_max:
-                adf.precipitation_probability_max[index],
-            windspeed_10m_max: adf.windspeed_10m_max[index],
-            windgusts_10m_max: adf.windgusts_10m_max[index],
-            winddirection_10m_dominant:
-                adf.winddirection_10m_dominant[index],
-            hourly_weather: getHourlyWeather(adf.time[index], index),
-        })
-    )
+    const weather_forecast: DailyWeatherForecastType[] = new Array(8)
+        .fill({})
+        .map(
+            (day, index) =>
+                (day = {
+                    date: adf.time[index],
+                    weathercode: adf.weathercode[index],
+                    temperature_2m_max: adf.temperature_2m_max[index],
+                    temperature_2m_min: adf.temperature_2m_min[index],
+                    apparent_temperature_max:
+                        adf.apparent_temperature_max[index],
+                    apparent_temperature_min:
+                        adf.apparent_temperature_min[index],
+                    sunrise: adf.sunrise[index],
+                    sunset: adf.sunset[index],
+                    uv_index_max: adf.uv_index_max[index],
+                    precipitation_sum: adf.precipitation_sum[index],
+                    rain_sum: adf.rain_sum[index],
+                    showers_sum: adf.showers_sum[index],
+                    snowfall_sum: adf.snowfall_sum[index],
+                    precipitation_hours: adf.precipitation_hours[index],
+                    precipitation_probability_max:
+                        adf.precipitation_probability_max[index],
+                    windspeed_10m_max: adf.windspeed_10m_max[index],
+                    windgusts_10m_max: adf.windgusts_10m_max[index],
+                    winddirection_10m_dominant:
+                        adf.winddirection_10m_dominant[index],
+                    hourly_weather: getHourlyWeather(adf.time[index], index),
+                })
+        )
     return JSON.stringify({
         metadata: metadata,
         current: current_weather,

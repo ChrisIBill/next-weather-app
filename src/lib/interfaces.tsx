@@ -7,11 +7,17 @@ export interface UserWeatherDataType {
     current: CurrentWeatherDataType
     daily: DailyWeatherForecastType[]
 }
+export interface WeatherUnitsType {
+    current: {}
+    hourly: {}
+    daily: {}
+}
 export interface WeatherMetadata {
     latitude: string
     longitude: string
     elevation: string
     timezone: string
+    units: WeatherUnitsType
     generationTime?: string
 }
 export interface CurrentWeatherDataType {
