@@ -1,19 +1,20 @@
 import { Card } from '@mui/material'
 import styles from './weatherCard.module.css'
+import { DailyWeatherForecastType } from '@/lib/interfaces'
+import { getDayOfWeek } from '@/lib/time'
 
 export interface WeatherCardProps {
-    datetime: string
-    max_temp: number
-    min_temp: number
-    max_app_temp: number
-    min_app_temp: number
+    weather: DailyWeatherForecastType
 }
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
+    const weather = props.weather
+    if (!weather) throw new Error('No weather data')
+    const dayOfWeek = getDayOfWeek(weather?.date)
     return (
         <Card className={styles.card} variant="elevation">
-            <h1>Weather Card</h1>
+            <h1>{dayOfWeek}</h1>
         </Card>
     )
 }

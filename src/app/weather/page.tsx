@@ -1,12 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
-import WeatherCards from '../components/weatherCards/weatherCards'
+import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.css'
 import { getWeather } from './actions'
 import { CoordinatesType } from '../geolocation/geolocation'
 import {
     CurrentWeatherDataType,
-    DailyWeatherCardType,
+    DailyWeatherForecastType,
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
@@ -25,7 +25,7 @@ export default function Page({
     const [currentWeather, setCurrentWeather] =
         useState<CurrentWeatherDataType>()
     const [weatherForecast, setWeatherForecast] =
-        useState<DailyWeatherCardType[]>()
+        useState<DailyWeatherForecastType[]>()
     const [userWeather, setUserWeather] = useState<any>()
 
     //get user coordinates from search params
@@ -64,7 +64,9 @@ export default function Page({
             ) : (
                 <>Loading</>
             )}
-            <WeatherCards getWeather={getWeather} />
+            {weatherForecast ? (
+                <WeatherCards weatherForecast={weatherForecast} />) :
+                <></>}
             <Background
                 timeObject={{
                     currentTime: currentWeather?.time.split('T')[1],

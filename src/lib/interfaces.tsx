@@ -5,7 +5,7 @@ export interface PosCoordinates {
 export interface UserWeatherDataType {
     metadata: WeatherMetadata
     current: CurrentWeatherDataType
-    daily: DailyWeatherCardType[]
+    daily: DailyWeatherForecastType[]
 }
 export interface WeatherMetadata {
     latitude: string
@@ -37,28 +37,26 @@ export interface CurrentWeatherDataType {
 export interface HourlyWeatherDataType {
     [propName: string]: string
 }
-export interface DailyWeatherCardType {
-    daily_weather?: {
-        date: string
-        weathercode: string
-        temperature_2m_max: string
-        temperature_2m_min: string
-        apparent_temperature_max: string
-        apparent_temperature_min: string
-        sunrise: string
-        sunset: string
-        uv_index_max: string
-        precipitation_sum: string
-        rain_sum: string
-        showers_sum: string
-        snowfall_sum: string
-        precipitation_hours: string
-        precipitation_probability_max: string
-        windspeed_10m_max: string
-        windgusts_10m_max: string
-        winddirection_10m_dominant: string
-        hourly_weather: HourlyWeatherDataType[]
-    }
+export interface DailyWeatherForecastType {
+    date: string
+    weathercode: string
+    temperature_2m_max: string
+    temperature_2m_min: string
+    apparent_temperature_max: string
+    apparent_temperature_min: string
+    sunrise: string
+    sunset: string
+    uv_index_max: string
+    precipitation_sum: string
+    rain_sum: string
+    showers_sum: string
+    snowfall_sum: string
+    precipitation_hours: string
+    precipitation_probability_max: string
+    windspeed_10m_max: string
+    windgusts_10m_max: string
+    winddirection_10m_dominant: string
+    hourly_weather: HourlyWeatherDataType[]
 }
 export interface CoordinatesType {
     latitude: number

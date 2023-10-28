@@ -1,48 +1,18 @@
 import { CoordinatesType } from '@/app/geolocation/page'
-import { WeatherCard } from './weatherCard'
+import { WeatherCard, WeatherCardProps } from './weatherCard'
 import styles from './weatherCards.module.css'
+import { DailyWeatherForecastType } from '@/lib/interfaces'
 
-export default function WeatherCards({
-    getWeather,
-}: {
-    getWeather: (coords: CoordinatesType) => Promise<string>
-}) {
+export interface WeatherCardsProps {
+    weatherForecast: DailyWeatherForecastType[]
+}
+export const WeatherCards: React.FC<WeatherCardsProps> = (props: WeatherCardsProps) => {
     //need a generator to create the formatted data for the cards
-    const cardData = [
-        {
-            day: 'Monday',
-            temp: 80,
-        },
-        {
-            day: 'Tuesday',
-            temp: 90,
-        },
-        {
-            day: 'Wednesday',
-            temp: 100,
-        },
-        {
-            day: 'Thursday',
-            temp: 110,
-        },
-        {
-            day: 'Friday',
-            temp: 105,
-        },
-        {
-            day: 'Saturday',
-            temp: 83,
-        },
-        {
-            day: 'Sunday',
-            temp: 53,
-        },
-    ]
-    const weatherCards = cardData.map((weather) => (
-        <div key={weather.day} className={styles.cardWrapper}>
-            <WeatherCard props={weather} />
+    const weatherCards = props.weatherForecast.map((weather) =>
+        <div key={weather.date} className={styles.cardWrapper}>
+            <WeatherCard weather={weather} />
         </div>
-    ))
+    )
     return (
         <div className={styles.cardsListWrapper}>
             <ul className={styles.cardsList}>{weatherCards}</ul>

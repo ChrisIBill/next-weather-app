@@ -4,7 +4,9 @@
     justify-content: space-around;
 }
 .cardsListWrapper {
-    flex: 1;
+    width: 100%;
+    position: relative;
+    z-index: 10;
 }
 .cardWrapper {
     margin: 0.5rem;
