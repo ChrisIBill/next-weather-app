@@ -1,5 +1,5 @@
 import { CoordinatesType } from '@/app/geolocation/page'
-import WeatherCard from './weatherCard'
+import { WeatherCard } from './weatherCard'
 import styles from './weatherCards.module.css'
 
 export default function WeatherCards({
@@ -40,7 +40,7 @@ export default function WeatherCards({
     ]
     const weatherCards = cardData.map((weather) => (
         <div key={weather.day} className={styles.cardWrapper}>
-            <WeatherCard cardProps={weather} />
+            <WeatherCard props={weather} />
         </div>
     ))
     return (
