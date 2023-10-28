@@ -24,9 +24,9 @@ export default function Page({
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [currentWeather, setCurrentWeather] =
         useState<CurrentWeatherDataType>()
-    const [weatherForecast, setWeatherForecast] =
-        useState<DailyWeatherForecastType[]>()
-    const [userWeather, setUserWeather] = useState<any>()
+    const [weatherForecast, setWeatherForecast] = useState<
+        DailyWeatherForecastType[]
+    >(Array(8).fill({}))
 
     //get user coordinates from search params
     const coords: CoordinatesType = {
@@ -41,20 +41,13 @@ export default function Page({
     if (!weatherMetadata) {
         getWeather(coords)
             .then((response) => {
-                console.log('response from getWeather')
-                console.log(response)
                 return JSON.parse(response)
             })
             .then((value) => {
-                console.log('value from getWeather')
-                console.log(value)
                 setWeatherMetadata(value.metadata)
                 setCurrentWeather(value.current)
                 setWeatherForecast(value.daily)
             })
-    } else {
-        console.log('user weather already set')
-        console.log(weatherMetadata)
     }
 
     return (
@@ -64,9 +57,7 @@ export default function Page({
             ) : (
                 <>Loading</>
             )}
-            {weatherForecast ? (
-                <WeatherCards weatherForecast={weatherForecast} />) :
-                <></>}
+            <WeatherCards weatherForecast={weatherForecast} />
             <Background
                 timeObject={{
                     currentTime: currentWeather?.time.split('T')[1],
