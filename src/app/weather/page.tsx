@@ -7,12 +7,31 @@ import { CoordinatesType } from '../geolocation/geolocation'
 import {
     CurrentWeatherDataType,
     DailyWeatherForecastType,
+    LocationType,
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
 import { MoonIcon, SunIcon } from '../components/icons'
 import { Background } from '../components/background/background'
+
+function handleWeatherSearch(searchParams: {
+    [key: string]: string | string[] | undefined
+}): LocationType {
+    if (searchParams.address)
+        return { address: searchParams.address.toString() }
+    else if (
+        searchParams.lat &&
+        searchParams.lon &&
+        typeof searchParams.lat == 'string' &&
+        typeof searchParams.lon == 'string'
+    )
+        return {
+            latitude: parseFloat(searchParams.lat),
+            longitude: parseFloat(searchParams.lon),
+        }
+    else throw new Error('Invalid search parameters')
+}
 
 export default function Page({
     params,
@@ -29,17 +48,11 @@ export default function Page({
     >(Array(8).fill({}))
 
     //get user coordinates from search params
-    const coords: CoordinatesType = {
-        latitude: searchParams.lat ? Number(searchParams.lat) : 404,
-        longitude: searchParams.lon ? Number(searchParams.lon) : 404,
-    }
-    if (coords.latitude == 404 || coords.longitude == 404) {
-        throw new Error('No coordinates found')
-    } else console.log(coords)
+    const location = handleWeatherSearch(searchParams)
 
     //use server action to fetch weather data from API
     if (!weatherMetadata) {
-        getWeather(coords)
+        getWeather(location)
             .then((response) => {
                 return JSON.parse(response)
             })

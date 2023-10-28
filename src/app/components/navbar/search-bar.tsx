@@ -17,11 +17,22 @@ export default function SearchBar() {
     const [location, setLocation] = useState<CoordinatesType>()
 
     const zipCodeRegEx = /(^\d{5}$)|(^\d{9}$)|(^\d{5}-\d{4}$)/
+    const cityStateRegEx = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/
     const handleEnterKey = async (e: { keyCode: number }) => {
         if (e.keyCode == 13) {
             if (zipCodeRegEx.test(userAddress)) {
                 console.log('Enter key pressed')
                 setIsInputError(false)
+                router.replace(
+                    '/weather?' +
+                        createQueryString('address', userAddress.toString())
+                )
+            } else if (cityStateRegEx.test(userAddress)) {
+                setIsInputError(false)
+                router.replace(
+                    '/weather?' +
+                        createQueryString('address', userAddress.toString())
+                )
             } else {
                 setHelperText('Please enter a valid 5 digit US Zip Code')
                 setIsInputError(true)
@@ -53,8 +64,9 @@ export default function SearchBar() {
     )
 
     useEffect(() => {
-        console.log("LOC: ", location, typeof location)
+        console.log('LOC: ', location, typeof location)
         if ('geolocation' in navigator && location === undefined) {
+            console.log('Geolocation available')
             // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API
             navigator.geolocation.getCurrentPosition(({ coords }) => {
                 const { latitude, longitude } = coords
@@ -63,9 +75,9 @@ export default function SearchBar() {
                 setLocation({ latitude, longitude })
                 router.replace(
                     '/weather?' +
-                    createQueryString('lat', latitude.toString()) +
-                    '&' +
-                    createQueryString('lon', longitude.toString())
+                        createQueryString('lat', latitude.toString()) +
+                        '&' +
+                        createQueryString('lon', longitude.toString())
                 )
             })
         } else if (location !== undefined) {
@@ -73,9 +85,10 @@ export default function SearchBar() {
                 //Need to reroute to weather page
                 router.replace(
                     '/weather?' +
-                    createQueryString('lat', location.latitude.toString()) +
-                    '&' +
-                    createQueryString('lon', location.longitude.toString()))
+                        createQueryString('lat', location.latitude.toString()) +
+                        '&' +
+                        createQueryString('lon', location.longitude.toString())
+                )
             }
         }
     }, [createQueryString, router, location, pathname])

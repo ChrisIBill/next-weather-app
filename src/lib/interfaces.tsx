@@ -1,3 +1,12 @@
+export interface LocationType {
+    zipCode?: string
+    city?: string
+    state?: string
+    country?: string
+    address?: string
+    latitude?: number
+    longitude?: number
+}
 export interface PosCoordinates {
     x: number
     y: number
