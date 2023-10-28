@@ -9,14 +9,17 @@ const DEFAULT_WEATHER_PARAMS =
 
 export async function getWeather(coords: CoordinatesType) {
     //TODO: cache handling
-    const reqURL =
-        process.env.OPEN_METEO_API_URL +
-        `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
-        DEFAULT_WEATHER_PARAMS
-    console.log('reqURL: ', reqURL)
-    const result = await fetch(reqURL, {
-        next: { revalidate: 3600 },
+    const testURL = process.env.URL + WeatherAPISrc
+    const result = await fetch(testURL, {
+        cache: 'no-cache',
     })
+    //    const reqURL =
+    //        process.env.OPEN_METEO_API_URL +
+    //        `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
+    //        DEFAULT_WEATHER_PARAMS
+    //    const result = await fetch(testURL, {
+    //        next: { revalidate: 3600 },
+    //    })
 
     if (!result.ok) {
         console.error(result.status)
