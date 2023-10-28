@@ -1,7 +1,7 @@
-import { Card } from '@mui/material'
+import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import styles from './weatherCard.module.css'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
-import { getDayOfWeek } from '@/lib/time'
+import { getDateObject } from '@/lib/time'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
@@ -11,10 +11,58 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 ) => {
     const weather = props.weather
     if (!weather) throw new Error('No weather data')
-    const dayOfWeek = getDayOfWeek(weather?.date)
+    const date = getDateObject(weather.date)
     return (
-        <Card className={styles.card} variant="elevation">
-            <h1>{dayOfWeek}</h1>
+        <Card
+            className={styles.weatherCard}
+            variant="elevation"
+            sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                borderRadius: '16px',
+                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+            }}
+        >
+            <CardActionArea className={styles.actionArea}>
+                <CardContent>
+                    <div className={styles.contentWrapper}>
+                        <WeatherCardHeader date={weather.date} />
+                        <br />
+                        <WeatherCardContent weather={weather} />
+                    </div>
+                </CardContent>
+            </CardActionArea>
         </Card>
+    )
+}
+
+export interface CardHeaderProps {
+    date: string
+}
+
+export const WeatherCardHeader: React.FC<CardHeaderProps> = (
+    props: CardHeaderProps
+) => {
+    const date = getDateObject(props.date)
+    return (
+        <div className={styles.headerWrapper}>
+            <Typography variant="h5">{date.format('dddd')}</Typography>
+            <Typography variant="h6">{date.format('MMM D')}</Typography>
+        </div>
+    )
+}
+
+export interface CardContentProps {
+    weather: DailyWeatherForecastType
+}
+
+const WeatherCardContent: React.FC<WeatherCardProps> = (
+    props: WeatherCardProps
+) => {
+    return (
+        <div className={styles.contentWrapper}>
+            <Typography variant="body1">
+                {props.weather.temperature_2m_min}
+            </Typography>
+        </div>
     )
 }
