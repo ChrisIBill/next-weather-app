@@ -14,6 +14,7 @@ import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
 import { MoonIcon, SunIcon } from '../components/icons'
 import { Background } from '../components/background/background'
+import UserPrefs from '@/lib/user'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -40,6 +41,7 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [currentWeather, setCurrentWeather] =
         useState<CurrentWeatherDataType>()
@@ -52,7 +54,7 @@ export default function Page({
 
     //use server action to fetch weather data from API
     if (!weatherMetadata) {
-        getWeather(location)
+        getWeather(location, User.getUserPreferences())
             .then((response) => {
                 return JSON.parse(response)
             })

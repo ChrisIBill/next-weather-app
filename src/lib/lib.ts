@@ -1,5 +1,23 @@
 import { PosCoordinates } from './interfaces'
 
+const ApiTempUnits = ['Fahrenheit', 'Celsius'] as const
+const ApiWindUnits = ['Mph', 'Kph', 'Mps', 'knots'] as const
+const ApiPrecipitationUnits = ['in', 'mm'] as const
+export const ApiUnits = {
+    ApiTempUnits,
+    ApiWindUnits,
+    ApiPrecipitationUnits,
+}
+export type ApiTempUnitType = (typeof ApiTempUnits)[number]
+export type ApiWindUnitType = (typeof ApiWindUnits)[number]
+export type ApiPrecipitationUnitType = (typeof ApiPrecipitationUnits)[number]
+
+export interface ApiUnitsInterface {
+    temperature_unit?: ApiTempUnitType
+    wind_speed_unit?: ApiWindUnitType
+    precipitation_unit?: ApiPrecipitationUnitType
+}
+
 function displayTodayOrTomorrow() {
     const today = new Date()
     const tomorrow = new Date(today)
@@ -128,4 +146,22 @@ export function bezierCurve(
     const y = aY * Math.pow(t, 3) + bY * Math.pow(t, 2) + cY * t + p0.y
 
     return { x: x, y: y }
+}
+
+/**
+ * Given an array of strings and a given string in the array, returns a generator of that array
+ * @generator
+ * @param {string} s - a string in the array
+ * @param {string[]} strs - an array of string
+ */
+export const stringLiteralGenerator = function* (
+    s: string,
+    strs: readonly string[]
+) {
+    let i = strs.indexOf(s)
+    while (i < strs.length) {
+        yield strs[strs.indexOf(s) + 1]
+        if (i === strs.length - 1) i = 0
+        else i++
+    }
 }

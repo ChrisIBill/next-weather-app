@@ -11,6 +11,7 @@ import UserPrefs, {
     WindSpeedUnitType,
     UserPreferencesInterface,
 } from '@/lib/user'
+import { stringLiteralGenerator } from '@/lib/lib'
 
 interface Preferences {
     TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
@@ -38,6 +39,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const [precipPref, setPrecipPref] = React.useState<PrecipitationUnitType>(
         User.precipitationUnit ? User.precipitationUnit : 'in'
     )
+    const tempGenerator = stringLiteralGenerator(tempPref, tempUnits)
+    const windGenerator = stringLiteralGenerator(windPref, windUnits)
+    const precipGenerator = stringLiteralGenerator(precipPref, precipUnits)
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -48,55 +52,44 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
         User.setPrecipitationUnit(precipPref)
         setAnchorEl(null)
     }
+
     const handleTemperatureItem = () => {
-        switch (tempPref) {
-            case tempUnits[0]: {
-                setTempPref(tempUnits[1])
-                break
-            }
-            case tempUnits[1]: {
-                setTempPref(tempUnits[2])
-                break
-            }
-            case tempUnits[2]: {
-                setTempPref(tempUnits[0])
-                break
-            }
-        }
-        //User.setTempUnit(tempPref)
+        setTempPref(tempGenerator.next().value as TemperatureUnitType)
     }
     const handleWindSpeedItem = () => {
-        switch (windPref) {
-            case windUnits[0]: {
-                setWindPref(windUnits[1])
-                break
-            }
-            case windUnits[1]: {
-                setWindPref(windUnits[2])
-                break
-            }
-            case windUnits[2]: {
-                setWindPref(windUnits[0])
-                break
-            }
-        }
+        setWindPref(windGenerator.next().value as WindSpeedUnitType)
+        //switch (windPref) {
+        //    case windUnits[0]: {
+        //        setWindPref(windUnits[1])
+        //        break
+        //    }
+        //    case windUnits[1]: {
+        //        setWindPref(windUnits[2])
+        //        break
+        //    }
+        //    case windUnits[2]: {
+        //        setWindPref(windUnits[0])
+        //        break
+        //    }
+        //}
         //User.setWindSpeedUnit(windPref)
     }
     const handlePrecipitationItem = () => {
-        switch (precipPref) {
-            case precipUnits[0]: {
-                setPrecipPref(precipUnits[1])
-                break
-            }
-            case precipUnits[1]: {
-                setPrecipPref(precipUnits[2])
-                break
-            }
-            case precipUnits[2]: {
-                setPrecipPref(precipUnits[0])
-                break
-            }
-        }
+        setPrecipPref(precipGenerator.next().value as PrecipitationUnitType)
+        //switch (precipPref) {
+        //    case precipUnits[0]: {
+        //        setPrecipPref(precipUnits[1])
+        //        break
+        //    }
+        //    case precipUnits[1]: {
+        //        setPrecipPref(precipUnits[2])
+        //        break
+        //    }
+        //    case precipUnits[2]: {
+        //        setPrecipPref(precipUnits[0])
+        //        break
+        //    }
+        //}
         //User.setPrecipitationUnit(precipPref)
     }
 

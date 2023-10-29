@@ -1,6 +1,6 @@
-const TemperatureUnits = ['Fahrenheit', 'Celsius', 'Kelvin'] as const
-const WindSpeedUnits = ['Mph', 'Kph', 'Mps'] as const
-const PrecipitationUnits = ['in', 'mm', 'cm'] as const
+const TemperatureUnits = ['Fahrenheit', 'Celsius'] as const
+const WindSpeedUnits = ['Mph', 'Kph', 'm/s', 'Knots'] as const
+const PrecipitationUnits = ['in', 'mm'] as const
 // exporting constants array of string literals to allow for iteration and type-checking
 export const MeasurementUnits = {
     TemperatureUnits,
