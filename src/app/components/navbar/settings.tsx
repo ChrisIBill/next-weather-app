@@ -58,39 +58,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     }
     const handleWindSpeedItem = () => {
         setWindPref(windGenerator.next().value as WindSpeedUnitType)
-        //switch (windPref) {
-        //    case windUnits[0]: {
-        //        setWindPref(windUnits[1])
-        //        break
-        //    }
-        //    case windUnits[1]: {
-        //        setWindPref(windUnits[2])
-        //        break
-        //    }
-        //    case windUnits[2]: {
-        //        setWindPref(windUnits[0])
-        //        break
-        //    }
-        //}
-        //User.setWindSpeedUnit(windPref)
     }
     const handlePrecipitationItem = () => {
         setPrecipPref(precipGenerator.next().value as PrecipitationUnitType)
-        //switch (precipPref) {
-        //    case precipUnits[0]: {
-        //        setPrecipPref(precipUnits[1])
-        //        break
-        //    }
-        //    case precipUnits[1]: {
-        //        setPrecipPref(precipUnits[2])
-        //        break
-        //    }
-        //    case precipUnits[2]: {
-        //        setPrecipPref(precipUnits[0])
-        //        break
-        //    }
-        //}
-        //User.setPrecipitationUnit(precipPref)
     }
 
     return (
