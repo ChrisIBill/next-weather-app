@@ -70,6 +70,10 @@ export default function Page({
             })
     }
 
+    const handleCardSelect = (card: DailyWeatherForecastType) => {
+        setWeatherReportData(card as WeatherReportDataType)
+    }
+
     const handleWeatherReportChange = (
         weatherReportData: WeatherReportDataType
     ) => {
@@ -84,7 +88,10 @@ export default function Page({
             ) : (
                 <>Loading</>
             )}
-            <WeatherCards weatherForecast={weatherForecast} />
+            <WeatherCards
+                weatherForecast={weatherForecast}
+                handleCardSelect={handleCardSelect}
+            />
             <Background
                 timeObject={{
                     currentTime: currentWeather?.time.split('T')[1],

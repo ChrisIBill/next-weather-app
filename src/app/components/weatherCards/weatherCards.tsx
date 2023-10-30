@@ -6,6 +6,7 @@ import { Skeleton } from '@mui/material'
 
 export interface WeatherCardsProps {
     weatherForecast: DailyWeatherForecastType[]
+    handleCardSelect: (card: DailyWeatherForecastType) => void
 }
 export const WeatherCards: React.FC<WeatherCardsProps> = (
     props: WeatherCardsProps

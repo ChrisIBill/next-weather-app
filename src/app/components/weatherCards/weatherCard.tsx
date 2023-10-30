@@ -5,6 +5,7 @@ import { getDateObject } from '@/lib/time'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
+    handleCardSelect: (card: DailyWeatherForecastType) => void
 }
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
@@ -22,7 +23,10 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
             }}
         >
-            <CardActionArea className={styles.actionArea}>
+            <CardActionArea
+                className={styles.actionArea}
+                onSelect={(event) => props.handleCardSelect(weather)}
+            >
                 <CardContent>
                     <div className={styles.contentWrapper}>
                         <WeatherCardHeader date={weather.date} />
@@ -55,8 +59,8 @@ export interface CardContentProps {
     weather: DailyWeatherForecastType
 }
 
-const WeatherCardContent: React.FC<WeatherCardProps> = (
-    props: WeatherCardProps
+const WeatherCardContent: React.FC<CardContentProps> = (
+    props: CardContentProps
 ) => {
     return (
         <div className={styles.contentWrapper}>
