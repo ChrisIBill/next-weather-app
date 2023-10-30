@@ -160,9 +160,9 @@ export const stringLiteralGenerator = function* (
 ) {
     let i = strs.indexOf(s)
     while (i < strs.length) {
-        yield strs[strs.indexOf(s) + 1]
-        if (i === strs.length - 1) i = 0
-        else i++
+        i += 1
+        if (i === strs.length) i = 0
+        yield strs[i]
     }
 }
 
