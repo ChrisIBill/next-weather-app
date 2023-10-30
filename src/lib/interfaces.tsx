@@ -71,48 +71,74 @@ export interface WeatherMetadata {
 }
 export interface CurrentWeatherDataType {
     time: string
-    interval: string
-    temperature_2m: string
-    relativehumidity_2m: string
-    apparent_temperature: string
-    precipitation: string
-    rain: string
-    showers: string
-    snowfall: string
-    weathercode: string
-    cloudcover: string
-    pressure_msl: string
-    surface_pressure: string
-    windspeed_10m: string
-    winddirection_10m: string
-    windgusts_10m: string
-    sunrise: string
-    sunset: string
+    interval?: string
+    temperature_2m?: string
+    relativehumidity_2m?: string
+    apparent_temperature?: string
+    precipitation?: string
+    rain?: string
+    showers?: string
+    snowfall?: string
+    weathercode?: string
+    cloudcover?: string
+    pressure_msl?: string
+    surface_pressure?: string
+    windspeed_10m?: string
+    winddirection_10m?: string
+    windgusts_10m?: string
+    sunrise?: string
+    sunset?: string
 }
 export interface HourlyWeatherDataType {
-    [propName: string]: string
+    time: string
+    temperature_2m?: string
+    relativehumidity_2m?: string
+    dewpoint_2m?: string
+    apparent_temperature?: string
+    precipitation_probability?: string
+    precipitation?: string
+    rain?: string
+    showers?: string
+    snowfall?: string
+    snow_depth?: string
+    weathercode?: string
+    cloudcover?: string
+    pressure_msl?: string
+    surface_pressure?: string
+    windspeed_10m?: string
+    winddirection_10m?: string
+    windgusts_10m?: string
+    uv_index?: string
+    visibility?: string
+    [index: string]: string | undefined
 }
+
 export interface DailyWeatherForecastType {
     date: string
-    weathercode: string
-    temperature_2m_max: string
-    temperature_2m_min: string
-    apparent_temperature_max: string
-    apparent_temperature_min: string
-    sunrise: string
-    sunset: string
-    uv_index_max: string
-    precipitation_sum: string
-    rain_sum: string
-    showers_sum: string
-    snowfall_sum: string
-    precipitation_hours: string
-    precipitation_probability_max: string
-    windspeed_10m_max: string
-    windgusts_10m_max: string
-    winddirection_10m_dominant: string
-    hourly_weather: HourlyWeatherDataType[]
+    weathercode?: string
+    temperature_2m_max?: string
+    temperature_2m_min?: string
+    apparent_temperature_max?: string
+    apparent_temperature_min?: string
+    sunrise?: string
+    sunset?: string
+    uv_index_max?: string
+    precipitation_sum?: string
+    rain_sum?: string
+    showers_sum?: string
+    snowfall_sum?: string
+    precipitation_hours?: string
+    precipitation_probability_max?: string
+    windspeed_10m_max?: string
+    windgusts_10m_max?: string
+    winddirection_10m_dominant?: string
+    hourly_weather?: HourlyWeatherDataType[]
+    current_weather?: CurrentWeatherDataType
 }
+export interface StringIndexable {
+    [index: string]: string
+}
+export type WeatherForecastType = DailyWeatherForecastType[]
 export interface CoordinatesType {
     latitude: number
     longitude: number
