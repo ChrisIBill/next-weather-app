@@ -165,3 +165,13 @@ export const stringLiteralGenerator = function* (
         else i++
     }
 }
+
+/**
+ * @description Given a string, returns a string of only lowercase letters
+ *
+ * @param {string} str - A string to be formatted
+ * @returns {string} - A string of only lowercase letters
+ */
+export function formatUserPrefs(str: string): string {
+    return str.toLowerCase().replace(/[^a-z]/gi, '')
+}

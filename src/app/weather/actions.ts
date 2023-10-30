@@ -2,7 +2,7 @@
 
 import { forecastFormater } from '@/lib/forecast-shaper'
 import { CoordinatesType, LocationType } from '@/lib/interfaces'
-import { ApiUnitsInterface } from '@/lib/lib'
+import { ApiUnitsInterface, formatUserPrefs } from '@/lib/lib'
 import { UserPreferencesInterface } from '@/lib/user'
 
 const WeatherAPISrc = '/SampleWeatherData.json'
@@ -31,16 +31,17 @@ async function getCoords(location: LocationType): Promise<CoordinatesType> {
     } else throw new Error('Failed to get coordinates, invalid location data')
     throw new Error('Why is this needed')
 }
+
 function getUnitsReqURL(unitPrefs: UserPreferencesInterface): string {
     console.log('unitPrefs: ', unitPrefs)
     const tempUnitReq = unitPrefs.tempUnit
-        ? `&temperature_unit=${unitPrefs.tempUnit}`
+        ? `&temperature_unit=${formatUserPrefs(unitPrefs.tempUnit)}`
         : ''
     const windUnitReq = unitPrefs.windSpeedUnit
-        ? `&wind_speed_unit=${unitPrefs.windSpeedUnit}`
+        ? `&wind_speed_unit=${formatUserPrefs(unitPrefs.windSpeedUnit)}`
         : ''
     const precipitationUnitReq = unitPrefs.precipitationUnit
-        ? `&precipitation_unit=${unitPrefs.precipitationUnit}`
+        ? `&precipitation_unit=${formatUserPrefs(unitPrefs.precipitationUnit)}`
         : ''
     return tempUnitReq + windUnitReq + precipitationUnitReq
 }
