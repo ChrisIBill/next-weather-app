@@ -1,20 +1,30 @@
-import { CurrentWeatherDataType } from '@/lib/interfaces'
+import {
+    CurrentWeatherDataType,
+    DailyWeatherForecastType,
+} from '@/lib/interfaces'
 import { Typography } from '@mui/material'
 import styles from './weatherReport.module.css'
 
 interface WeatherReportProps {
-    currentWeather: CurrentWeatherDataType
+    currentWeather?: CurrentWeatherDataType
+    weatherForecast: DailyWeatherForecastType[]
+    selectedDay?: number
+    selectedHour?: number
 }
 export const WeatherReport: React.FC<WeatherReportProps> = ({
     currentWeather,
+    weatherForecast,
+    selectedDay,
 }: WeatherReportProps) => {
     const [shortTime, date] = currentWeather.time.split('T')
-    const dayNightColorStyle = 'dayNightColorGradient' + shortTime.slice(0, 1)
     return (
         <div className={styles.weatherReportWrapper}>
+            {/*<WeatherReportHeader />
+            <CurrentWeatherDisplay currentWeather={currentWeather} />
+            <HourlyWeatherDisplay weatherForecast={weatherForecast} />
             <Typography variant="h1" component="h1" gutterBottom>
                 Temperature: {currentWeather.temperature_2m}
-            </Typography>
+            </Typography>*/}
         </div>
     )
 }

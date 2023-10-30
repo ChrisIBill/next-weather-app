@@ -1,5 +1,43 @@
 import { TemperatureUnitType } from './user'
 
+export interface WeatherReportDataType {
+    time: string
+    temperature_2m?: string
+    temperature_2m_max?: string
+    temperature_2m_min?: string
+    apparent_temperature?: string
+    apparent_temperature_max?: string
+    apparent_temperature_min?: string
+    relativehumidity_2m?: string
+    dewpoint_2m?: string
+    precipitation?: string
+    precipitation_probability?: string
+    precipitation_sum?: string
+    precipitation_probability_max?: string
+    precipitation_hours?: string
+    rain?: string
+    rain_sum?: string
+    showers?: string
+    showers_sum?: string
+    snowfall?: string
+    snowfall_sum?: string
+    snow_depth?: string
+    weathercode?: string
+    cloudcover?: string
+    sunrise?: string
+    sunset?: string
+    pressure_msl?: string
+    surface_pressure?: string
+    visibility?: string
+    windspeed_10m?: string
+    windspeed_10m_max?: string
+    winddirection_10m?: string
+    winddirection_10m_dominant?: string
+    windgusts_10m?: string
+    windgusts_10m_max?: string
+    uv_index?: string
+    hourly_weather: HourlyWeatherDataType[]
+}
 export interface LocationType {
     zipCode?: string
     city?: string

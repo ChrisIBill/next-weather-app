@@ -12,8 +12,10 @@ const NavBar: React.FC<NavBarProps> = () => {
                 <Toolbar className={styles.Toolbar}>
                     <div className={styles.fillerElement}></div>
                     <div className={styles.titleWrapper}>
-                        <h1>Drizzle</h1>
-                        <h3>(Yet Another Weather App)</h3>
+                        <h1 className={styles.title}>Drizzle</h1>
+                        <h3 className={styles.subtitle}>
+                            (Yet Another Weather App)
+                        </h3>
                     </div>
                     <div className={styles.itemsWrapper}>
                         <SearchBar />

@@ -9,12 +9,14 @@ import {
     DailyWeatherForecastType,
     LocationType,
     WeatherMetadata,
+    WeatherReportDataType,
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
 import { MoonIcon, SunIcon } from '../components/icons'
 import { Background } from '../components/background/background'
 import UserPrefs from '@/lib/user'
+import { WeatherPageHeader } from './header'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -48,6 +50,8 @@ export default function Page({
     const [weatherForecast, setWeatherForecast] = useState<
         DailyWeatherForecastType[]
     >(Array(8).fill({}))
+    const [weatherReportData, setWeatherReportData] =
+        useState<WeatherReportDataType>()
 
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
@@ -62,11 +66,19 @@ export default function Page({
                 setWeatherMetadata(value.metadata)
                 setCurrentWeather(value.current)
                 setWeatherForecast(value.daily)
+                setWeatherReportData(value.current)
             })
+    }
+
+    const handleWeatherReportChange = (
+        weatherReportData: WeatherReportDataType
+    ) => {
+        setWeatherReportData(weatherReportData)
     }
 
     return (
         <div className={styles.weatherPage}>
+            <WeatherPageHeader time={weatherReportData?.time} />
             {currentWeather ? (
                 <WeatherReport currentWeather={currentWeather} />
             ) : (
