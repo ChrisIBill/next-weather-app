@@ -10,9 +10,11 @@ export interface WeatherCardProps {
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
+    console.log("Weather Forecast")
+    console.log(props.weather)
     const weather = props.weather
     if (!weather) throw new Error('No weather data')
-    const date = getDateObject(weather.date)
+    const date = getDateObject(weather.time)
     return (
         <Card
             className={styles.weatherCard}
@@ -29,7 +31,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             >
                 <CardContent>
                     <div className={styles.contentWrapper}>
-                        <WeatherCardHeader date={weather.date} />
+                        <WeatherCardHeader date={weather.time} />
                         <br />
                         <WeatherCardContent weather={weather} />
                     </div>

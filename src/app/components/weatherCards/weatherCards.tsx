@@ -11,12 +11,14 @@ export interface WeatherCardsProps {
 export const WeatherCards: React.FC<WeatherCardsProps> = (
     props: WeatherCardsProps
 ) => {
+    console.log("Weather Forecast")
+    console.log(props.weatherForecast)
     //need a generator to create the formatted data for the cards
     const weatherCards = props.weatherForecast?.map((weather, index) => {
         return (
             <div key={index} className={styles.cardWrapper}>
                 {weather ? (
-                    <WeatherCard weather={weather} />
+                    <WeatherCard weather={weather} handleCardSelect={props.handleCardSelect} />
                 ) : (
                     <Skeleton variant="rectangular" width={210} height={118} />
                 )}
