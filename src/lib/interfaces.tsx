@@ -70,7 +70,7 @@ export interface WeatherMetadata {
     generationTime?: string
 }
 export interface CurrentWeatherDataType {
-    time: string
+    time?: string
     interval?: string
     temperature_2m?: string
     relativehumidity_2m?: string
@@ -88,9 +88,10 @@ export interface CurrentWeatherDataType {
     windgusts_10m?: string
     sunrise?: string
     sunset?: string
+    [index: string]: string | undefined
 }
 export interface HourlyWeatherDataType {
-    time: string
+    time?: string
     temperature_2m?: string
     relativehumidity_2m?: string
     dewpoint_2m?: string
@@ -112,9 +113,8 @@ export interface HourlyWeatherDataType {
     visibility?: string
     [index: string]: string | undefined
 }
-
-export interface DailyWeatherForecastType {
-    date: string
+export interface DailyWeatherDataType {
+    time?: string
     weathercode?: string
     temperature_2m_max?: string
     temperature_2m_min?: string
@@ -132,9 +132,17 @@ export interface DailyWeatherForecastType {
     windspeed_10m_max?: string
     windgusts_10m_max?: string
     winddirection_10m_dominant?: string
+    [index: string]: string | undefined
+}
+export type DetailedWeatherDataType = CurrentWeatherDataType &
+    HourlyWeatherDataType &
+    DailyWeatherDataType
+export interface DailyWeatherDetailsType {
     hourly_weather?: HourlyWeatherDataType[]
     current_weather?: CurrentWeatherDataType
 }
+export type DailyWeatherForecastType = DailyWeatherDetailsType &
+    DailyWeatherDataType
 export interface StringIndexable {
     [index: string]: string
 }

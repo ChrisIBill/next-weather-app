@@ -6,8 +6,12 @@ import { getWeather } from './actions'
 import { CoordinatesType } from '../geolocation/geolocation'
 import {
     CurrentWeatherDataType,
+    DailyWeatherDataType,
     DailyWeatherForecastType,
+    DetailedWeatherDataType,
+    HourlyWeatherDataType,
     LocationType,
+    WeatherForecastType,
     WeatherMetadata,
     WeatherReportDataType,
 } from '@/lib/interfaces'
@@ -45,14 +49,19 @@ export default function Page({
 }) {
     const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
-    const [currentWeather, setCurrentWeather] =
-        useState<CurrentWeatherDataType>()
-    const [weatherForecast, setWeatherForecast] = useState<
-        DailyWeatherForecastType[]
-    >(Array(8).fill({}))
+    //const [currentWeather, setCurrentWeather] =
+    //    useState<CurrentWeatherDataType>()
+    const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
+        Array(8).fill({})
+    )
     const [weatherReportData, setWeatherReportData] =
-        useState<WeatherReportDataType>()
+        useState<DetailedWeatherDataType>()
+    const [selectedWeatherData, setSelectedWeatherData] =
+        useState<DetailedWeatherDataType>()
+    const [selectedHour, setSelectedHour] = useState<number>(0)
+    const [selectedDay, setSelectedDay] = useState<number>(0)
 
+    const test: CurrentWeatherDataType | HourlyWeatherDataType = {}
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
 
@@ -63,28 +72,38 @@ export default function Page({
                 return JSON.parse(response)
             })
             .then((value) => {
+                console.log(value)
                 setWeatherMetadata(value.metadata)
-                setCurrentWeather(value.current)
-                setWeatherForecast(value.daily)
-                setWeatherReportData(value.current)
+                //setCurrentWeather(value.current)
+                setWeatherForecast(value.forecast)
+                setWeatherReportData(
+                    value.forecast[0].current
+                        ? value.forecast[0].current
+                        : value.forecast[0]
+                )
             })
     }
 
-    const handleCardSelect = (card: DailyWeatherForecastType) => {
-        setWeatherReportData(card as WeatherReportDataType)
+    const handleCardSelect = (card: DailyWeatherDataType) => {
+        setWeatherReportData(card)
     }
 
     const handleWeatherReportChange = (
-        weatherReportData: WeatherReportDataType
+        weatherReportData: DetailedWeatherDataType
     ) => {
         setWeatherReportData(weatherReportData)
     }
-
     return (
         <div className={styles.weatherPage}>
-            <WeatherPageHeader time={weatherReportData?.time} />
-            {currentWeather ? (
-                <WeatherReport currentWeather={currentWeather} />
+            <WeatherPageHeader
+                time={
+                    weatherReportData?.time
+                        ? weatherReportData.time
+                        : weatherReportData?.date
+                }
+            />
+            {weatherReportData ? (
+                <WeatherReport weatherForecast={weatherReportData} />
             ) : (
                 <>Loading</>
             )}
@@ -94,9 +113,9 @@ export default function Page({
             />
             <Background
                 timeObject={{
-                    currentTime: currentWeather?.time.split('T')[1],
-                    sunrise: currentWeather?.sunrise.split('T')[1],
-                    sunset: currentWeather?.sunset.split('T')[1],
+                    currentTime: weatherReportData?.time?.split('T')[1],
+                    sunrise: weatherReportData?.sunrise?.split('T')[1],
+                    sunset: weatherReportData?.sunset?.split('T')[1],
                 }}
             />
         </div>

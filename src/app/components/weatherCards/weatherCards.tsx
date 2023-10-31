@@ -12,7 +12,7 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     props: WeatherCardsProps
 ) => {
     //need a generator to create the formatted data for the cards
-    const weatherCards = props.weatherForecast.map((weather, index) => {
+    const weatherCards = props.weatherForecast?.map((weather, index) => {
         return (
             <div key={index} className={styles.cardWrapper}>
                 {weather ? (

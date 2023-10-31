@@ -64,7 +64,7 @@ export function forecastFormater(weatherApiData: any): string {
     const weather_forecast: WeatherForecastType = new Array(8).fill({}).map(
         (day, index) =>
             (day = {
-                date: adf.time[index],
+                time: adf.time[index],
                 weathercode: adf.weathercode[index],
                 temperature_2m_max: adf.temperature_2m_max[index],
                 temperature_2m_min: adf.temperature_2m_min[index],
