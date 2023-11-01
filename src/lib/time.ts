@@ -22,3 +22,12 @@ export function getDateObject(date: string): dayjs.Dayjs {
             cause: date,
         })
 }
+export function getDatetimeObject(date: string): dayjs.Dayjs {
+    if (dayjs(date, 'YYYY-MM-DDTHH:mm', true).isValid()) {
+        return dayjs(date)
+    } else
+        throw new SyntaxError(
+            'Invalid date format, require strict iso8601 format',
+            { cause: date }
+        )
+}
