@@ -5,13 +5,13 @@ import { getDateObject } from '@/lib/time'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
-    handleCardSelect: (card: DailyWeatherForecastType) => void
+    handleCardSelect: (day: number) => void
+    index: number
+    selectedDay?: number
 }
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
-    console.log("Weather Forecast")
-    console.log(props.weather)
     const weather = props.weather
     if (!weather) throw new Error('No weather data')
     const date = getDateObject(weather.time)
@@ -27,7 +27,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
         >
             <CardActionArea
                 className={styles.actionArea}
-                onSelect={(event) => props.handleCardSelect(weather)}
+                onClick={(event) => props.handleCardSelect(props.index)}
+                disabled={props.index == props.selectedDay}
             >
                 <CardContent>
                     <div className={styles.contentWrapper}>

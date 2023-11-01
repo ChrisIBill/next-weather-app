@@ -3,21 +3,13 @@ import { useEffect, useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.css'
 import { getWeather } from './actions'
-import { CoordinatesType } from '../geolocation/geolocation'
 import {
-    CurrentWeatherDataType,
-    DailyWeatherDataType,
-    DailyWeatherForecastType,
     DetailedWeatherDataType,
-    HourlyWeatherDataType,
     LocationType,
     WeatherForecastType,
     WeatherMetadata,
-    WeatherReportDataType,
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
-import { DayNightColorLayer } from '../components/background/dayNightColorLayer'
-import { MoonIcon, SunIcon } from '../components/icons'
 import { Background } from '../components/background/background'
 import UserPrefs from '@/lib/user'
 import { WeatherPageHeader } from './header'
@@ -49,22 +41,16 @@ export default function Page({
 }) {
     const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
-    //const [currentWeather, setCurrentWeather] =
-    //    useState<CurrentWeatherDataType>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill({})
     )
     const [weatherReportData, setWeatherReportData] =
         useState<DetailedWeatherDataType>()
-    const [selectedWeatherData, setSelectedWeatherData] =
-        useState<DetailedWeatherDataType>()
-    const [selectedHour, setSelectedHour] = useState<number>(0)
+    const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
 
-    const test: CurrentWeatherDataType | HourlyWeatherDataType = {}
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
-
     //use server action to fetch weather data from API
     if (!weatherMetadata) {
         getWeather(location, User.getUserPreferences())
@@ -74,34 +60,43 @@ export default function Page({
             .then((value) => {
                 console.log(value)
                 setWeatherMetadata(value.metadata)
-                //setCurrentWeather(value.current)
                 setWeatherForecast(value.forecast)
                 setWeatherReportData(
-                    value.forecast[0].current
-                        ? value.forecast[0].current
+                    value.forecast[0].current_weather
+                        ? value.forecast[0].current_weather
                         : value.forecast[0]
                 )
             })
     }
 
-    const handleCardSelect = (card: DailyWeatherDataType) => {
-        setWeatherReportData(card)
+    const handleTimeSelect = (day: number, hour?: number) => {
+        if (day > weatherForecast.length || day < 0)
+            throw new Error('Invalid day selection')
+        setSelectedDay(day)
+        if (hour) {
+            if (hour > 23 || hour < -1)
+                throw new Error('Invalid hour selection')
+            if (hour == -1 && day != 0)
+                throw new Error('Invalid hour selection')
+            setSelectedHour(hour)
+        } else setSelectedHour(undefined)
     }
-
-    const handleWeatherReportChange = (
-        weatherReportData: DetailedWeatherDataType
-    ) => {
-        setWeatherReportData(weatherReportData)
+    const getForecastFromSelection = () => {
+        if (!selectedHour) {
+            return weatherForecast[selectedDay]
+        } else if (selectedHour == -1) return weatherForecast[0].current_weather
+        else {
+            if (!weatherForecast[selectedDay]?.hourly_weather)
+                throw new Error('No hourly weather data for this day')
+            return weatherForecast[selectedDay].hourly_weather![selectedHour]
+        }
+    }
+    const getReportFromSelection = () => {
+        return weatherForecast[selectedDay]
     }
     return (
         <div className={styles.weatherPage}>
-            <WeatherPageHeader
-                time={
-                    weatherReportData?.time
-                        ? weatherReportData.time
-                        : weatherReportData?.date
-                }
-            />
+            <WeatherPageHeader time={getForecastFromSelection()?.time} />
             {weatherReportData ? (
                 <WeatherReport weatherForecast={weatherReportData} />
             ) : (
@@ -109,9 +104,11 @@ export default function Page({
             )}
             <WeatherCards
                 weatherForecast={weatherForecast}
-                handleCardSelect={handleCardSelect}
+                handleCardSelect={handleTimeSelect}
+                selectedDay={selectedHour == -1 ? undefined : selectedDay}
             />
             <Background
+                weatherForecast={weatherReportData}
                 timeObject={{
                     currentTime: weatherReportData?.time?.split('T')[1],
                     sunrise: weatherReportData?.sunrise?.split('T')[1],

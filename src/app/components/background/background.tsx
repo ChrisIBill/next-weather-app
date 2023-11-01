@@ -4,18 +4,8 @@ import { DayNightColorLayer } from './dayNightColorLayer'
 import { CelestialIconsHandler } from './celestialIcons'
 import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/lib'
 import RainBackground from '@/app/rain'
-export interface BackgroundProps {
-    timeObject?: {
-        currentTime?: string
-        sunrise?: string
-        sunset?: string
-    }
-    precipObject?: {
-        isPrecipitating?: boolean
-        precipitationType?: string
-        precipitationIntensity?: number
-    }
-}
+import { DetailedWeatherDataType } from '@/lib/interfaces'
+
 /**
  * @description Calculates the percentage of the day/night that has passed.
  *
@@ -38,27 +28,26 @@ function calcPercentOfDayNight(
         //Time after sunset but before midnight
         const eveningTime = nightLength - sunrise
         const nightPercent = (eveningTime + curTime) / nightLength
-        console.log('nightPercent', nightPercent)
         return { isDay: false, timePercent: nightPercent }
     } else if (curTime > sunset) {
         const timeAfterSunset = curTime - sunset
         const nightPercent = timeAfterSunset / nightLength
-        console.log('nightPercent', nightPercent)
         return { isDay: false, timePercent: nightPercent }
     } else {
         //should be daytime
-        console.info('Good Day')
         const timeSinceSunrise = curTime - sunrise
         const dayPercent = timeSinceSunrise / dayLength
-        console.log('dayPercent', dayPercent)
         return { isDay: true, timePercent: dayPercent }
     }
 }
 
+export interface BackgroundProps {
+    weatherForecast?: DetailedWeatherDataType
+}
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
-    if (!props.timeObject || !props.timeObject.currentTime) {
+    if (!props.weatherForecast?.time) {
         //TODO:
         //Need to return a default background
         return (
@@ -67,8 +56,14 @@ export const Background: React.FC<BackgroundProps> = (
             </div>
         )
     }
-    const { currentTime, sunrise, sunset } = props.timeObject
-    const curTimeMinutes = clockTimeToMinutes(currentTime)
+    const [date, time] = props.weatherForecast?.time.split('T')
+    //TODO: need better handling of this
+    if (!time) return <div className={styles.wrapper}></div>
+
+    const sunrise = props.weatherForecast?.sunrise?.split('T')[1]
+    const sunset = props.weatherForecast?.sunset?.split('T')[1]
+
+    const curTimeMinutes = clockTimeToMinutes(time)
     const sunriseMinutes = sunrise ? clockTimeToMinutes(sunrise) : 360
     const sunsetMinutes = sunset ? clockTimeToMinutes(sunset) : 1080
 
@@ -82,6 +77,7 @@ export const Background: React.FC<BackgroundProps> = (
         sunsetMinutes,
         dayLength
     )
+    console.log('Day calcs: ', isDay, timePercent)
     return (
         <div className={styles.wrapper}>
             <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
