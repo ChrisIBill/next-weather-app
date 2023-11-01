@@ -98,10 +98,12 @@ export default function Page({
     }
     return (
         <div className={styles.weatherPage}>
-            <div className={styles.reportsWrapper}>
+            <div className={styles.contentWrapper}>
                 <WeatherPageHeader time={getSelectedForecast()?.time} />
-                <DailyWeatherReport forecast={getSelectedForecastDay()} />
-                <HourlyWeatherReport forecast={getSelectedForecastDay()} />
+                {/*<div className={styles.reportsWrapper}>
+                    <DailyWeatherReport forecast={getSelectedForecastDay()} />
+                    <HourlyWeatherReport forecast={getSelectedForecastDay()} />
+                </div>*/}
                 <WeatherCards
                     weatherForecast={weatherForecast}
                     handleCardSelect={handleTimeSelect}

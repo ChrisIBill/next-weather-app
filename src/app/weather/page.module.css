@@ -5,11 +5,16 @@
     align-items: center;
     z-index: 10;
 }
-.reportsWrapper {
+.contentWrapper {
     position: relative;
     width: 100%;
     height: 100%;
     z-index: 10;
+}
+.reportsWrapper {
+    position: static;
+    width: 100%;
+    display: flex;
 }
 .weatherPage {
     width: 100%;
