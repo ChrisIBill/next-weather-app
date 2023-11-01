@@ -13,6 +13,8 @@ import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { Background } from '../components/background/background'
 import UserPrefs from '@/lib/user'
 import { WeatherPageHeader } from './header'
+import { DailyWeatherReport } from '../components/weatherReports/dailyWeatherReport'
+import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -81,7 +83,7 @@ export default function Page({
             setSelectedHour(hour)
         } else setSelectedHour(undefined)
     }
-    const getForecastFromSelection = () => {
+    const getSelectedForecast = () => {
         if (!selectedHour) {
             return weatherForecast[selectedDay]
         } else if (selectedHour == -1) return weatherForecast[0].current_weather
@@ -91,30 +93,22 @@ export default function Page({
             return weatherForecast[selectedDay].hourly_weather![selectedHour]
         }
     }
-    const getReportFromSelection = () => {
+    const getSelectedForecastDay = () => {
         return weatherForecast[selectedDay]
     }
     return (
         <div className={styles.weatherPage}>
-            <WeatherPageHeader time={getForecastFromSelection()?.time} />
-            {weatherReportData ? (
-                <WeatherReport weatherForecast={weatherReportData} />
-            ) : (
-                <>Loading</>
-            )}
-            <WeatherCards
-                weatherForecast={weatherForecast}
-                handleCardSelect={handleTimeSelect}
-                selectedDay={selectedHour == -1 ? undefined : selectedDay}
-            />
-            <Background
-                weatherForecast={weatherReportData}
-                timeObject={{
-                    currentTime: weatherReportData?.time?.split('T')[1],
-                    sunrise: weatherReportData?.sunrise?.split('T')[1],
-                    sunset: weatherReportData?.sunset?.split('T')[1],
-                }}
-            />
+            <div className={styles.reportsWrapper}>
+                <WeatherPageHeader time={getSelectedForecast()?.time} />
+                <DailyWeatherReport forecast={getSelectedForecastDay()} />
+                <HourlyWeatherReport forecast={getSelectedForecastDay()} />
+                <WeatherCards
+                    weatherForecast={weatherForecast}
+                    handleCardSelect={handleTimeSelect}
+                    selectedDay={selectedHour == -1 ? undefined : selectedDay}
+                />
+            </div>
+            <Background weatherForecast={getSelectedForecast()} />
         </div>
     )
 }
