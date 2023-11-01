@@ -5,13 +5,16 @@ import { getDateObject } from '@/lib/time'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
+    handleCardSelect: (day: number) => void
+    index: number
+    selectedDay?: number
 }
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
     const weather = props.weather
     if (!weather) throw new Error('No weather data')
-    const date = getDateObject(weather.date)
+    const date = getDateObject(weather.time)
     return (
         <Card
             className={styles.weatherCard}
@@ -22,10 +25,14 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
             }}
         >
-            <CardActionArea className={styles.actionArea}>
+            <CardActionArea
+                className={styles.actionArea}
+                onClick={(event) => props.handleCardSelect(props.index)}
+                disabled={props.index == props.selectedDay}
+            >
                 <CardContent>
                     <div className={styles.contentWrapper}>
-                        <WeatherCardHeader date={weather.date} />
+                        <WeatherCardHeader date={weather.time} />
                         <br />
                         <WeatherCardContent weather={weather} />
                     </div>
@@ -55,8 +62,8 @@ export interface CardContentProps {
     weather: DailyWeatherForecastType
 }
 
-const WeatherCardContent: React.FC<WeatherCardProps> = (
-    props: WeatherCardProps
+const WeatherCardContent: React.FC<CardContentProps> = (
+    props: CardContentProps
 ) => {
     return (
         <div className={styles.contentWrapper}>

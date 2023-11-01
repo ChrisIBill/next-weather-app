@@ -8,7 +8,12 @@ export interface WeatherPageHeaderProps {
 export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
     props: WeatherPageHeaderProps
 ) => {
-    if (!props.time) return <div>Loading Weather Page Header</div>
+    if (!props.time)
+        return (
+            <div className={styles.headerWrapper}>
+                Loading Weather Page Header
+            </div>
+        )
     const date = getDateObject(props.time)
     return (
         <div className={styles.headerWrapper}>
@@ -31,6 +36,16 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                 }}
             >
                 {date.format('MMMM D')}
+            </Typography>
+            <Typography
+                variant="h4"
+                component="h4"
+                sx={{
+                    color: 'rgba(255,255,255,0.5)',
+                    fontWeight: 'lighter',
+                }}
+            >
+                {date.format('h:mm A')}
             </Typography>
         </div>
     )
