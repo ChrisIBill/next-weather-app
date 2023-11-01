@@ -8,7 +8,10 @@ const NavBar: React.FC<NavBarProps> = () => {
     //TODO: If mobile, render navbar in footer
     return (
         <header className={styles.header}>
-            <AppBar className={styles.AppBar}>
+            <AppBar
+                className={styles.AppBar}
+                sx={{ position: 'relative', zIndex: 20 }}
+            >
                 <Toolbar className={styles.Toolbar}>
                     <div className={styles.fillerElement}></div>
                     <div className={styles.titleWrapper}>
