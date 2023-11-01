@@ -85,6 +85,8 @@ export const cancellablePromise = (promise: Promise<any | void>) => {
 >>>>>>> celestial_icons
  */
 export function clockTimeToMinutes(time: string): number {
+    const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
+    if (!time.match(regex)) throw new Error('Invalid time string')
     const [hours, minutes] = time.split(':')
     return parseInt(hours) * 60 + parseInt(minutes)
 }
