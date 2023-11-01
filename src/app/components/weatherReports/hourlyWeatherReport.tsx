@@ -67,7 +67,15 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     return (
         <div className={styles.wrapper}>
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <Table
+                    sx={{
+                        minHeight: 0,
+                        minWidth: 650,
+                        maxHeight: '100%',
+                        overflow: 'scroll',
+                    }}
+                    aria-label="simple table"
+                >
                     <TableHead>
                         <TableRow>
                             <TableHeader keys={propKeys} />
