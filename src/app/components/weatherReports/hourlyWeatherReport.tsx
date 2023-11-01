@@ -3,6 +3,7 @@ import styles from './hourlyWeatherReport.module.css'
 import {
     Paper,
     Table,
+    TableBody,
     TableCell,
     TableContainer,
     TableHead,
@@ -45,8 +46,26 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
             </>
         )
     }
+    const TableContent: React.FC<TableProps> = (props: TableProps) => {
+        return (
+            <>
+                {hourlyForecast.map((hour, index) => (
+                    <TableRow
+                        key={hour.time}
+                        sx={{
+                            '&:last-child td, &:last-child th': { border: 0 },
+                        }}
+                    >
+                        {props.keys.map((key) => (
+                            <TableCell key={key}>{hour[key]}</TableCell>
+                        ))}
+                    </TableRow>
+                ))}
+            </>
+        )
+    }
     return (
-        <Table className={styles.wrapper}>
+        <div className={styles.wrapper}>
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -54,8 +73,11 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             <TableHeader keys={propKeys} />
                         </TableRow>
                     </TableHead>
+                    <TableBody>
+                        <TableContent keys={propKeys} />
+                    </TableBody>
                 </Table>
             </TableContainer>
-        </Table>
+        </div>
     )
 }
