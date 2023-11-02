@@ -8,7 +8,6 @@ import styles from './dailyWeatherReport.module.css'
 
 interface WeatherReportProps {
     forecast?: DetailedWeatherDataType
-    selectedHour?: number
 }
 export const DailyWeatherReport: React.FC<WeatherReportProps> = ({
     forecast,

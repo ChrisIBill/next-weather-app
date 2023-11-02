@@ -51,7 +51,9 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         <TableCell
                             key={key}
                             title={titleObj.long ? titleObj.long : ''}
-                            sx={{}}
+                            sx={{
+                                backgroundColor: 'rgba(0,0,0,0.1)',
+                            }}
                         >
                             {titleObj.short}
                         </TableCell>
@@ -101,15 +103,16 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                 }}
             >
                 <Table
+                    stickyHeader
                     sx={{
                         minHeight: 0,
                         minWidth: 650,
                         maxHeight: '100%',
                         overflow: 'scroll',
                     }}
-                    aria-label="simple table"
+                    aria-label="hourly report table"
                 >
-                    <TableHead>
+                    <TableHead sx={{}}>
                         <TableRow>
                             <TableHeader keys={propKeys} />
                         </TableRow>
