@@ -5,8 +5,9 @@
 }
 .cardsListWrapper {
     width: 100%;
-    position: absolute;
-    bottom: 1rem;
+    heigth: 100%;
+    min-height: 10rem;
+    position: relative;
     z-index: 10;
 }
 .cardWrapper {

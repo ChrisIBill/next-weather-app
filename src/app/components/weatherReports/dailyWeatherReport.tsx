@@ -16,7 +16,7 @@ export const DailyWeatherReport: React.FC<WeatherReportProps> = ({
 }: WeatherReportProps) => {
     const [date, hours] = forecast?.time ? forecast.time.split('T') : ['', '']
     return (
-        <div className={styles.weatherReportWrapper}>
+        <div className={styles.wrapper}>
             {/*<WeatherReportHeader />
             <CurrentWeatherDisplay currentWeather={currentWeather} />
             <HourlyWeatherDisplay weatherForecast={weatherForecast} />
