@@ -71,10 +71,12 @@ export default function Page({
             })
     }
 
-    const handleTimeSelect = (day: number, hour?: number) => {
-        if (day > weatherForecast.length || day < 0)
-            throw new Error('Invalid day selection')
-        setSelectedDay(day)
+    const handleTimeSelect = (day?: number, hour?: number) => {
+        if (day) {
+            if (day > weatherForecast.length || day < 0)
+                throw new Error('Invalid day selection')
+            setSelectedDay(day)
+        }
         if (hour) {
             if (hour > 23 || hour < -1)
                 throw new Error('Invalid hour selection')
@@ -102,7 +104,10 @@ export default function Page({
                 <div className={styles.reportsWrapper}>
                     <DailyWeatherReport forecast={getSelectedForecastDay()} />
                     <WeatherPageHeader time={getSelectedForecast()?.time} />
-                    <HourlyWeatherReport forecast={getSelectedForecastDay()} />
+                    <HourlyWeatherReport
+                        forecast={getSelectedForecastDay()}
+                        handleTimeSelect={handleTimeSelect}
+                    />
                 </div>
                 <WeatherCards
                     weatherForecast={weatherForecast}

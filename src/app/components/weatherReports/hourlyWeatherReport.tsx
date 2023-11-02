@@ -16,12 +16,14 @@ import { getDatetimeObject } from '@/lib/time'
 export interface HourlyWeatherReportProps {
     forecast?: DailyWeatherForecastType
     selectedHour?: number
+    handleTimeSelect?: (day?: number, hour?: number) => void
 }
 export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
     const hourlyForecast = props.forecast?.hourly_weather
+    const handleTimeSelect = props.handleTimeSelect
     if (!hourlyForecast) return null
 
     const denseKeys = [
@@ -66,6 +68,9 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         key={hour.time}
                         sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
+                        }}
+                        onClick={() => {
+                            handleTimeSelect?.(undefined, index)
                         }}
                     >
                         {props.keys.map((key) => {
