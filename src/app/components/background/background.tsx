@@ -2,47 +2,14 @@ import React from 'react'
 import styles from './background.module.css'
 import { DayNightColorLayer } from './dayNightColorLayer'
 import { CelestialIconsHandler } from './celestialIcons'
-import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/lib'
+import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/time'
 import RainBackground from '@/app/rain'
 import { DetailedWeatherDataType } from '@/lib/interfaces'
-
-/**
- * @description Calculates the percentage of the day/night that has passed.
- *
- * @param {number} curTime - [Current time in minutes]
- * @param {number} sunrise - [Sunrise time in minutes]
- * @param {number} sunset - [Sunset time in minutes]
- * @param {number} dayLength - [length of day in minutes]
- * @returns {number} [Number ranging from -1 to 1, with negatives representing night percentage]
- */
-function calcPercentOfDayNight(
-    curTime: number,
-    sunrise: number,
-    sunset: number,
-    dayLength: number
-): { isDay: boolean; timePercent: number } {
-    //In standard time, night is from 6pm to 6am, or 18 to 6
-    const nightLength = 1440 - dayLength
-
-    if (curTime < sunrise) {
-        //Time after sunset but before midnight
-        const eveningTime = nightLength - sunrise
-        const nightPercent = (eveningTime + curTime) / nightLength
-        return { isDay: false, timePercent: nightPercent }
-    } else if (curTime > sunset) {
-        const timeAfterSunset = curTime - sunset
-        const nightPercent = timeAfterSunset / nightLength
-        return { isDay: false, timePercent: nightPercent }
-    } else {
-        //should be daytime
-        const timeSinceSunrise = curTime - sunrise
-        const dayPercent = timeSinceSunrise / dayLength
-        return { isDay: true, timePercent: dayPercent }
-    }
-}
+import { calcPercentOfDayNight } from '@/lib/time'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
+    theme?: string
 }
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps

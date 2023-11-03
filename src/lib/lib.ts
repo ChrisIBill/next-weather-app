@@ -70,54 +70,6 @@ export const cancellablePromise = (promise: Promise<any | void>) => {
         },
     }
 }
-
-/**
-<<<<<<< HEAD
- * @description HH:MM to minutes
- *
- * @param {string} time - [string of format HH:MM]
- * @returns {number} - [number of minutes]
-=======
- * converts a time string [HH:MM] to minutes
- *
- * @param {string} time - ["HH:MM"]
- * @returns {number} time - minutes
->>>>>>> celestial_icons
- */
-export function clockTimeToMinutes(time: string): number {
-    const regex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/
-    if (!time.match(regex)) throw new Error('Invalid time string')
-    const [hours, minutes] = time.split(':')
-    return parseInt(hours) * 60 + parseInt(minutes)
-}
-
-/**
- * takes number [0-23] and converts to string [00-23]
- *
- * @param {number} num - number [0-23]
- * @returns {string} ["00"-"23"]
- */
-export function numberToHourString(num: number): string {
-    return num < 10 ? '0' + num.toString() : num.toString()
-}
-
-/**
- * @description calculates the length of the day in minutes
- *
- * @param {number} sunriseMinutes
- * @param {number} sunsetMinutes
- * @returns {number} - minutes in the day that the sun is up
- */
-export function dayLengthCalculator(
-    sunriseMinutes: number,
-    sunsetMinutes: number
-): number {
-    // TODO: this likely fails tests, maintenance needed
-    return sunsetMinutes > sunriseMinutes
-        ? sunsetMinutes - sunriseMinutes
-        : 1440 - sunriseMinutes + sunsetMinutes
-}
-
 /**
  * @description given a point [0-1] and a set of constant control points, returns a point along
  * the bezier curve
