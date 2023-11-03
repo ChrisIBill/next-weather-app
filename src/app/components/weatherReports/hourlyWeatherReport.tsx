@@ -43,7 +43,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     }
     const TableHeader: React.FC<TableProps> = (props: TableProps) => {
         return (
-            <>
+            <TableRow>
                 {props.keys.map((key) => {
                     if (WeatherDataKeysMap[key] === undefined) return null
                     const titleObj = WeatherDataKeysMap[key]
@@ -52,14 +52,14 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             key={key}
                             title={titleObj.long ? titleObj.long : ''}
                             sx={{
-                                backgroundColor: 'rgba(0,0,0,0.1)',
+                                backgroundColor: 'rgba(105, 101, 107,1)',
                             }}
                         >
                             {titleObj.short}
                         </TableCell>
                     )
                 })}
-            </>
+            </TableRow>
         )
     }
     const TableContent: React.FC<TableProps> = (props: TableProps) => {
@@ -107,17 +107,20 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                     sx={{
                         minHeight: 0,
                         minWidth: 650,
-                        maxHeight: '100%',
-                        overflow: 'scroll',
                     }}
                     aria-label="hourly report table"
                 >
                     <TableHead sx={{}}>
-                        <TableRow>
-                            <TableHeader keys={propKeys} />
-                        </TableRow>
+                        <TableHeader keys={propKeys} />
                     </TableHead>
-                    <TableBody>
+                    <TableBody
+                        sx={{
+                            position: 'relative',
+                            zIndex: 0,
+                            maxHeight: '100%',
+                            overflow: 'hidden',
+                        }}
+                    >
                         <TableContent keys={propKeys} />
                     </TableBody>
                 </Table>

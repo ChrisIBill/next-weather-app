@@ -3,6 +3,7 @@
     width: 100%;
     height: fit-content;
     min-height: 4rem;
+    margin-bottom: 0.5rem;
 }
 .AppBar {
     z-index: 3;
