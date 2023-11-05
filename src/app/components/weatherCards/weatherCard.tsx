@@ -3,6 +3,7 @@ import styles from './weatherCard.module.css'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
 import { getDateObject } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'
+import ErrorBoundary from '@/lib/errorBoundary'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
@@ -14,7 +15,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
     const weather = props.weather
-    if (!weather) throw new Error('No weather data')
     return (
         <Card
             className={styles.weatherCard}
@@ -32,7 +32,17 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             >
                 <CardContent>
                     <div className={styles.contentWrapper}>
-                        <WeatherCardHeader date={weather.time} />
+                        <ErrorBoundary
+                            fallback={
+                                <div className={styles.headerWrapper}>
+                                    <Typography variant="h5">
+                                        Error with date element
+                                    </Typography>
+                                </div>
+                            }
+                        >
+                            <WeatherCardHeader date={weather.time} />
+                        </ErrorBoundary>
                         <br />
                         <WeatherCardContent weather={weather} />
                     </div>
@@ -43,13 +53,12 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 }
 
 export interface CardHeaderProps {
-    date?: string
+    date: string
 }
 
 export const WeatherCardHeader: React.FC<CardHeaderProps> = (
     props: CardHeaderProps
 ) => {
-    if (props.date === undefined) throw new Error('No date provided')
     const date = getDateObject(props.date)
     return (
         <div className={styles.headerWrapper}>
@@ -59,19 +68,23 @@ export const WeatherCardHeader: React.FC<CardHeaderProps> = (
     )
 }
 
+export const CardContentKeys = [
+    'weathercode',
+    'temperature_2m_min',
+    'temperature_2m_max',
+]
+
 export interface CardContentProps {
     weather: DailyWeatherForecastType
 }
-
 const WeatherCardContent: React.FC<CardContentProps> = ({
     weather,
 }: CardContentProps) => {
-    if (
-        weather.weathercode === undefined ||
-        weather.temperature_2m_min === undefined ||
-        weather.temperature_2m_max === undefined
-    )
-        throw new Error('No weather data')
+    for (const key of CardContentKeys) {
+        if (weather[key] === undefined) {
+            weather[key] = 'N/A'
+        }
+    }
     return (
         <div className={styles.contentWrapper}>
             <Typography
@@ -82,9 +95,19 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
                     ? WeatherCodesMap[weather.weathercode].short
                     : 'No weather code'}
             </Typography>
+            <Typography variant="caption">Temp</Typography>
             <Typography variant="body1">
                 {weather.temperature_2m_min}° / {weather.temperature_2m_max}°
             </Typography>
+            <Typography variant="caption">Feels Like</Typography>
+            <Typography variant="body1">
+                {weather.apparent_temperature_min}° /{' '}
+                {weather.apparent_temperature_max}°
+            </Typography>
+            <Typography variant="body1">
+                Chance For Rain: {weather.precipitation_probability_max}%
+            </Typography>
+            <Typography variant="body1"></Typography>
         </div>
     )
 }

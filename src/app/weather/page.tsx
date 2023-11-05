@@ -50,7 +50,7 @@ export default function Page({
     const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
-        Array(8).fill({})
+        Array(8).fill(undefined)
     )
     const [weatherReportData, setWeatherReportData] =
         useState<DetailedWeatherDataType>()
@@ -106,7 +106,8 @@ export default function Page({
     const getSelectedForecast = () => {
         if (!selectedHour) {
             return weatherForecast[selectedDay]
-        } else if (selectedHour == -1) return weatherForecast[0].current_weather
+        } else if (selectedHour == -1)
+            return weatherForecast[0]?.current_weather
         else {
             if (!weatherForecast[selectedDay]?.hourly_weather)
                 throw new Error('No hourly weather data for this day')
@@ -125,7 +126,7 @@ export default function Page({
         }
         const time =
             selectedHour == -1
-                ? weatherForecast[0].current_weather?.time
+                ? weatherForecast[0]?.current_weather?.time
                 : selectedHour !== undefined
                 ? weatherForecast[selectedDay]?.hourly_weather![selectedHour]
                       .time
@@ -152,11 +153,15 @@ export default function Page({
                         handleTimeSelect={handleTimeSelect}
                     />
                 </div>
-                <WeatherCards
-                    weatherForecast={weatherForecast}
-                    handleCardSelect={handleTimeSelect}
-                    selectedDay={selectedHour == -1 ? undefined : selectedDay}
-                />
+                <div className={styles.cardsWrapper}>
+                    <WeatherCards
+                        weatherForecast={weatherForecast}
+                        handleCardSelect={handleTimeSelect}
+                        selectedDay={
+                            selectedHour == -1 ? undefined : selectedDay
+                        }
+                    />
+                </div>
             </div>
             <Background weatherForecast={getSelectedForecast()} />
         </div>
