@@ -4,6 +4,7 @@ import { DailyWeatherForecastType } from '@/lib/interfaces'
 import { getDateObject } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
+import RainBackground from '@/app/rain'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
@@ -41,13 +42,14 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                                 </div>
                             }
                         >
-                            <WeatherCardHeader date={weather.time} />
+                            <WeatherCardHeader date={weather.time!} />
                         </ErrorBoundary>
                         <br />
                         <WeatherCardContent weather={weather} />
                     </div>
                 </CardContent>
             </CardActionArea>
+            <CardBackground />
         </Card>
     )
 }
@@ -110,4 +112,7 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
             <Typography variant="body1"></Typography>
         </div>
     )
+}
+const CardBackground: React.FC = (props) => {
+    return <RainBackground />
 }
