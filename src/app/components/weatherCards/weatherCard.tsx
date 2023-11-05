@@ -2,6 +2,7 @@ import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import styles from './weatherCard.module.css'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
 import { getDateObject } from '@/lib/time'
+import { WeatherCodesMap } from '@/lib/weathercodes'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
@@ -14,7 +15,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 ) => {
     const weather = props.weather
     if (!weather) throw new Error('No weather data')
-    const date = getDateObject(weather.time)
     return (
         <Card
             className={styles.weatherCard}
@@ -43,12 +43,13 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 }
 
 export interface CardHeaderProps {
-    date: string
+    date?: string
 }
 
 export const WeatherCardHeader: React.FC<CardHeaderProps> = (
     props: CardHeaderProps
 ) => {
+    if (props.date === undefined) throw new Error('No date provided')
     const date = getDateObject(props.date)
     return (
         <div className={styles.headerWrapper}>
@@ -62,13 +63,27 @@ export interface CardContentProps {
     weather: DailyWeatherForecastType
 }
 
-const WeatherCardContent: React.FC<CardContentProps> = (
-    props: CardContentProps
-) => {
+const WeatherCardContent: React.FC<CardContentProps> = ({
+    weather,
+}: CardContentProps) => {
+    if (
+        weather.weathercode === undefined ||
+        weather.temperature_2m_min === undefined ||
+        weather.temperature_2m_max === undefined
+    )
+        throw new Error('No weather data')
     return (
         <div className={styles.contentWrapper}>
+            <Typography
+                variant="body1"
+                title={'WMO Code: ' + weather.weathercode}
+            >
+                {weather.weathercode !== undefined
+                    ? WeatherCodesMap[weather.weathercode].short
+                    : 'No weather code'}
+            </Typography>
             <Typography variant="body1">
-                {props.weather.temperature_2m_min}
+                {weather.temperature_2m_min}° / {weather.temperature_2m_max}°
             </Typography>
         </div>
     )
