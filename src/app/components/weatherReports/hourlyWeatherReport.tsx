@@ -9,9 +9,11 @@ import {
     TableHead,
     TableRow,
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { WeatherDataKeysMap } from '@/lib/records'
 import { getDatetimeObject } from '@/lib/time'
+import React from 'react'
+import dayjs from 'dayjs'
 
 export interface HourlyWeatherReportProps {
     forecast?: DailyWeatherForecastType
@@ -22,9 +24,17 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
+    const el = React.useRef<HTMLTableRowElement>(null)
     const hourlyForecast = props.forecast?.hourly_weather
+        ? props.forecast.hourly_weather
+        : []
     const handleTimeSelect = props.handleTimeSelect
-    if (!hourlyForecast) return null
+    const defaultTime = props.forecast?.current_weather?.time
+        ? dayjs(props.forecast.current_weather.time).hour()
+        : 11
+    const scrollToElement = (element: any) => {
+        element.current.scrollIntoView(true)
+    }
 
     const denseKeys = [
         'time',
@@ -43,7 +53,11 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     }
     const TableHeader: React.FC<TableProps> = (props: TableProps) => {
         return (
-            <TableRow>
+            <TableRow
+                sx={{
+                    height: '1rem',
+                }}
+            >
                 {props.keys.map((key) => {
                     if (WeatherDataKeysMap[key] === undefined) return null
                     const titleObj = WeatherDataKeysMap[key]
@@ -51,8 +65,11 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         <TableCell
                             key={key}
                             title={titleObj.long ? titleObj.long : ''}
+                            padding="checkbox"
+                            size="small"
                             sx={{
                                 backgroundColor: 'rgba(105, 101, 107,1)',
+                                height: '1rem',
                             }}
                         >
                             {titleObj.short}
@@ -63,14 +80,20 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         )
     }
     const TableContent: React.FC<TableProps> = (props: TableProps) => {
+        useEffect(() => {
+            let firstRender = true
+            if (firstRender && el.current) {
+                console.log('scrolling to element: ', el.current)
+                scrollToElement(el)
+                firstRender = false
+            }
+        }, [])
         return (
             <>
                 {hourlyForecast.map((hour, index) => (
-                    <TableRow
+                    <tr
                         key={hour.time}
-                        sx={{
-                            '&:last-child td, &:last-child th': { border: 0 },
-                        }}
+                        ref={index === defaultTime ? el : null}
                         onClick={() => {
                             handleTimeSelect?.(undefined, index)
                         }}
@@ -79,27 +102,34 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             if (hour[key] == undefined) return null
                             if (key === 'time') {
                                 return (
-                                    <TableCell key={key}>
+                                    <TableCell size="medium" key={key} sx={{}}>
                                         {getDatetimeObject(hour[key]!).format(
                                             'hh:00 A'
                                         )}
                                     </TableCell>
                                 )
                             }
-                            return <TableCell key={key}>{hour[key]}</TableCell>
+                            return (
+                                <TableCell size="medium" key={key}>
+                                    {hour[key]}
+                                </TableCell>
+                            )
                         })}
-                    </TableRow>
+                    </tr>
                 ))}
             </>
         )
     }
+
     return (
         <div className={styles.wrapper}>
             <TableContainer
                 component={Paper}
                 sx={{
+                    borderRadius: '0.5rem',
+                    margin: '1rem',
                     width: 'fit-content',
-                    backgroundColor: 'transparent',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 }}
             >
                 <Table
