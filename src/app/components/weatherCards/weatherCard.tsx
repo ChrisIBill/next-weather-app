@@ -21,7 +21,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             className={styles.weatherCard}
             variant="elevation"
             sx={{
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundImage:
+                    'linear-gradient(to bottom, #1E101A, #2a1726, #3d2243, #4a3266, #4a458e, #4954a5, #4263bc, #3173d4, #447fdd, #558be7, #6597f0, #74a3f9, #74a3f9)',
+                backgroundColor: 'rgba(255, 255, 255, 1)',
                 borderRadius: '16px',
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
             }}
@@ -87,6 +89,7 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
             weather[key] = 'N/A'
         }
     }
+    //const precipType = weather.rain_sum ?
     return (
         <div className={styles.contentWrapper}>
             <Typography
@@ -107,7 +110,7 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
                 {weather.apparent_temperature_max}°
             </Typography>
             <Typography variant="body1">
-                Chance For Rain: {weather.precipitation_probability_max}%
+                {weather.precipitation_probability_max}% chance of{' '}
             </Typography>
             <Typography variant="body1"></Typography>
         </div>

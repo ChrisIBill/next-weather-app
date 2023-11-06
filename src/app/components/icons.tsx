@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './icons.module.css'
+import styles from './icons.module.scss'
 import { PosCoordinates } from '@/lib/interfaces'
 
 export interface IconProps {
@@ -23,7 +23,11 @@ export const MoonIcon: React.FC<MoonIconProps> = ({
     phase,
     condition,
 }: MoonIconProps) => {
-    return <div className={styles.moonIcon}></div>
+    return (
+        <div className={styles.moonIcon}>
+            <div className={styles.moonIcon_crater}></div>
+        </div>
+    )
 }
 export interface SunIconProps extends IconProps {
     eclipse?: boolean
