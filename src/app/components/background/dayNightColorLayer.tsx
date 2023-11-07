@@ -43,11 +43,8 @@ export const Stars: React.FC<StarsProps> = (props: StarsProps) => {
         <svg key={i} className={styles.stars}>
             {[...Array(props.num)].map((e, i) => {
                 const cx = Math.round(Math.random() * 10000) / 100
-                const cy = Math.round(Math.random() * 10000) / 150
+                const cy = Math.round(Math.random() * 10000) / 100
                 const r = Math.round(Math.random() * 15) / 10
-                const opacity =
-                    (Math.round(Math.random() * 100) / 100) *
-                    (1 - (cy * 2) / 100)
                 return (
                     <circle
                         key={i}
@@ -55,7 +52,6 @@ export const Stars: React.FC<StarsProps> = (props: StarsProps) => {
                         cx={cx + '%'}
                         cy={cy + '%'}
                         r={r}
-                        opacity={opacity > 0 ? opacity : 0}
                     />
                 )
             })}
