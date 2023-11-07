@@ -39,22 +39,26 @@ export interface StarsProps {
     num: number
 }
 export const Stars: React.FC<StarsProps> = (props: StarsProps) => {
-    return (
-        <svg className={styles.stars}>
+    return [...Array(3)].map((e, i) => (
+        <svg key={i} className={styles.stars}>
             {[...Array(props.num)].map((e, i) => {
-                const cx = Math.round(Math.random() * 10000) / 100 + '%'
-                const cy = Math.round(Math.random() * 10000) / 100 + '%'
-                const r = Math.round(Math.random() * 10) / 10
+                const cx = Math.round(Math.random() * 10000) / 100
+                const cy = Math.round(Math.random() * 10000) / 150
+                const r = Math.round(Math.random() * 15) / 10
+                const opacity =
+                    (Math.round(Math.random() * 100) / 100) *
+                    (1 - (cy * 2) / 100)
                 return (
                     <circle
                         key={i}
                         className={styles.star}
-                        cx={cx}
-                        cy={cy}
+                        cx={cx + '%'}
+                        cy={cy + '%'}
                         r={r}
+                        opacity={opacity > 0 ? opacity : 0}
                     />
                 )
             })}
         </svg>
-    )
+    ))
 }

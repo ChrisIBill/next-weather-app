@@ -13,10 +13,10 @@ $twinkle-duration: 4s;
     height: 100%;
     animation: twinkle var(--twinkle-duration) ease-in-out infinite;
 
-    &:nth-child(2) {
+    &:nth-child(2n) {
         animation-delay: calc(var(--twinkle-duration) * -0.33);
     }
-    &:nth-child(3) {
+    &:nth-child(3n) {
         animation-delay: calc(var(--twinkle-duration) * -0.66);
     }
 }
