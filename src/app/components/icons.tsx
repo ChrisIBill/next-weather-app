@@ -3,44 +3,45 @@ import styles from './icons.module.scss'
 import { PosCoordinates } from '@/lib/interfaces'
 
 export interface IconProps {
-    pos?: PosCoordinates
-    xScale?: number
-    yScale?: number
-    width?: number
-    height?: number
+    isDay: boolean
+    phase?: number
+    eclipse?: boolean
+    condition?: string
 }
-export interface MoonIconProps extends IconProps {
+export interface MoonIconProps {
     phase?: number
     eclipse?: boolean
     condition?: string
 }
 export const MoonIcon: React.FC<MoonIconProps> = ({
-    pos,
-    xScale,
-    yScale,
-    width,
-    height,
-    phase,
     condition,
 }: MoonIconProps) => {
     return (
         <div className={styles.moonIcon}>
-            <div className={styles.moonIcon_crater}></div>
+            <div className={styles.crater}></div>
+            <div className={styles.crater}></div>
+            <div className={styles.crater}></div>
+            <div className={styles.crater}></div>
+            <div className={styles.crater}></div>
         </div>
     )
 }
-export interface SunIconProps extends IconProps {
+export interface SunIconProps {
     eclipse?: boolean
     condition?: string
 }
 export const SunIcon: React.FC<SunIconProps> = ({
-    pos,
-    xScale,
-    yScale,
-    width,
-    height,
     eclipse,
     condition,
 }: SunIconProps) => {
     return <div className={styles.sunIcon}></div>
+}
+
+export const CelestialIcon: React.FC<IconProps> = ({ isDay }: IconProps) => {
+    return (
+        <div className={styles.iconWrapper}>
+            {isDay ? <SunIcon /> : <MoonIcon />}
+        </div>
+    )
+    return
 }

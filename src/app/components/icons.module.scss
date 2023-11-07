@@ -1,8 +1,14 @@
-$color_crater: #f0f0e3;
+$color_moon: #fff;
+$color_crater: #cdcdcd;
+$color_crater_edge: #c0c0b3;
 $size_icon: 7rem;
 
 @mixin translate_center {
     transform: translate(-50%, -50%);
+}
+
+.iconWrapper {
+    position: relative;
 }
 
 .moon {
@@ -43,7 +49,8 @@ $size_icon: 7rem;
         37px 20px 0 -10px rgba(100, 100, 100, 0.51);
 }
 .moonIcon {
-    background-color: #b2b2b2;
+    position: relative;
+    background-color: $color_moon;
     width: $size_icon;
     height: $size_icon;
     box-shadow:
@@ -56,29 +63,42 @@ $size_icon: 7rem;
     margin: 1rem;
 
     .crater {
-        width: 1.96rem;
-        height: 1.96rem;
+        position: absolute;
+        width: 28%;
+        height: 28%;
         background-color: $color_crater;
         border-radius: 50%;
-        left: 60%;
-        top: 50%;
+        left: 31%;
+        top: 40%;
         @include translate_center;
         z-index: 2;
-    }
-    &.second {
-        width: 0.756rem;
-        height: 0.756rem;
-        left: 84%;
-        top: 55%;
-        z-index: 2;
-    }
-
-    &.third {
-        width: 40px;
-        height: 40px;
-        left: 65%;
-        top: 75%;
-        z-index: 1;
+        &:nth-of-type(2) {
+            width: 24%;
+            height: 24%;
+            left: 70%;
+            top: 70%;
+        }
+        &:nth-of-type(3) {
+            width: 11%;
+            height: 11%;
+            left: 84%;
+            top: 37%;
+            z-index: 2;
+        }
+        &:nth-of-type(4) {
+            width: 16%;
+            height: 16%;
+            left: 65%;
+            top: 20%;
+            z-index: 1;
+        }
+        &:nth-of-type(5) {
+            width: 17%;
+            height: 17%;
+            left: 28%;
+            top: 78%;
+            z-index: 1;
+        }
     }
 }
 
