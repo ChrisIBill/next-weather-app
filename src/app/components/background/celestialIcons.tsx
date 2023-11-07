@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import styles from './celestialIcons.module.scss'
-import { MoonIcon, SunIcon } from '../icons'
+import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
 import { PosCoordinates } from '@/lib/interfaces'
 import { bezierCurve } from '@/lib/lib'
 
@@ -63,7 +63,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
                 x={bezierPos.x}
                 y={bezierPos.y}
             >
-                <MoonIcon />
+                <CelestialIcon isDay={isDay} />
             </foreignObject>
         </svg>
     )

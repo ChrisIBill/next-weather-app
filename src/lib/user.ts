@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 
 const TemperatureUnits = ['Fahrenheit', 'Celsius'] as const
 const WindSpeedUnits = ['Mph', 'Kph', 'm/s', 'Knots'] as const
-const PrecipitationUnits = ['in', 'mm'] as const
+const PrecipitationUnits = ['inch', 'mm'] as const
 const OVERRIDE_THEME_TYPES = ['basic', 'light', 'dark', ''] as const
 const THEME_TYPES = [
     '',
