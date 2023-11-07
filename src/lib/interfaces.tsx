@@ -138,7 +138,7 @@ export type DetailedWeatherDataType = CurrentWeatherDataType &
     HourlyWeatherDataType &
     DailyWeatherDataType
 export interface DailyWeatherDetailsType {
-    hourly_weather?: HourlyWeatherDataType[]
+    hourly_weather: HourlyWeatherDataType[]
     current_weather?: CurrentWeatherDataType
 }
 export type DailyWeatherForecastType = DailyWeatherDetailsType &
