@@ -11,10 +11,16 @@ import {
 } from '@/lib/interfaces'
 import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { Background } from '../components/background/background'
-import UserPrefs from '@/lib/user'
+import UserPrefs, { ThemeType, UserPreferencesInterface } from '@/lib/user'
 import { WeatherPageHeader } from './header'
 import { DailyWeatherReport } from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
+import dayjs from 'dayjs'
+import {
+    celestialThemeGenerator,
+    getDatetimeObject,
+    percentToGradientStringMapper,
+} from '@/lib/time'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -44,12 +50,17 @@ export default function Page({
     const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
-        Array(8).fill({})
+        Array(8).fill(undefined)
     )
     const [weatherReportData, setWeatherReportData] =
         useState<DetailedWeatherDataType>()
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
+    const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs>()
+    const [userPrefs, setUserPrefs] = useState<UserPreferencesInterface>(
+        User.getUserPreferences()
+    )
+    const [theme, setTheme] = useState<ThemeType>('')
 
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
@@ -68,13 +79,22 @@ export default function Page({
                         ? value.forecast[0].current_weather
                         : value.forecast[0]
                 )
+                setSelectedTime(
+                    dayjs(
+                        value.forecast[0].current_weather
+                            ? value.forecast[0].current_weather
+                            : value.forecast[0].time
+                    )
+                )
             })
     }
 
-    const handleTimeSelect = (day: number, hour?: number) => {
-        if (day > weatherForecast.length || day < 0)
-            throw new Error('Invalid day selection')
-        setSelectedDay(day)
+    const handleTimeSelect = (day?: number, hour?: number) => {
+        if (day) {
+            if (day > weatherForecast.length || day < 0)
+                throw new Error('Invalid day selection')
+            setSelectedDay(day)
+        }
         if (hour) {
             if (hour > 23 || hour < -1)
                 throw new Error('Invalid hour selection')
@@ -86,7 +106,8 @@ export default function Page({
     const getSelectedForecast = () => {
         if (!selectedHour) {
             return weatherForecast[selectedDay]
-        } else if (selectedHour == -1) return weatherForecast[0].current_weather
+        } else if (selectedHour == -1)
+            return weatherForecast[0]?.current_weather
         else {
             if (!weatherForecast[selectedDay]?.hourly_weather)
                 throw new Error('No hourly weather data for this day')
@@ -96,19 +117,51 @@ export default function Page({
     const getSelectedForecastDay = () => {
         return weatherForecast[selectedDay]
     }
+    useEffect(() => {
+        //handles theme change
+        if (
+            userPrefs.themePrefs &&
+            ['dark', 'light', 'basic'].includes(userPrefs.themePrefs)
+        ) {
+        }
+        const time =
+            selectedHour == -1
+                ? weatherForecast[0]?.current_weather?.time
+                : selectedHour !== undefined
+                ? weatherForecast[selectedDay]?.hourly_weather![selectedHour]
+                      .time
+                : undefined
+        console.log('time: ', time)
+        if (time) {
+            const datetime = getDatetimeObject(time)
+            const [sunrise, sunset] = [
+                weatherForecast[selectedDay].sunrise,
+                weatherForecast[selectedDay].sunset,
+            ]
+            setTheme(celestialThemeGenerator(time, sunrise, sunset))
+            setSelectedTime(datetime)
+        }
+    }, [userPrefs.themePrefs, weatherForecast, selectedHour, selectedDay])
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
-                <WeatherPageHeader time={getSelectedForecast()?.time} />
-                {/*<div className={styles.reportsWrapper}>
+                <div className={styles.reportsWrapper}>
                     <DailyWeatherReport forecast={getSelectedForecastDay()} />
-                    <HourlyWeatherReport forecast={getSelectedForecastDay()} />
-                </div>*/}
-                <WeatherCards
-                    weatherForecast={weatherForecast}
-                    handleCardSelect={handleTimeSelect}
-                    selectedDay={selectedHour == -1 ? undefined : selectedDay}
-                />
+                    <WeatherPageHeader time={getSelectedForecast()?.time} />
+                    <HourlyWeatherReport
+                        forecast={getSelectedForecastDay()}
+                        handleTimeSelect={handleTimeSelect}
+                    />
+                </div>
+                <div className={styles.cardsWrapper}>
+                    <WeatherCards
+                        weatherForecast={weatherForecast}
+                        handleCardSelect={handleTimeSelect}
+                        selectedDay={
+                            selectedHour == -1 ? undefined : selectedDay
+                        }
+                    />
+                </div>
             </div>
             <Background weatherForecast={getSelectedForecast()} />
         </div>

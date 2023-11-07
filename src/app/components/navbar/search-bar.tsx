@@ -41,7 +41,7 @@ export default function SearchBar() {
     }
 
     const handleChange = (e: any) => {
-        const regex = /^[0-9\b]+$/
+        const regex = /^[0-9a-zA-Z\b]+$/
         console.log(e.keycode)
         if (e.target.value === '' || regex.test(e.target.value)) {
             setUserAddress(e.target.value)
