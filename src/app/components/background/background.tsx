@@ -6,6 +6,7 @@ import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/time'
 import RainBackground from '@/app/rain'
 import { DetailedWeatherDataType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
+import { Clouds } from './clouds'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
@@ -47,6 +48,8 @@ export const Background: React.FC<BackgroundProps> = (
     console.log('Day calcs: ', isDay, timePercent)
     return (
         <div className={styles.wrapper}>
+            <Clouds cloudCover={100} />
+            <RainBackground />
             <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
             <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
         </div>
