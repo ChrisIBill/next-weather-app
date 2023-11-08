@@ -20,6 +20,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             <Typography
                 variant="h2"
                 component="h2"
+                className={styles.headerText}
                 sx={{
                     color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
@@ -30,6 +31,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             <Typography
                 variant="h3"
                 component="h3"
+                className={styles.headerText}
                 sx={{
                     color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
@@ -40,6 +42,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             <Typography
                 variant="h4"
                 component="h4"
+                className={styles.headerText}
                 sx={{
                     color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
@@ -47,6 +50,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             >
                 {date.format('h:mm A')}
             </Typography>
+            <div className={styles.headerContrastLayer} />
         </div>
     )
 }
