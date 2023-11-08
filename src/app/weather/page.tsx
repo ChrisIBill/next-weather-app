@@ -145,9 +145,9 @@ export default function Page({
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
+                <WeatherPageHeader time={getSelectedForecast()?.time} />
                 <div className={styles.reportsWrapper}>
                     <DailyWeatherReport forecast={getSelectedForecastDay()} />
-                    <WeatherPageHeader time={getSelectedForecast()?.time} />
                     <HourlyWeatherReport
                         forecast={getSelectedForecastDay()}
                         handleTimeSelect={handleTimeSelect}
