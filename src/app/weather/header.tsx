@@ -2,6 +2,7 @@ import React from 'react'
 import styles from './page.module.css'
 import { getDateObject } from '@/lib/time'
 import { Typography } from '@mui/material'
+import { palette } from '@/lib/color'
 export interface WeatherPageHeaderProps {
     time?: string
 }
@@ -16,13 +17,17 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
         )
     const date = getDateObject(props.time)
     return (
-        <div className={styles.headerWrapper}>
+        <div
+            className={styles.headerWrapper}
+            style={{
+                color: palette.offWhite,
+            }}
+        >
             <Typography
                 variant="h2"
                 component="h2"
                 className={styles.headerText}
                 sx={{
-                    color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
                 }}
             >
@@ -33,7 +38,6 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                 component="h3"
                 className={styles.headerText}
                 sx={{
-                    color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
                 }}
             >
@@ -44,7 +48,6 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                 component="h4"
                 className={styles.headerText}
                 sx={{
-                    color: 'rgba(255,255,255,0.5)',
                     fontWeight: 'lighter',
                 }}
             >
