@@ -12,6 +12,7 @@ import UserPrefs, {
     UserPreferencesInterface,
 } from '@/lib/user'
 import { stringLiteralGenerator } from '@/lib/lib'
+import { palette } from '@/lib/color'
 
 interface Preferences {
     TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
@@ -66,7 +67,12 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     return (
         <div className={styles.settingsWrapper}>
             <IconButton aria-label="settings" onClick={handleClick}>
-                <SettingsIcon />
+                <SettingsIcon
+                    sx={{
+                        fontSize: '2rem',
+                        color: palette.offWhite,
+                    }}
+                />
             </IconButton>
             <Menu
                 className={styles.settingsMenu}

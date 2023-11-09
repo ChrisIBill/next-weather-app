@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import styles from './search-bar.module.css'
 import { CoordinatesType } from '@/lib/interfaces'
+import { palette } from '@/lib/color'
 
 export default function SearchBar() {
     const router = useRouter()
@@ -97,8 +98,11 @@ export default function SearchBar() {
         <TextField
             className={styles.searchBar}
             label="Location"
-            variant="filled"
-            sx={{ borderRadius: '1rem' }}
+            variant="outlined"
+            sx={{
+                borderRadius: '1rem',
+                backgroundColor: palette.offWhite,
+            }}
             onChange={(e) => handleChange(e)}
             onKeyDown={(e) => handleEnterKey(e)}
             value={userAddress}
