@@ -1,4 +1,5 @@
 .header {
+    $background: #e5dcd1;
     position: static;
     width: 100%;
     height: fit-content;
@@ -7,7 +8,6 @@
 }
 .AppBar {
     width: 100%;
-    border-bottom: 0.1rem solid #505050;
     background: rgba(255, 255, 255, 0.01);
     border-radius: 16px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
