@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from './icons.module.scss'
-import { PosCoordinates } from '@/lib/interfaces'
+import { GCProps, PosCoordinates } from '@/lib/interfaces'
 
-export interface IconProps {
+export interface IconProps extends GCProps {
     isDay: boolean
     phase?: number
     eclipse?: boolean
@@ -17,7 +17,7 @@ export const MoonIcon: React.FC<MoonIconProps> = ({
     condition,
 }: MoonIconProps) => {
     return (
-        <div className={styles.moonIcon}>
+        <div className={styles.moonIcon} style={{}}>
             <div className={styles.crater}></div>
             <div className={styles.crater}></div>
             <div className={styles.crater}></div>
@@ -37,11 +37,13 @@ export const SunIcon: React.FC<SunIconProps> = ({
     return <div className={styles.sunIcon}></div>
 }
 
-export const CelestialIcon: React.FC<IconProps> = ({ isDay }: IconProps) => {
+export const CelestialIcon: React.FC<IconProps> = ({
+    isDay,
+    variant,
+}: IconProps) => {
     return (
         <div className={styles.iconWrapper}>
             {isDay ? <SunIcon /> : <MoonIcon />}
         </div>
     )
-    return
 }

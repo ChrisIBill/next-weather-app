@@ -50,8 +50,12 @@ export const Background: React.FC<BackgroundProps> = (
         <div className={styles.wrapper}>
             {/*<Clouds cloudCover={100} />*/}
             <RainBackground />
-            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
-            <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
+            <CelestialIconsHandler
+                isDay={isDay}
+                timePercent={timePercent}
+                variant={'simple'}
+            />
+            {/*<DayNightColorLayer isDay={isDay} timePercent={timePercent} /> */}
         </div>
     )
 }

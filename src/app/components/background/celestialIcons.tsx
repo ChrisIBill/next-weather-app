@@ -2,10 +2,10 @@
 import React from 'react'
 import styles from './celestialIcons.module.scss'
 import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
-import { PosCoordinates } from '@/lib/interfaces'
+import { GCProps, PosCoordinates } from '@/lib/interfaces'
 import { bezierCurve } from '@/lib/lib'
 
-export interface CelestialIconsProps {
+export interface CelestialIconsProps extends GCProps {
     isDay: boolean
     timePercent: number
     eclipse?: boolean
@@ -16,6 +16,7 @@ export interface CelestialIconsProps {
 export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
     isDay,
     timePercent,
+    variant,
 }: CelestialIconsProps) => {
     //TODO: Should probably handle client scaling higher up the tree
     const { innerWidth: width, innerHeight: height } = window
@@ -63,7 +64,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
                 x={bezierPos.x}
                 y={bezierPos.y}
             >
-                <CelestialIcon isDay={isDay} />
+                <CelestialIcon isDay={isDay} variant={variant} />
             </foreignObject>
         </svg>
     )
