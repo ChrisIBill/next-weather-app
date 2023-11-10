@@ -1,9 +1,11 @@
-import './globals.css'
+import './globals.scss'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import styles from './layout.module.css'
 import NavBar from './components/navbar/navbar'
 import UserPrefs from '../lib/user'
+import palette from './globals.scss'
+import { ThemeProvider } from '@/lib/context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,8 +22,10 @@ export default function RootLayout({
     return (
         <html lang="en" className={styles.html}>
             <body className={styles.body}>
-                <NavBar />
-                <main className={styles.main}>{children}</main>
+                <ThemeProvider>
+                    <NavBar />
+                    <main className={styles.main}>{children}</main>
+                </ThemeProvider>
             </body>
         </html>
     )
