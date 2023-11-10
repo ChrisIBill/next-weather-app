@@ -25,7 +25,7 @@ export interface UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
-    themePrefs?: ThemeType
+    themePrefs: ThemeType
 }
 
 export function getFromLocalStorage(key: string) {
@@ -44,7 +44,7 @@ export default class UserPrefs implements UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
-    themePrefs?: ThemeType
+    themePrefs: ThemeType
 
     constructor() {
         this.tempUnit = this.getLocalTempUnit()
