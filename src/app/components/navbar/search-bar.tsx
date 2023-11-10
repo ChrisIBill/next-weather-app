@@ -1,16 +1,30 @@
 'use client'
 
-import { TextField } from '@mui/material'
+import {
+    Autocomplete,
+    Box,
+    FormControl,
+    FormHelperText,
+    FormLabel,
+    InputBase,
+    InputLabel,
+    OutlinedInput,
+    TextField,
+} from '@mui/material'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
-import styles from './search-bar.module.css'
+import styles from './navbar.module.scss'
 import { CoordinatesType } from '@/lib/interfaces'
-import { palette } from '@/lib/color'
+import palette from '@/lib/export.module.scss'
+import paletteHandler from '@/lib/paletteHandler'
+import { useTheme } from '@/lib/context'
 
 export default function SearchBar() {
     const router = useRouter()
     const pathname = usePathname()
     const searchParams = useSearchParams()
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
 
     const [userAddress, setUserAddress] = useState<string>('')
     const [isInputError, setIsInputError] = useState<boolean>(false)
@@ -95,19 +109,20 @@ export default function SearchBar() {
     }, [createQueryString, router, location, pathname])
 
     return (
-        <TextField
-            className={styles.searchBar}
-            label="Location"
-            variant="outlined"
-            sx={{
-                borderRadius: '1rem',
-                backgroundColor: palette.offWhite,
-            }}
-            onChange={(e) => handleChange(e)}
-            onKeyDown={(e) => handleEnterKey(e)}
-            value={userAddress}
-            error={isInputError}
-            helperText={helperText}
-        />
+        <FormControl className={styles.searchBar} data-theme="dark" sx={{}}>
+            <FormLabel className={styles.inputLabel}>Location</FormLabel>
+            <OutlinedInput
+                sx={{
+                    color: palette.textPrimary,
+                    background: palette.accent,
+                }}
+                className={styles.inputBase}
+                onChange={(e) => handleChange(e)}
+                onKeyDown={(e) => handleEnterKey(e)}
+                value={userAddress}
+                error={isInputError}
+            />
+            <FormHelperText>{helperText}</FormHelperText>
+        </FormControl>
     )
 }

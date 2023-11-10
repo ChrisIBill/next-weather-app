@@ -6,15 +6,15 @@ $accent: var(--accent);
     position: static;
     width: 100%;
     height: fit-content;
-    min-height: 4rem;
+    min-height: 3rem;
     margin-bottom: 0.5rem;
 
     .MuiAppBar {
         width: 100%;
+        height: 4rem;
         border-radius: 16px;
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
-        height: 4rem;
 
         .Toolbar {
             width: 100%;
@@ -35,14 +35,15 @@ $accent: var(--accent);
                 align-items: center;
                 justify-content: flex-end;
             }
-            .formWrapper {
-                .searchBar {
-                    align-self: flex-end;
-
-                    .inputLabel {
-                    }
-                    .inputBase {
-                    }
+            .searchBar {
+                margin-top: 0.5rem;
+                margin-bottom: 0.5rem;
+                height: fit-content;
+                .inputLabel {
+                    height: 0.5rem;
+                }
+                .inputBase {
+                    height: 2.5rem;
                 }
             }
         }

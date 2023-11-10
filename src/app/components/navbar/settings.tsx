@@ -1,7 +1,7 @@
 'use client'
 
 import SettingsIcon from '@mui/icons-material/Settings'
-import styles from './settings.module.css'
+import styles from './navbar.module.scss'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import React, { useEffect } from 'react'
 import UserPrefs, {
@@ -12,7 +12,9 @@ import UserPrefs, {
     UserPreferencesInterface,
 } from '@/lib/user'
 import { stringLiteralGenerator } from '@/lib/lib'
-import { palette } from '@/lib/color'
+import palette from '@/lib/export.module.scss'
+import { useTheme } from '@/lib/context'
+import paletteHandler from '@/lib/paletteHandler'
 
 interface Preferences {
     TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
@@ -26,6 +28,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const User = new UserPrefs()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
+
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
 
     const tempUnits = MeasurementUnits.TemperatureUnits
     const windUnits = MeasurementUnits.WindSpeedUnits
@@ -70,7 +75,7 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                 <SettingsIcon
                     sx={{
                         fontSize: '2rem',
-                        color: palette.offWhite,
+                        color: palette.accent,
                     }}
                 />
             </IconButton>
