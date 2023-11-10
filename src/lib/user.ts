@@ -3,37 +3,8 @@ import dayjs from 'dayjs'
 const TemperatureUnits = ['Fahrenheit', 'Celsius'] as const
 const WindSpeedUnits = ['Mph', 'Kph', 'm/s', 'Knots'] as const
 const PrecipitationUnits = ['inch', 'mm'] as const
-const OVERRIDE_THEME_TYPES = ['basic', 'light', 'dark', ''] as const
-const THEME_TYPES = [
-    '',
-    'basic',
-    'light',
-    'dark',
-    'hour00',
-    'hour01',
-    'hour02',
-    'hour03',
-    'hour04',
-    'hour05',
-    'hour06',
-    'hour07',
-    'hour08',
-    'hour09',
-    'hour10',
-    'hour11',
-    'hour12',
-    'hour13',
-    'hour14',
-    'hour15',
-    'hour16',
-    'hour17',
-    'hour18',
-    'hour19',
-    'hour20',
-    'hour21',
-    'hour22',
-    'hour23',
-] as const
+const OVERRIDE_THEME_TYPES = ['light', 'dark'] as const
+const THEME_TYPES = ['', 'light', 'dark'] as const
 // exporting constants array of string literals to allow for iteration and type-checking
 export const MeasurementUnits = {
     TemperatureUnits,
@@ -118,10 +89,7 @@ export default class UserPrefs implements UserPreferencesInterface {
     // prettier-ignore
     public getPrecipitationUnit() { return this.precipitationUnit }
     public getThemePrefs() {
-        if (
-            this.themePrefs &&
-            ['basic', 'light', 'dark'].includes(this.themePrefs)
-        )
+        if (this.themePrefs && ['light', 'dark'].includes(this.themePrefs))
             return this.themePrefs
         return undefined
     }
@@ -143,8 +111,13 @@ export default class UserPrefs implements UserPreferencesInterface {
     }
     private getLocalThemePrefs() {
         const unit = getFromLocalStorage('themePrefs')
+        let ret = 'light'
         if (unit && this.isThemeType(unit)) return unit
-        return undefined
+        else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            ret = 'dark'
+        }
+        localStorage.setItem('themePrefs', ret)
+        return ret
     }
 
     public getUserPreferences(): UserPreferencesInterface {

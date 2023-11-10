@@ -1,10 +1,6 @@
 import palette from './export.module.scss'
-export default function paletteHandler() {
-    if (typeof window === 'undefined')
-        throw new Error(
-            'Client-side function paletteHandler() running on server-side'
-        )
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+export default function paletteHandler(theme?: string) {
+    if (theme === 'dark')
         return {
             background: palette.darkBackground,
             secondary: palette.darkSecondary,
@@ -12,7 +8,6 @@ export default function paletteHandler() {
             textSecondary: palette.darkTextSecondary,
             accent: palette.darkAccent,
         }
-    }
     return {
         background: palette.lightBackground,
         secondary: palette.lightSecondary,
