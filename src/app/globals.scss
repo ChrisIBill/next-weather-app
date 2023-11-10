@@ -1,0 +1,56 @@
+@use './_variables.scss' as *;
+
+:root {
+    --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+        'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
+        'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+    --background: $light-background;
+    --text-primary: $light-text-primary;
+    --text-secondary: $light-text-secondary;
+    --accent: $light-accent;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        background: $dark-background;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+            to bottom,
+            transparent,
+            rgb(var(--background-end-rgb))
+        )
+        rgb(var(--background-start-rgb));
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        color-scheme: dark;
+    }
+}
+[data-theme='dark'] {
+    --background: $dark-background;
+    --text-primary: $dark-text-primary;
+    --text-secondary: $dark-text-secondary;
+    --accent: $dark-accent;
+}
