@@ -1,39 +1,54 @@
+$background: var(--background);
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$accent: var(--accent);
 .header {
-    $background: #e5dcd1;
     position: static;
     width: 100%;
     height: fit-content;
     min-height: 4rem;
     margin-bottom: 0.5rem;
+
+    .MuiAppBar {
+        width: 100%;
+        border-radius: 16px;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        height: 4rem;
+
+        .Toolbar {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+
+            .titleWrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .itemsWrapper {
+                display: flex;
+                flex: 1;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-end;
+            }
+            .formWrapper {
+                .searchBar {
+                    align-self: flex-end;
+
+                    .inputLabel {
+                    }
+                    .inputBase {
+                    }
+                }
+            }
+        }
+    }
 }
-.AppBar {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.01);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    height: 4rem;
-}
-.Toolbar {
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-}
-.titleWrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.itemsWrapper {
-    display: flex;
-    flex: 1;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
-    /*align-self: flex-end;*/
-}
+
 .fillerElement {
     flex: 1;
 }
@@ -42,4 +57,8 @@
 }
 .subtitle {
     font-size: 1rem;
+}
+
+.settingsWrapper {
+    position: relative;
 }
