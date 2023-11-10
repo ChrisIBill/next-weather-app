@@ -1,5 +1,5 @@
 $simple_icon_bg_color: transparent;
-$icon_border_color: #e5dcd1;
+$icon_border_color: #f8f5f2;
 $color_moon: #fff;
 $color_crater: #cdcdcd;
 $color_crater_edge: #c0c0b3;
@@ -27,6 +27,7 @@ $size_icon: 7rem;
     height: $size_icon;
     border-radius: 50%;
     border: 0.5rem solid $icon_border_color;
+    box-shadow: 0 0 1rem $border-color;
     z-index: 3;
     margin: 1rem;
 
