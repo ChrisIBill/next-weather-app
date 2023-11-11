@@ -129,7 +129,6 @@ export default function SearchBar() {
                 htmlFor="location-search"
                 className={styles.searchLabel}
                 sx={{
-                    position: 'relative',
                     color: palette.textSecondary,
                 }}
             >

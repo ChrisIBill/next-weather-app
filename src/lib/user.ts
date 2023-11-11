@@ -1,31 +1,33 @@
 import dayjs from 'dayjs'
 
-const TemperatureUnits = ['Fahrenheit', 'Celsius'] as const
-const WindSpeedUnits = ['Mph', 'Kph', 'm/s', 'Knots'] as const
+const TemperatureUnits = ['fahrenheit', 'celsius'] as const
+const WindSpeedUnits = ['mph', 'kph', 'ms', 'kn'] as const
 const PrecipitationUnits = ['inch', 'mm'] as const
+
 const OVERRIDE_THEME_TYPES = ['light', 'dark'] as const
-const THEME_TYPES = ['', 'light', 'dark'] as const
+const ThemeTypes = ['light', 'dark'] as const
 // exporting constants array of string literals to allow for iteration and type-checking
-export const MeasurementUnits = {
+export const ContextUnits = {
     TemperatureUnits,
     WindSpeedUnits,
     PrecipitationUnits,
+    ThemeTypes,
 }
 
 export type TemperatureUnitType = (typeof TemperatureUnits)[number]
 export type WindSpeedUnitType = (typeof WindSpeedUnits)[number]
 export type PrecipitationUnitType = (typeof PrecipitationUnits)[number]
-export type ThemeType = (typeof THEME_TYPES)[number]
+export type ThemeLiteralsType = (typeof ThemeTypes)[number]
 
-export function themeTypeValidator(theme: string): theme is ThemeType {
-    return THEME_TYPES.includes(theme as ThemeType)
+export function themeTypeValidator(theme: string): theme is ThemeLiteralsType {
+    return ThemeTypes.includes(theme as ThemeLiteralsType)
 }
 
 export interface UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
-    themePrefs: ThemeType
+    themePrefs: ThemeLiteralsType
 }
 
 export function getFromLocalStorage(key: string) {
@@ -44,7 +46,7 @@ export default class UserPrefs implements UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
-    themePrefs: ThemeType
+    themePrefs: ThemeLiteralsType
 
     constructor() {
         this.tempUnit = this.getLocalTempUnit()
@@ -63,8 +65,8 @@ export default class UserPrefs implements UserPreferencesInterface {
     public isPrecipitationUnit(unit: any): unit is PrecipitationUnitType {
         return PrecipitationUnits.includes(unit as PrecipitationUnitType)
     }
-    public isThemeType(unit: any): unit is ThemeType {
-        return THEME_TYPES.includes(unit as ThemeType)
+    public isThemeType(unit: any): unit is ThemeLiteralsType {
+        return ThemeTypes.includes(unit as ThemeLiteralsType)
     }
     public isUserPreferences(
         userPrefs: UserPreferencesInterface
@@ -110,14 +112,13 @@ export default class UserPrefs implements UserPreferencesInterface {
         else return undefined
     }
     private getLocalThemePrefs() {
-        const unit = getFromLocalStorage('themePrefs')
-        let ret = 'light'
+        let unit = getFromLocalStorage('themePrefs') || 'light'
         if (unit && this.isThemeType(unit)) return unit
         else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            ret = 'dark'
+            unit = 'dark'
+            localStorage.setItem('themePrefs', unit)
         }
-        localStorage.setItem('themePrefs', ret)
-        return ret
+        return unit as ThemeLiteralsType
     }
 
     public getUserPreferences(): UserPreferencesInterface {
@@ -125,6 +126,7 @@ export default class UserPrefs implements UserPreferencesInterface {
             tempUnit: this.tempUnit,
             windSpeedUnit: this.windSpeedUnit,
             precipitationUnit: this.precipitationUnit,
+            themePrefs: this.themePrefs,
         }
     }
 

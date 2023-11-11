@@ -1,11 +1,11 @@
 'use client'
 import { createContext, useContext, useState } from 'react'
-import UserPrefs, { ThemeType } from '@/lib/user'
+import UserPrefs, { ThemeLiteralsType } from '@/lib/user'
 import { Tillana } from 'next/font/google'
 
 type ThemeState = {
-    theme: ThemeType
-    setTheme: (theme: ThemeType) => void
+    theme: ThemeLiteralsType
+    setTheme: (theme: ThemeLiteralsType) => void
 }
 const ThemeContext = createContext<ThemeState | null>(null)
 
@@ -24,7 +24,7 @@ export interface ThemeProviderProps {
 
 export const ThemeProvider = (props: ThemeProviderProps) => {
     const user = new UserPrefs()
-    const [theme, setTheme] = useState<ThemeType>(user.themePrefs)
+    const [theme, setTheme] = useState<ThemeLiteralsType>(user.themePrefs)
     return (
         <ThemeContext.Provider value={{ theme, setTheme }}>
             {props.children}

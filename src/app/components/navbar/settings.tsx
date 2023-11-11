@@ -5,7 +5,7 @@ import styles from './navbar.module.scss'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import React, { useEffect } from 'react'
 import UserPrefs, {
-    MeasurementUnits,
+    ContextUnits,
     TemperatureUnitType,
     PrecipitationUnitType,
     WindSpeedUnitType,
@@ -32,22 +32,24 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const theme = useTheme()
     const palette = paletteHandler(theme.theme)
 
-    const tempUnits = MeasurementUnits.TemperatureUnits
-    const windUnits = MeasurementUnits.WindSpeedUnits
-    const precipUnits = MeasurementUnits.PrecipitationUnits
+    const tempUnits = ContextUnits.TemperatureUnits
+    const windUnits = ContextUnits.WindSpeedUnits
+    const precipUnits = ContextUnits.PrecipitationUnits
+    const themeTypes = ContextUnits.ThemeTypes
 
     const [tempPref, setTempPref] = React.useState<TemperatureUnitType>(
-        User.tempUnit ? User.tempUnit : 'Fahrenheit'
+        User.tempUnit ? User.tempUnit : 'fahrenheit'
     )
     const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(
-        User.windSpeedUnit ? User.windSpeedUnit : 'Mph'
+        User.windSpeedUnit ? User.windSpeedUnit : 'mph'
     )
     const [precipPref, setPrecipPref] = React.useState<PrecipitationUnitType>(
-        User.precipitationUnit ? User.precipitationUnit : 'in'
+        User.precipitationUnit ? User.precipitationUnit : 'inch'
     )
     const tempGenerator = stringLiteralGenerator(tempPref, tempUnits)
     const windGenerator = stringLiteralGenerator(windPref, windUnits)
     const precipGenerator = stringLiteralGenerator(precipPref, precipUnits)
+    const themeGenerator = stringLiteralGenerator(theme.theme, themeTypes)
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         setAnchorEl(event.currentTarget)
@@ -68,6 +70,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const handlePrecipitationItem = () => {
         setPrecipPref(precipGenerator.next().value as PrecipitationUnitType)
     }
+    const handleThemeItem = () => {
+        theme.setTheme(themeGenerator.next().value as 'light' | 'dark')
+    }
 
     return (
         <div className={styles.settingsWrapper}>
@@ -75,7 +80,7 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                 <SettingsIcon
                     sx={{
                         fontSize: '2rem',
-                        color: palette.accent,
+                        color: palette.textPrimary,
                     }}
                 />
             </IconButton>
@@ -89,6 +94,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                 }}
             >
                 <MenuItem onClick={handleClose}>Animations</MenuItem>
+                <MenuItem onClick={handleThemeItem}>
+                    Theme: {theme.theme}
+                </MenuItem>
                 <MenuItem onClick={handleTemperatureItem}>
                     Temperature Unit: {tempPref}
                 </MenuItem>

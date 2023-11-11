@@ -17,6 +17,7 @@ const NavBar: React.FC<NavBarProps> = () => {
     console.log('User Theme: ', theme)
     return (
         <header className={styles.header} data-theme={theme}>
+            <div className={styles.glowBox} />
             <AppBar className={styles.MuiAppBar} data-theme={theme} sx={{}}>
                 <Toolbar
                     className={styles.Toolbar}
