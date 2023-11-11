@@ -14,6 +14,8 @@ import { WeatherDataKeysMap } from '@/lib/records'
 import { getDatetimeObject } from '@/lib/time'
 import React from 'react'
 import dayjs from 'dayjs'
+import { useTheme } from '@/lib/context'
+import paletteHandler from '@/lib/paletteHandler'
 
 export interface HourlyWeatherReportProps {
     forecast?: DailyWeatherForecastType
@@ -24,6 +26,10 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
+
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
+
     const el = React.useRef<HTMLTableRowElement>(null)
     const hourlyForecast = props.forecast?.hourly_weather
         ? props.forecast.hourly_weather
@@ -48,6 +54,9 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         'weathercode',
     ]
     const propKeys = isExpanded ? Object.keys(hourlyForecast[0]) : denseKeys
+
+    const numColumns = propKeys.length
+    const columnWidth = 100 / numColumns
     interface TableProps {
         keys: string[]
     }
@@ -55,7 +64,18 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         return (
             <TableRow
                 sx={{
-                    height: '1rem',
+                    height: '2rem',
+                    //position: 'sticky',
+                    //top: 0,
+                    //left: 0,
+                    //right: 0,
+                    //bottom: 0,
+                    //background: `linear-gradient(
+                    //                180deg,
+                    //                ${palette.background},
+                    //                ${palette.secondary}
+                    //            )`,
+                    //color: palette.textPrimary,
                 }}
             >
                 {props.keys.map((key) => {
@@ -68,8 +88,15 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             padding="checkbox"
                             size="small"
                             sx={{
-                                backgroundColor: 'rgba(105, 101, 107,1)',
+                                background: `linear-gradient(
+                                    5deg,
+                                    ${palette.background},
+                                    ${palette.secondary}
+                                )`,
+                                boxShadow: '0 0 1rem rgba(0, 0, 0, 0.5)',
+                                color: palette.textPrimary,
                                 height: '1rem',
+                                width: columnWidth + '%',
                             }}
                         >
                             {titleObj.short}
@@ -97,23 +124,60 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         onClick={() => {
                             handleTimeSelect?.(undefined, index)
                         }}
+                        style={{
+                            color: palette.textPrimary,
+                            //borderRight: `1px solid ${palette.textPrimary}`,
+                            //borderLeft: `1px solid ${palette.textPrimary}`,
+                        }}
                     >
                         {props.keys.map((key) => {
-                            if (hour[key] == undefined) return null
-                            if (key === 'time') {
-                                return (
-                                    <TableCell size="medium" key={key} sx={{}}>
-                                        {getDatetimeObject(hour[key]!).format(
-                                            'hh:00 A'
-                                        )}
-                                    </TableCell>
-                                )
+                            console.log('Type of key: ', typeof hour[key])
+                            if (hour[key] === undefined) return null
+                            switch (key) {
+                                case 'time':
+                                    return (
+                                        <TableCell
+                                            size="medium"
+                                            key={key}
+                                            sx={{
+                                                color: palette.textSecondary,
+                                            }}
+                                            style={{
+                                                width: columnWidth + '%',
+                                            }}
+                                        >
+                                            {getDatetimeObject(
+                                                hour[key]!
+                                            ).format('hh:00 A')}
+                                        </TableCell>
+                                    )
+                                case 'visibility':
+                                    return (
+                                        <TableCell
+                                            size="medium"
+                                            key={key}
+                                            sx={{
+                                                width: columnWidth + '%',
+                                                color: palette.textSecondary,
+                                            }}
+                                        >
+                                            {(hour[key] + '').split('.')[0]}
+                                        </TableCell>
+                                    )
+                                default:
+                                    return (
+                                        <TableCell
+                                            size="medium"
+                                            key={key}
+                                            sx={{
+                                                width: columnWidth + '%',
+                                                color: palette.textSecondary,
+                                            }}
+                                        >
+                                            {hour[key]}
+                                        </TableCell>
+                                    )
                             }
-                            return (
-                                <TableCell size="medium" key={key}>
-                                    {hour[key]}
-                                </TableCell>
-                            )
                         })}
                     </tr>
                 ))}
@@ -129,7 +193,8 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                     borderRadius: '0.5rem',
                     margin: '1rem',
                     width: 'fit-content',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    background: 'transparent',
+                    borderBottom: `1px solid ${palette.textPrimary}`,
                 }}
             >
                 <Table
@@ -137,6 +202,10 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                     sx={{
                         minHeight: 0,
                         minWidth: 650,
+                    }}
+                    style={{
+                        tableLayout: 'fixed',
+                        borderCollapse: 'collapse',
                     }}
                     aria-label="hourly report table"
                 >
@@ -147,8 +216,10 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         sx={{
                             position: 'relative',
                             zIndex: 0,
-                            maxHeight: '100%',
                             overflow: 'hidden',
+                        }}
+                        style={{
+                            borderCollapse: 'collapse',
                         }}
                     >
                         <TableContent keys={propKeys} />
