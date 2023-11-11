@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
-import styles from './page.module.css'
+import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
     DetailedWeatherDataType,

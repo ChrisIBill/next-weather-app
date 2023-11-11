@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './page.module.css'
+import styles from './page.module.scss'
 import { getDateObject } from '@/lib/time'
 import { Typography } from '@mui/material'
 import paletteHandler from '@/lib/paletteHandler'
@@ -22,6 +22,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
     return (
         <div
             className={styles.headerWrapper}
+            data-theme={theme.theme}
             style={{
                 color: palette.textPrimary,
             }}
@@ -52,11 +53,12 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                 className={styles.headerText}
                 sx={{
                     fontWeight: 'lighter',
+                    color: palette.textSecondary,
                 }}
             >
                 {date.format('h:mm A')}
             </Typography>
-            <div className={styles.headerContrastLayer} />
+            {/*<div className={styles.headerContrastLayer} />*/}
         </div>
     )
 }
