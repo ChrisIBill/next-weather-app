@@ -10,6 +10,7 @@ import {
     InputLabel,
     OutlinedInput,
     TextField,
+    styled,
 } from '@mui/material'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -18,6 +19,20 @@ import { CoordinatesType } from '@/lib/interfaces'
 import palette from '@/lib/export.module.scss'
 import paletteHandler from '@/lib/paletteHandler'
 import { useTheme } from '@/lib/context'
+
+const ValidationOutlinedInput = styled(OutlinedInput)({
+    '& input:valid + fieldset': {
+        borderWidth: 2,
+    },
+    '& input:invalid + fieldset': {
+        borderColor: 'red',
+        borderWidth: 2,
+    },
+    '& input:valid:focus + fieldset': {
+        borderLeftWidth: 6,
+        padding: '4px !important', // override inline-style
+    },
+})
 
 export default function SearchBar() {
     const router = useRouter()
@@ -109,14 +124,35 @@ export default function SearchBar() {
     }, [createQueryString, router, location, pathname])
 
     return (
-        <FormControl className={styles.searchBar} data-theme="dark" sx={{}}>
-            <FormLabel className={styles.inputLabel}>Location</FormLabel>
+        <FormControl className={styles.searchForm} data-theme="dark" sx={{}}>
+            <InputLabel
+                htmlFor="location-search"
+                className={styles.searchLabel}
+                sx={{
+                    position: 'relative',
+                    color: palette.textSecondary,
+                }}
+            >
+                Location
+            </InputLabel>
             <OutlinedInput
+                id="location-search"
                 sx={{
                     color: palette.textPrimary,
-                    background: palette.accent,
+                    '& fieldset': {
+                        borderColor: palette.textPrimary,
+                    },
+                    '& input:valid + fieldset': {
+                        borderColor: palette.textPrimary,
+                    },
+                    '& input:focus + fieldset': {
+                        borderColor: palette.accent,
+                    },
+                    '& input:valid:focus + fieldset': {
+                        border: `0.1rem solid ${palette.accent}`,
+                    },
                 }}
-                className={styles.inputBase}
+                className={styles.searchBar}
                 onChange={(e) => handleChange(e)}
                 onKeyDown={(e) => handleEnterKey(e)}
                 value={userAddress}

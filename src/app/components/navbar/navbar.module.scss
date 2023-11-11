@@ -34,16 +34,34 @@ $accent: var(--accent);
                 flex-direction: row;
                 align-items: center;
                 justify-content: flex-end;
+                height: 4rem;
             }
-            .searchBar {
-                margin-top: 0.5rem;
-                margin-bottom: 0.5rem;
-                height: fit-content;
-                .inputLabel {
-                    height: 0.5rem;
+            .searchForm {
+                height: 2.5rem;
+                .searchLabel {
+                    position: absolute;
+                    margin: auto;
                 }
-                .inputBase {
+                .searchBar {
                     height: 2.5rem;
+                    border-radius: 2rem;
+                    & fieldset {
+                        border-width: 0.1rem;
+                    }
+                    & input:focus + fieldset {
+                        border-width: 0.1rem;
+                    }
+                    & input:valid {
+                        border-top: transparent;
+                    }
+                    & input:invalid + fieldset {
+                        border-width: 0.15rem;
+                        background-color: green;
+                        border-color: red;
+                    }
+                    & input:valid:focus + fieldset {
+                        border-top: transparent;
+                    }
                 }
             }
         }
