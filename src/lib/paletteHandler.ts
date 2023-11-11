@@ -7,6 +7,7 @@ export default function paletteHandler(theme?: string) {
             textPrimary: palette.darkTextPrimary,
             textSecondary: palette.darkTextSecondary,
             accent: palette.darkAccent,
+            accentSecondary: palette.darkAccentSecondary,
         }
     return {
         background: palette.lightBackground,
@@ -14,5 +15,6 @@ export default function paletteHandler(theme?: string) {
         textPrimary: palette.lightTextPrimary,
         textSecondary: palette.lightTextSecondary,
         accent: palette.lightAccent,
+        accentSecondary: palette.lightAccentSecondary,
     }
 }
