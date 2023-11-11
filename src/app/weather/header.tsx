@@ -2,13 +2,16 @@ import React from 'react'
 import styles from './page.module.css'
 import { getDateObject } from '@/lib/time'
 import { Typography } from '@mui/material'
-import { palette } from '@/lib/color'
+import paletteHandler from '@/lib/paletteHandler'
+import { useTheme } from '@/lib/context'
 export interface WeatherPageHeaderProps {
     time?: string
 }
 export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
     props: WeatherPageHeaderProps
 ) => {
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
     if (!props.time)
         return (
             <div className={styles.headerWrapper}>
@@ -20,7 +23,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
         <div
             className={styles.headerWrapper}
             style={{
-                color: palette.offWhite,
+                color: palette.textPrimary,
             }}
         >
             <Typography

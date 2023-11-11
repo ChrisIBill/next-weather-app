@@ -7,13 +7,13 @@ import paletteHandler from '@/lib/paletteHandler'
 import UserPrefs from '@/lib/user'
 import React from 'react'
 import useLocalStorage from 'use-local-storage'
+import { useTheme } from '@/lib/context'
 
 export interface NavBarProps {}
 const NavBar: React.FC<NavBarProps> = () => {
     //TODO: If mobile, render navbar in footer
-    const user = new UserPrefs()
-    const [theme, setTheme] = useLocalStorage('theme', user.themePrefs)
-    const palette = paletteHandler(theme)
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
     console.log('User Theme: ', theme)
     return (
         <header className={styles.header} data-theme={theme}>

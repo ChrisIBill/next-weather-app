@@ -21,6 +21,8 @@ import {
     getDatetimeObject,
     percentToGradientStringMapper,
 } from '@/lib/time'
+import { useTheme } from '@/lib/context'
+import paletteHandler from '@/lib/paletteHandler'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -60,7 +62,8 @@ export default function Page({
     const [userPrefs, setUserPrefs] = useState<UserPreferencesInterface>(
         User.getUserPreferences()
     )
-    const [theme, setTheme] = useState<ThemeType>('')
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
 
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
@@ -118,12 +121,6 @@ export default function Page({
         return weatherForecast[selectedDay]
     }
     useEffect(() => {
-        //handles theme change
-        if (
-            userPrefs.themePrefs &&
-            ['dark', 'light', 'basic'].includes(userPrefs.themePrefs)
-        ) {
-        }
         const time =
             selectedHour == -1
                 ? weatherForecast[0]?.current_weather?.time
@@ -138,7 +135,6 @@ export default function Page({
                 weatherForecast[selectedDay].sunrise,
                 weatherForecast[selectedDay].sunset,
             ]
-            setTheme(celestialThemeGenerator(time, sunrise, sunset))
             setSelectedTime(datetime)
         }
     }, [userPrefs.themePrefs, weatherForecast, selectedHour, selectedDay])
