@@ -13,7 +13,10 @@ import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { Background } from '../components/background/background'
 import UserPrefs, { ThemeType, UserPreferencesInterface } from '@/lib/user'
 import { WeatherPageHeader } from './header'
-import { DailyWeatherReport } from '../components/weatherReports/dailyWeatherReport'
+import {
+    CurrentWeatherReport,
+    DailyWeatherReport,
+} from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 import dayjs from 'dayjs'
 import {
@@ -142,7 +145,7 @@ export default function Page({
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.reportsWrapper}>
-                    <DailyWeatherReport forecast={getSelectedForecastDay()} />
+                    <CurrentWeatherReport forecast={getSelectedForecast()} />
                     <WeatherPageHeader time={getSelectedForecast()?.time} />
                     <HourlyWeatherReport
                         forecast={getSelectedForecastDay()}

@@ -1,4 +1,5 @@
 import { DailyWeatherForecastType } from '@/lib/interfaces'
+import '../../_styles.scss'
 import styles from './hourlyWeatherReport.module.css'
 import {
     Paper,
@@ -211,6 +212,14 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                 >
                     <TableHead sx={{}}>
                         <TableHeader keys={propKeys} />
+                        <div
+                            className="glowBox"
+                            style={{
+                                //set glowbox css vars
+                                '--height': '20rem',
+                                '--width': '100%',
+                            }}
+                        />
                     </TableHead>
                     <TableBody
                         sx={{

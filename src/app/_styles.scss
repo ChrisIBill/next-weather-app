@@ -1,6 +1,19 @@
-[data-theme='dark'] {
-    --background: '#020013';
-    --text-primary: '#DAD9D7';
-    --text-secondary: '#94908D';
-    --accent: '0E013E';
+.glowBox {
+    --width: 2rem;
+    --height: 2rem;
+    --offset: 0;
+    --x: 0;
+    --y: 0;
+    position: absolute;
+    left: calc(50% - var(--width) / 2 + var(--x));
+    top: calc(50% - var(--height) / 2 + var(--y));
+    margin-left: auto;
+    margin-right: auto;
+    width: var(--width);
+    height: var(--height);
+    background: radial-gradient(
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0) 70%
+    );
+    border-radius: 50%;
 }

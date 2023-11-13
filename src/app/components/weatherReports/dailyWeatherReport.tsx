@@ -5,23 +5,27 @@ import {
 } from '@/lib/interfaces'
 import { Typography } from '@mui/material'
 import styles from './dailyWeatherReport.module.css'
+import { useTheme } from '@/lib/context'
+import paletteHandler from '@/lib/paletteHandler'
 
 interface WeatherReportProps {
     forecast?: DetailedWeatherDataType
+    selectedHour?: number
 }
-export const DailyWeatherReport: React.FC<WeatherReportProps> = ({
+export const CurrentWeatherReport: React.FC<WeatherReportProps> = ({
     forecast,
     selectedHour,
 }: WeatherReportProps) => {
     const [date, hours] = forecast?.time ? forecast.time.split('T') : ['', '']
+
+    const theme = useTheme()
+    const palette = paletteHandler(theme.theme)
+
     return (
         <div className={styles.wrapper}>
-            {/*<WeatherReportHeader />
-            <CurrentWeatherDisplay currentWeather={currentWeather} />
-            <HourlyWeatherDisplay weatherForecast={weatherForecast} />
-            <Typography variant="h1" component="h1" gutterBottom>
-                Temperature: {currentWeather.temperature_2m}
-            </Typography>*/}
+            <Typography variant="body1" gutterBottom>
+                Temperature: {forecast?.temperature_2m}
+            </Typography>
         </div>
     )
 }
