@@ -31,5 +31,5 @@ export const WeatherCodesMap: WeatherCodeMapType = {
     85: { short: 'Blizzard', long: 'Blizzard' },
     86: { short: 'Blizzard', long: 'Heavy Blizzard' },
     95: { short: 'Thunder', long: 'Thunderstorm' },
-    96: { short: 'Thunder Hail', long: 'Thunderstorm w/ Hail' },
+    96: { short: 'Hailstorm', long: 'Thunderstorm w/ Hail' },
 }
