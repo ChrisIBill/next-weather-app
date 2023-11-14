@@ -5,7 +5,7 @@ import styles from './layout.module.css'
 import NavBar from './components/navbar/navbar'
 import UserPrefs from '../lib/user'
 import palette from './globals.scss'
-import { ThemeProvider } from '@/lib/context'
+import { ThemeProvider, UserProvider } from '@/lib/context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,8 +23,10 @@ export default function RootLayout({
         <html lang="en" className={styles.html}>
             <body className={styles.body}>
                 <ThemeProvider>
-                    <NavBar />
-                    <main className={styles.main}>{children}</main>
+                    <UserProvider>
+                        <NavBar />
+                        <main className={styles.main}>{children}</main>
+                    </UserProvider>
                 </ThemeProvider>
             </body>
         </html>
