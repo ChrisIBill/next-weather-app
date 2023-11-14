@@ -31,3 +31,34 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
         </ThemeContext.Provider>
     )
 }
+
+//User Preferences Context
+type UserState = {
+    user: UserPrefs
+    setUser: (user: UserPrefs) => void
+}
+const UserContext = createContext<UserState | null>(null)
+
+export const useUser = () => {
+    const context = useContext(UserContext)
+    if (!context) {
+        throw new Error('useUser must be used within a UserProvider')
+    }
+
+    return context
+}
+
+export interface UserProviderProps {
+    children: React.ReactNode
+}
+
+export const UserProvider = (props: UserProviderProps) => {
+    const [userPrefs, setUserPrefs] = useState<UserPrefs>(new UserPrefs())
+    return (
+        <UserContext.Provider
+            value={{ user: userPrefs, setUser: setUserPrefs }}
+        >
+            {props.children}
+        </UserContext.Provider>
+    )
+}
