@@ -1,6 +1,10 @@
 'use client'
-import { createContext, useContext, useState } from 'react'
-import UserPrefs, { ThemeLiteralsType } from '@/lib/user'
+import { createContext, useContext, useEffect, useState } from 'react'
+import UserPrefs, {
+    DEFAULT_USER_PREFS,
+    ThemeLiteralsType,
+    UserPreferencesInterface,
+} from '@/lib/user'
 import { Tillana } from 'next/font/google'
 
 type ThemeState = {
@@ -34,8 +38,8 @@ export const ThemeProvider = (props: ThemeProviderProps) => {
 
 //User Preferences Context
 type UserState = {
-    user: UserPrefs
-    setUser: (user: UserPrefs) => void
+    user: UserPreferencesInterface
+    setUser: (user: UserPreferencesInterface) => void
 }
 const UserContext = createContext<UserState | null>(null)
 
@@ -52,8 +56,19 @@ export interface UserProviderProps {
     children: React.ReactNode
 }
 
+export const getInitialUser = () => {
+    const user = localStorage.getItem('userPrefs')
+    return user ? JSON.parse(user) : DEFAULT_USER_PREFS
+}
+
 export const UserProvider = (props: UserProviderProps) => {
-    const [userPrefs, setUserPrefs] = useState<UserPrefs>(new UserPrefs())
+    const [userPrefs, setUserPrefs] = useState<UserPreferencesInterface>(
+        getInitialUser()
+    )
+
+    useEffect(() => {
+        localStorage.setItem('userPrefs', JSON.stringify(userPrefs))
+    })
     return (
         <UserContext.Provider
             value={{ user: userPrefs, setUser: setUserPrefs }}

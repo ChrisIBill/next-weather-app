@@ -1,6 +1,13 @@
 import dayjs from 'dayjs'
 
-const TemperatureUnits = ['fahrenheit', 'celsius'] as const
+export const enum TemperatureEnum {
+    fahrenheit = 'fahrenheit',
+    celsius = 'celsius',
+}
+export const TemperatureUnits = [
+    TemperatureEnum.fahrenheit,
+    TemperatureEnum.celsius,
+] as const
 const WindSpeedUnits = ['mph', 'kph', 'ms', 'kn'] as const
 const PrecipitationUnits = ['inch', 'mm'] as const
 
@@ -28,6 +35,12 @@ export interface UserPreferencesInterface {
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
     themePrefs: ThemeLiteralsType
+}
+export const DEFAULT_USER_PREFS: UserPreferencesInterface = {
+    tempUnit: TemperatureEnum.fahrenheit,
+    windSpeedUnit: 'mph',
+    precipitationUnit: 'inch',
+    themePrefs: 'light',
 }
 
 export function getFromLocalStorage(key: string) {
