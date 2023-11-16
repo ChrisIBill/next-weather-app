@@ -1,33 +1,56 @@
+@use '../../_variables.scss' as *;
+$background: var(--background);
 .cloudsWrapper {
+    --cloudWidth: 9rem;
+    --cloudHeigth: 3rem;
+    --initX: 0%;
+    --yPos: 65%;
     width: 100%;
     height: 66%;
     position: absolute;
     z-index: 4;
 }
+.cloudsLayer {
+    width: 110%;
+    height: 66%;
+    position: absolute;
+}
 
 @keyframes cloudMove {
+    $width: var(--cloudWidth);
     from {
-        left: 0%;
+        left: calc(-5% - #{$width});
     }
     to {
-        left: 100%;
+        left: calc(105% + #{$width});
     }
+}
+@keyframes cloudMoveSecond {
 }
 
 .cloud {
-    --width: 9rem;
-    --heigth: 3rem;
+    --cloudWidth: 9rem;
+    --cloudHeight: 3rem;
     --yPos: 65%;
     --animationSpeed: 20s;
+    --initX: -5%;
+    --delay: 2s;
+    --zIndex: 4;
     position: absolute;
     border-radius: 1.1rem;
     top: var(--yPos);
-    left: 0%;
-    height: var(--heigth);
-    width: var(--width);
-    background: transparent;
+    left: calc(var(--initX) - var(--cloudWidth));
+    height: var(--cloudHeight);
+    width: var(--cloudWidth);
+    background-color: var(--background);
     border: 0.2rem solid #fff;
     animation: cloudMove 20s linear infinite;
+    animation-delay: var(--delay);
+    z-index: var(--zIndex);
+}
+.cloud.initial {
+}
+.cloud.second {
 }
 
 .clouds_1 {
