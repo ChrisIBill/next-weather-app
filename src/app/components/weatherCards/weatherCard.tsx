@@ -6,10 +6,11 @@ import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
 import RainBackground from '@/app/rain'
 import paletteHandler from '@/lib/paletteHandler'
-import { useTheme } from '@/lib/context'
+import { useTheme, useUser } from '@/lib/context'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
+    metadata: any
     handleCardSelect: (day: number) => void
     index: number
     selectedDay?: number
@@ -20,6 +21,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     const weather = props.weather
     const theme = useTheme()
     const palette = paletteHandler(theme.theme)
+    const User = useUser().user
     return (
         <Card
             className={styles.weatherCard}
@@ -50,10 +52,16 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                                 </div>
                             }
                         >
-                            <WeatherCardHeader date={weather.time!} />
+                            <WeatherCardHeader
+                                date={weather.time!}
+                                index={props.index}
+                            />
                         </ErrorBoundary>
                         <br />
-                        <WeatherCardContent weather={weather} />
+                        <WeatherCardContent
+                            weather={weather}
+                            units={props.metadata}
+                        />
                     </div>
                 </CardContent>
             </CardActionArea>
@@ -63,15 +71,26 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 
 export interface CardHeaderProps {
     date: string
+    index: number
 }
 
 export const WeatherCardHeader: React.FC<CardHeaderProps> = (
     props: CardHeaderProps
 ) => {
     const date = getDateObject(props.date)
+    const weekdayString = () => {
+        switch (props.index) {
+            case 0:
+                return 'Today'
+            case 1:
+                return 'Tomorrow'
+            default:
+                return date.format('dddd')
+        }
+    }
     return (
         <div className={styles.headerWrapper}>
-            <Typography variant="h5">{date.format('dddd')}</Typography>
+            <Typography variant="h5">{weekdayString()}</Typography>
             <Typography variant="h6">{date.format('MMM D')}</Typography>
         </div>
     )
@@ -84,9 +103,11 @@ export const CardContentKeys = [
 ]
 
 export interface CardContentProps {
+    units: any
     weather: DailyWeatherForecastType
 }
 const WeatherCardContent: React.FC<CardContentProps> = ({
+    units,
     weather,
 }: CardContentProps) => {
     for (const key of CardContentKeys) {
@@ -107,12 +128,15 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
             </Typography>
             <Typography variant="caption">Temp</Typography>
             <Typography variant="body1">
-                {weather.temperature_2m_min}° / {weather.temperature_2m_max}°
+                {weather.temperature_2m_min} {units.temperature_2m_min} /{' '}
+                {weather.temperature_2m_max} {units.temperature_2m_max}
             </Typography>
             <Typography variant="caption">Feels Like</Typography>
             <Typography variant="body1">
-                {weather.apparent_temperature_min}° /{' '}
-                {weather.apparent_temperature_max}°
+                {weather.apparent_temperature_min}{' '}
+                {units.apparent_temperature_min} /{' '}
+                {weather.apparent_temperature_max}{' '}
+                {units.apparent_temperature_max}
             </Typography>
             <Typography variant="body1">
                 {weather.precipitation_probability_max}% chance of{' '}
