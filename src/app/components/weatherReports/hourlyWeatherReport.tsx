@@ -17,12 +17,100 @@ import React from 'react'
 import dayjs from 'dayjs'
 import { useTheme } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
+import { precipitationHandler } from '@/lib/weather'
+import { WeatherCodesMap } from '@/lib/weathercodes'
 
 export interface HourlyWeatherReportProps {
     forecast?: DailyWeatherForecastType
+    metadata?: any
     selectedHour?: number
     handleTimeSelect?: (day?: number, hour?: number) => void
 }
+
+export interface CellProps {
+    key: string
+    title?: string
+    string?: string
+    columnWidth: number
+    palette: any
+}
+
+export function GenericTableCell(props: CellProps) {
+    return (
+        <TableCell
+            size="medium"
+            key={props.key}
+            title={props.title}
+            sx={{
+                color: props.palette.textSecondary,
+            }}
+            style={{
+                width: props.columnWidth + '%',
+            }}
+        >
+            {props.string}
+        </TableCell>
+    )
+}
+
+export const bodyTableCellHandler = (
+    key: string,
+    hour: any,
+    width: number,
+    palette: any
+) => {
+    //TODO: Need a better key for these cells
+    switch (key) {
+        case 'time':
+            return GenericTableCell({
+                key: key,
+                title: 'Time',
+                string: getDatetimeObject(hour[key]!).format('hh:00 A'),
+                columnWidth: width,
+                palette: palette,
+            })
+        case 'precipitation':
+            const precipObj = precipitationHandler(hour)
+            return GenericTableCell({
+                key: key,
+                title: precipObj.alt,
+                string: precipObj.string,
+                columnWidth: width,
+                palette: palette,
+            })
+        case 'visibility':
+            return GenericTableCell({
+                key: key,
+                string: (hour[key] + '').split('.')[0],
+                columnWidth: width,
+                palette: palette,
+            })
+        case 'weathercode':
+            const codeObj = WeatherCodesMap[hour[key]]
+            return GenericTableCell({
+                key: key,
+                title: codeObj.long !== codeObj.short ? codeObj.long : '',
+                string: codeObj.short,
+                columnWidth: width,
+                palette: palette,
+            })
+        case 'windspeed_10m':
+            return GenericTableCell({
+                key: key,
+                string: (hour[key] + '').split('.')[0],
+                columnWidth: width,
+                palette: palette,
+            })
+        default:
+            return GenericTableCell({
+                key: key,
+                string: hour[key],
+                columnWidth: width,
+                palette: palette,
+            })
+    }
+}
+
 export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
@@ -46,12 +134,8 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     const denseKeys = [
         'time',
         'temperature_2m',
-        'precipitation_probability',
         'precipitation',
         'windspeed_10m',
-        'windgusts_10m',
-        'uv_index',
-        'visibility',
         'weathercode',
     ]
     const propKeys = isExpanded ? Object.keys(hourlyForecast[0]) : denseKeys
@@ -66,17 +150,6 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
             <TableRow
                 sx={{
                     height: '2rem',
-                    //position: 'sticky',
-                    //top: 0,
-                    //left: 0,
-                    //right: 0,
-                    //bottom: 0,
-                    //background: `linear-gradient(
-                    //                180deg,
-                    //                ${palette.background},
-                    //                ${palette.secondary}
-                    //            )`,
-                    //color: palette.textPrimary,
                 }}
             >
                 {props.keys.map((key) => {
@@ -132,53 +205,13 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         }}
                     >
                         {props.keys.map((key) => {
-                            console.log('Type of key: ', typeof hour[key])
                             if (hour[key] === undefined) return null
-                            switch (key) {
-                                case 'time':
-                                    return (
-                                        <TableCell
-                                            size="medium"
-                                            key={key}
-                                            sx={{
-                                                color: palette.textSecondary,
-                                            }}
-                                            style={{
-                                                width: columnWidth + '%',
-                                            }}
-                                        >
-                                            {getDatetimeObject(
-                                                hour[key]!
-                                            ).format('hh:00 A')}
-                                        </TableCell>
-                                    )
-                                case 'visibility':
-                                    return (
-                                        <TableCell
-                                            size="medium"
-                                            key={key}
-                                            sx={{
-                                                width: columnWidth + '%',
-                                                color: palette.textSecondary,
-                                            }}
-                                        >
-                                            {(hour[key] + '').split('.')[0]}
-                                        </TableCell>
-                                    )
-                                default:
-                                    return (
-                                        <TableCell
-                                            size="medium"
-                                            key={key}
-                                            sx={{
-                                                width: columnWidth + '%',
-                                                color: palette.textSecondary,
-                                            }}
-                                        >
-                                            {hour[key]}
-                                        </TableCell>
-                                    )
-                            }
+                            return bodyTableCellHandler(
+                                key,
+                                hour,
+                                columnWidth,
+                                palette
+                            )
                         })}
                     </tr>
                 ))}
