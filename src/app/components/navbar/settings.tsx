@@ -10,10 +10,11 @@ import UserPrefs, {
     PrecipitationUnitType,
     WindSpeedUnitType,
     UserPreferencesInterface,
+    TemperatureEnum,
 } from '@/lib/user'
 import { stringLiteralGenerator } from '@/lib/lib'
 import palette from '@/lib/export.module.scss'
-import { useTheme } from '@/lib/context'
+import { useTheme, useUser } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
 
 interface Preferences {
@@ -25,9 +26,10 @@ interface Preferences {
 export interface SettingsProps {}
 
 export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
-    const User = new UserPrefs()
+    const [User, setUser] = [useUser().user, useUser().setUser]
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
+    const [reload, setReload] = React.useState<boolean>(false)
 
     const theme = useTheme()
     const palette = paletteHandler(theme.theme)
@@ -38,7 +40,7 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const themeTypes = ContextUnits.ThemeTypes
 
     const [tempPref, setTempPref] = React.useState<TemperatureUnitType>(
-        User.tempUnit ? User.tempUnit : 'fahrenheit'
+        User.tempUnit ? User.tempUnit : TemperatureEnum.fahrenheit
     )
     const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(
         User.windSpeedUnit ? User.windSpeedUnit : 'mph'
@@ -55,20 +57,27 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
-        User.setTempUnit(tempPref)
-        User.setWindSpeedUnit(windPref)
-        User.setPrecipitationUnit(precipPref)
+        setUser({
+            tempUnit: tempPref,
+            windSpeedUnit: windPref,
+            precipitationUnit: precipPref,
+            reload: true,
+            themePrefs: theme.theme,
+        })
         setAnchorEl(null)
     }
 
     const handleTemperatureItem = () => {
         setTempPref(tempGenerator.next().value as TemperatureUnitType)
+        setReload(true)
     }
     const handleWindSpeedItem = () => {
         setWindPref(windGenerator.next().value as WindSpeedUnitType)
+        setReload(true)
     }
     const handlePrecipitationItem = () => {
         setPrecipPref(precipGenerator.next().value as PrecipitationUnitType)
+        setReload(true)
     }
     const handleThemeItem = () => {
         theme.setTheme(themeGenerator.next().value as 'light' | 'dark')

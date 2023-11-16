@@ -14,7 +14,7 @@ const toStringUnitMap = {
     [TemperatureEnum.fahrenheit]: '°F',
     [TemperatureEnum.celsius]: '°C',
 }
-export type ApiTempUnitType = '°F' | '°C'
+export type ApiTempUnitStrings = '°F' | '°C'
 
 type tempPropertiesType = number | (() => number)
 export default class TemperatureClass {
@@ -22,7 +22,7 @@ export default class TemperatureClass {
     celsius: tempPropertiesType
     unit: TemperatureUnitType
 
-    constructor(temp: number, unit: ApiTempUnitType) {
+    constructor(temp: number, unit: ApiTempUnitStrings) {
         this.unit = apiTempUnitMap[unit]
         this.fahrenheit =
             this.unit === TemperatureEnum.fahrenheit

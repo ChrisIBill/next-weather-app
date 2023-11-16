@@ -4,10 +4,16 @@ import {
     UserWeatherDataType,
     WeatherForecastType,
 } from './interfaces'
+import { flattenObject } from './lib'
 
 function getApiMetadata(weatherApiData: any) {
     try {
         const units = {
+            all: flattenObject({
+                ...weatherApiData.current_units,
+                ...weatherApiData.hourly_units,
+                ...weatherApiData.daily_units,
+            }),
             current: weatherApiData.current_units,
             hourly: weatherApiData.hourly_units,
             daily: weatherApiData.daily_units,
@@ -33,7 +39,9 @@ export function forecastFormater(weatherApiData: any): string {
     current_weather.sunset = weatherApiData.daily.sunset[0]
 
     const adf = weatherApiData.daily
+    const adu = weatherApiData.daily_units
     const hdf = weatherApiData.hourly
+    const hdu = weatherApiData.hourly_units
 
     const hdf_keys = Object.keys(weatherApiData.hourly)
     function getHourlyWeather(
@@ -99,8 +107,8 @@ export function forecastFormater(weatherApiData: any): string {
                 windgusts_10m_max: adf.windgusts_10m_max[index],
                 winddirection_10m_dominant:
                     adf.winddirection_10m_dominant[index],
-                avg_day_cloudcover: dsum,
-                avg_night_cloudcover: nsum,
+                avg_day_cloudcover: dsum.toString(),
+                avg_night_cloudcover: nsum.toString(),
                 hourly_weather: getHourlyWeather(adf.time[index], index),
                 current_weather: index === 0 ? current_weather : undefined,
             }

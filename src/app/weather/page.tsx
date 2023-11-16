@@ -4,19 +4,18 @@ import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
+    CurrentWeatherDataType,
+    DailyWeatherForecastType,
     DetailedWeatherDataType,
     LocationType,
+    WeatherApiResponseType,
     WeatherForecastType,
     WeatherMetadata,
 } from '@/lib/interfaces'
-import { WeatherReport } from '@/app/components/weatherReport/weatherReport'
 import { Background } from '../components/background/background'
 import UserPrefs, { ThemeType, UserPreferencesInterface } from '@/lib/user'
 import { WeatherPageHeader } from './header'
-import {
-    CurrentWeatherReport,
-    DailyWeatherReport,
-} from '../components/weatherReports/dailyWeatherReport'
+import { CurrentWeatherReport } from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 import dayjs from 'dayjs'
 import {
@@ -24,8 +23,9 @@ import {
     getDatetimeObject,
     percentToGradientStringMapper,
 } from '@/lib/time'
-import { useTheme } from '@/lib/context'
+import { useTheme, useUser } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
+import TemperatureClass, { ApiTempUnitStrings } from '@/lib/temperature'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -52,49 +52,21 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
-    const User = new UserPrefs()
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
     )
-    const [weatherReportData, setWeatherReportData] =
-        useState<DetailedWeatherDataType>()
+    const [reload, setReload] = useState<boolean>(false)
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
-    const [selectedTime, setSelectedTime] = useState<dayjs.Dayjs>()
-    const [userPrefs, setUserPrefs] = useState<UserPreferencesInterface>(
-        User.getUserPreferences()
-    )
     const theme = useTheme()
     const palette = paletteHandler(theme.theme)
+    const User = useUser().user
 
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
-    //use server action to fetch weather data from API
-    if (!weatherMetadata) {
-        getWeather(location, User.getUserPreferences())
-            .then((response) => {
-                return JSON.parse(response)
-            })
-            .then((value) => {
-                console.log(value)
-                setWeatherMetadata(value.metadata)
-                setWeatherForecast(value.forecast)
-                setWeatherReportData(
-                    value.forecast[0].current_weather
-                        ? value.forecast[0].current_weather
-                        : value.forecast[0]
-                )
-                setSelectedTime(
-                    dayjs(
-                        value.forecast[0].current_weather
-                            ? value.forecast[0].current_weather
-                            : value.forecast[0].time
-                    )
-                )
-            })
-    }
 
+    //Handles users time selection, which controls which weather data is displayed in detail
     const handleTimeSelect = (day?: number, hour?: number) => {
         if (day) {
             if (day > weatherForecast.length || day < 0)
@@ -123,6 +95,22 @@ export default function Page({
     const getSelectedForecastDay = () => {
         return weatherForecast[selectedDay]
     }
+
+    const fetchWeather = () => {
+        getWeather(location, User)
+            .then((response) => {
+                return JSON.parse(response)
+            })
+            .then((value) => {
+                console.log(value)
+                setWeatherMetadata(value.metadata)
+                setWeatherForecast(value.forecast)
+            })
+    }
+    if (!weatherMetadata || reload) {
+        console.log('Fetching weather from server')
+        fetchWeather()
+    }
     useEffect(() => {
         const time =
             selectedHour == -1
@@ -132,29 +120,31 @@ export default function Page({
                       .time
                 : undefined
         console.log('time: ', time)
-        if (time) {
-            const datetime = getDatetimeObject(time)
-            const [sunrise, sunset] = [
-                weatherForecast[selectedDay].sunrise,
-                weatherForecast[selectedDay].sunset,
-            ]
-            setSelectedTime(datetime)
+    }, [weatherForecast, selectedHour, selectedDay])
+    useEffect(() => {
+        if (User.reload === true) {
+            fetchWeather()
         }
-    }, [userPrefs.themePrefs, weatherForecast, selectedHour, selectedDay])
+    }, [User])
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.reportsWrapper}>
-                    <CurrentWeatherReport forecast={getSelectedForecast()} />
+                    <CurrentWeatherReport
+                        forecast={getSelectedForecast()}
+                        metadata={weatherMetadata}
+                    />
                     <WeatherPageHeader time={getSelectedForecast()?.time} />
                     <HourlyWeatherReport
                         forecast={getSelectedForecastDay()}
+                        metadata={weatherMetadata}
                         handleTimeSelect={handleTimeSelect}
                     />
                 </div>
                 <div className={styles.cardsWrapper}>
                     <WeatherCards
                         weatherForecast={weatherForecast}
+                        metadata={weatherMetadata?.units.daily}
                         handleCardSelect={handleTimeSelect}
                         selectedDay={
                             selectedHour == -1 ? undefined : selectedDay
