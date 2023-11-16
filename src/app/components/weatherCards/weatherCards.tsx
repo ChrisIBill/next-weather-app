@@ -8,6 +8,7 @@ import React, { ReactHTMLElement, useEffect } from 'react'
 
 export interface WeatherCardsProps {
     weatherForecast: DailyWeatherForecastType[]
+    metadata: any
     handleCardSelect: (day: number) => void
     selectedDay?: number
 }
@@ -34,6 +35,7 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
                 {weather ? (
                     <WeatherCard
                         weather={weather}
+                        metadata={props.metadata}
                         handleCardSelect={props.handleCardSelect}
                         index={index}
                         selectedDay={props.selectedDay}

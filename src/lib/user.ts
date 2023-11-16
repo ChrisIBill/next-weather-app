@@ -34,6 +34,7 @@ export interface UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
     precipitationUnit?: PrecipitationUnitType
+    reload?: boolean
     themePrefs: ThemeLiteralsType
 }
 export const DEFAULT_USER_PREFS: UserPreferencesInterface = {

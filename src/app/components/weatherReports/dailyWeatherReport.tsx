@@ -10,6 +10,7 @@ import paletteHandler from '@/lib/paletteHandler'
 
 interface WeatherReportProps {
     forecast?: DetailedWeatherDataType
+    metadata?: any
     selectedHour?: number
 }
 export const CurrentWeatherReport: React.FC<WeatherReportProps> = ({

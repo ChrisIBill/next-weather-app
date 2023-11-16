@@ -57,9 +57,18 @@ export interface UserWeatherDataType {
     daily: DailyWeatherForecastType[]
 }
 export interface WeatherUnitsType {
-    current: {}
-    hourly: {}
-    daily: {}
+    all: {
+        [key: string]: string
+    }
+    current: {
+        [key: string]: string
+    }
+    hourly: {
+        [key: string]: string
+    }
+    daily: {
+        [key: string]: string
+    }
 }
 export interface WeatherMetadata {
     latitude: string
@@ -88,7 +97,7 @@ export interface CurrentWeatherDataType {
     windgusts_10m?: string
     sunrise?: string
     sunset?: string
-    [index: string]: string | undefined
+    [index: string]: {} | string | undefined
 }
 export interface HourlyWeatherDataType {
     time?: string
@@ -111,15 +120,15 @@ export interface HourlyWeatherDataType {
     windgusts_10m?: string
     uv_index?: string
     visibility?: string
-    [index: string]: string | undefined
+    [index: string]: {} | string | undefined
 }
 export interface DailyWeatherDataType {
     time?: string
     weathercode?: string
-    temperature_2m_max?: string
-    temperature_2m_min?: string
-    apparent_temperature_max?: string
-    apparent_temperature_min?: string
+    temperature_2m_max?: number
+    temperature_2m_min?: number
+    apparent_temperature_max?: number
+    apparent_temperature_min?: number
     sunrise?: string
     sunset?: string
     uv_index_max?: string
@@ -132,7 +141,7 @@ export interface DailyWeatherDataType {
     windspeed_10m_max?: string
     windgusts_10m_max?: string
     winddirection_10m_dominant?: string
-    [index: string]: string | undefined
+    [index: string]: {} | number | string | undefined
 }
 export type DetailedWeatherDataType = CurrentWeatherDataType &
     HourlyWeatherDataType &
@@ -143,10 +152,12 @@ export interface DailyWeatherDetailsType {
 }
 export type DailyWeatherForecastType = DailyWeatherDetailsType &
     DailyWeatherDataType
-export interface StringIndexable {
-    [index: string]: string
-}
+
 export type WeatherForecastType = DailyWeatherForecastType[]
+export interface WeatherApiResponseType {
+    forecast: WeatherForecastType
+    metadata: WeatherMetadata
+}
 export interface CoordinatesType {
     latitude: number
     longitude: number
