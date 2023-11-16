@@ -6,9 +6,14 @@ export interface CloudsProps {
 export const Clouds: React.FC<CloudsProps> = () => {
     return (
         <div className={styles.cloudsWrapper}>
-            <div className={styles.clouds_1}></div>
-            <div className={styles.clouds_2}></div>
-            <div className={styles.clouds_3}></div>
+            <div
+                className={styles.cloud}
+                style={
+                    {
+                        '--width': '12rem',
+                    } as React.CSSProperties
+                }
+            ></div>
         </div>
     )
 }
