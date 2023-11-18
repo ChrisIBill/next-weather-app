@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import UserPrefs, {
     DEFAULT_USER_PREFS,
     ThemeLiteralsType,
+    ThemeTypes,
     UserPreferencesInterface,
 } from '@/lib/user'
 import { Tillana } from 'next/font/google'
@@ -26,9 +27,29 @@ export interface ThemeProviderProps {
     children: React.ReactNode
 }
 
+const getInitialTheme = () => {
+    let theme = 'light'
+    if (localStorage && localStorage.getItem('theme')) {
+        theme = localStorage.getItem('theme') || 'light'
+        theme = JSON.parse(theme)
+    } else if (
+        window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
+        theme = 'dark'
+    }
+    document.documentElement.setAttribute('data-theme', theme)
+
+    return theme as ThemeLiteralsType
+}
+
 export const ThemeProvider = (props: ThemeProviderProps) => {
-    const user = new UserPrefs()
-    const [theme, setTheme] = useState<ThemeLiteralsType>(user.themePrefs)
+    const [theme, setTheme] = useState<ThemeLiteralsType>(getInitialTheme())
+
+    useEffect(() => {
+        localStorage.setItem('theme', JSON.stringify(theme))
+        document.documentElement.setAttribute('data-theme', theme)
+    })
     return (
         <ThemeContext.Provider value={{ theme, setTheme }}>
             {props.children}

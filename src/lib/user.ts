@@ -12,7 +12,7 @@ const WindSpeedUnits = ['mph', 'kph', 'ms', 'kn'] as const
 const PrecipitationUnits = ['inch', 'mm'] as const
 
 const OVERRIDE_THEME_TYPES = ['light', 'dark'] as const
-const ThemeTypes = ['light', 'dark'] as const
+export const ThemeTypes = ['light', 'dark'] as const
 // exporting constants array of string literals to allow for iteration and type-checking
 export const ContextUnits = {
     TemperatureUnits,
