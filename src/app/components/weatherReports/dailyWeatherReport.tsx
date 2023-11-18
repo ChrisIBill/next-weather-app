@@ -27,6 +27,12 @@ export const CurrentWeatherReport: React.FC<WeatherReportProps> = ({
             <Typography variant="body1" gutterBottom>
                 Temperature: {forecast?.temperature_2m}
             </Typography>
+            <Typography variant="body1" gutterBottom>
+                Wind speed: {forecast?.windspeed_10m}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+                Cloud Cover: {forecast?.cloudcover}
+            </Typography>
         </div>
     )
 }
