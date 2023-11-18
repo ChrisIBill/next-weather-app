@@ -200,7 +200,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         }}
                         style={{
                             color: palette.textPrimary,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: `${palette.secondary}`,
                             //borderRight: `1px solid ${palette.textPrimary}`,
                             //borderLeft: `1px solid ${palette.textPrimary}`,
                         }}

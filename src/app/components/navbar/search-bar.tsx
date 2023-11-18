@@ -94,7 +94,6 @@ export default function SearchBar() {
     )
 
     useEffect(() => {
-        console.log('LOC: ', location, typeof location)
         if ('geolocation' in navigator && location === undefined) {
             console.log('Geolocation available')
             // Retrieve latitude & longitude coordinates from `navigator.geolocation` Web API

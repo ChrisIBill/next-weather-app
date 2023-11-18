@@ -1,7 +1,7 @@
 @use '../_variables.scss' as *;
+$background: var(--background);
 .headerWrapper {
     position: relative;
-    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,6 +9,9 @@
     margin-right: 0.5rem;
     height: 10rem;
     color: var(--text-primary);
+    background-color: #{$background};
+    box-shadow: 0 -2rem 3rem 5rem #{$background};
+
     .headerWeekday {
     }
     .headerDate {
@@ -16,6 +19,7 @@
     .headerTime {
     }
 }
+
 .headerContrastLayer {
     position: fixed;
     top: 4rem;
@@ -23,7 +27,7 @@
     height: 12rem;
     width: 18rem;
     background-color: rgba(0, 0, 0, 0.9);
-    box-shadow: 0 0 2rem rgba(0, 0, 0, 0.9);
+    //box-shadow: 0 0 2rem 2rem rgba(0, 0, 0, 0.9);
 }
 .contentWrapper {
     position: relative;

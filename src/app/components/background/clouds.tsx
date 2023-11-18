@@ -21,7 +21,7 @@ export const Clouds: React.FC<CloudsProps> = (props: CloudsProps) => {
         }
     }
     return (
-        <div className={styles.cloudsWrapper}>
+        <div className={styles.cloudsWrapper} data-theme={theme.theme}>
             <CloudLayerGenerator
                 cloudCover={props.cloudCover}
                 windSpeed={props.windSpeed}
@@ -33,7 +33,6 @@ export const Clouds: React.FC<CloudsProps> = (props: CloudsProps) => {
 }
 
 const CloudLayerGenerator = (props: CloudsProps) => {
-    console.log('clouds: ', props.cloudCover)
     const numMult = props.cloudCover / 100
     const NUM_CLOUDS = 50 * numMult
     const animationTime = Math.random() * 15 + 20
@@ -50,9 +49,11 @@ const CloudLayerGenerator = (props: CloudsProps) => {
                         width: `${Math.random() * 10 * numMult + 7}rem`,
                         height: `${Math.random() * 2 * numMult + 2.5}rem`,
                         animationDelay: `${Math.random() * 28 + 3}s`,
-                        animationDuration: `${Math.random() * 15 + 25}s`,
+                        animationDuration: `${Math.random() * 15 + 40}s`,
                         zIndex: `${index + 5}`,
                         backgroundColor: `${props.palette.background}`,
+                        borderColor: `${props.palette.textPrimary}`,
+                        //boxShadow: `inset 0px -10px 15px 0px ${props.palette.textPrimary}F0`,
                     } as React.CSSProperties
                 }
             ></div>

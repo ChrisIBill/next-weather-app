@@ -4,10 +4,10 @@
     --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
         'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
         'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
-    --background: $light-background;
-    --text-primary: $light-text-primary;
-    --text-secondary: $light-text-secondary;
-    --accent: $light-accent;
+    --background: #{$light-background};
+    --text-primary: #{$light-text-primary};
+    --text-secondary: #{$light-text-secondary};
+    --accent: #{$light-accent};
     $background: var(--background);
     $text-primary: var(--text-primary);
     $text-secondary: var(--text-secondary);
