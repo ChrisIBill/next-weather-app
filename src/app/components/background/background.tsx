@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './background.module.css'
+import styles from './background.module.scss'
 import { DayNightColorLayer } from './dayNightColorLayer'
 import { CelestialIconsHandler } from './celestialIcons'
 import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/time'
@@ -7,6 +7,7 @@ import RainBackground from '@/app/rain'
 import { DetailedWeatherDataType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { Clouds } from './clouds'
+import { useTheme } from '@/lib/context'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
@@ -15,6 +16,7 @@ export interface BackgroundProps {
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
+    const theme = useTheme()
     if (!props.weatherForecast?.time) {
         //TODO:
         //Need to return a default background
@@ -49,12 +51,10 @@ export const Background: React.FC<BackgroundProps> = (
     return (
         <div className={styles.wrapper}>
             <Clouds cloudCover={100} />
+            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
             {/*                <RainBackground />
 
-            <CelestialIconsHandler
-                isDay={isDay}
-                timePercent={timePercent}
-            />
+            
             <DayNightColorLayer isDay={isDay} timePercent={timePercent} /> */}
         </div>
     )

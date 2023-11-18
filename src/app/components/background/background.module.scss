@@ -1,3 +1,5 @@
+@use '../../_variables.scss' as *;
+$background: var(--background);
 .wrapper {
     position: absolute;
     top: 0;

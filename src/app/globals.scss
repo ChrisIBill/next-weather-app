@@ -8,12 +8,15 @@
     --text-primary: $light-text-primary;
     --text-secondary: $light-text-secondary;
     --accent: $light-accent;
+    $background: var(--background);
+    $text-primary: var(--text-primary);
+    $text-secondary: var(--text-secondary);
+    $accent: var(--accent);
+    background-color: $background;
+    color: $text-primary;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        background: $dark-background;
-    }
 }
 
 * {
@@ -43,14 +46,9 @@ a {
     text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-    html {
-        color-scheme: dark;
-    }
-}
 [data-theme='dark'] {
-    --background: $dark-background;
-    --text-primary: $dark-text-primary;
-    --text-secondary: $dark-text-secondary;
-    --accent: $dark-accent;
+    --background: #{$dark-background};
+    --text-primary: #{$dark-text-primary};
+    --text-secondary: #{$dark-text-secondary};
+    --accent: #{$dark-accent};
 }
