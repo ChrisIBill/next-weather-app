@@ -1,12 +1,30 @@
 //NOTE: Current implementation will struggle with unusual sunrise/sunset times
 //      as might appear in the far north or south.  For example, in Tromso, Norway,
+import { useTheme } from '@/lib/context'
 import styles from './dayNightColorLayer.module.scss'
 import { percentToGradientStringMapper } from '@/lib/time'
+
+export const TimesOfDAy = ['morning', 'day', 'evening', 'night'] as const
+export type TimeOfDay = (typeof TimesOfDAy)[number]
 
 export interface ColorLayerProps {
     isDay: boolean
     timePercent: number
 }
+
+const lightBackgroundColors = {
+    morning: '#0545B3',
+    day: '#0098DB',
+    evening: '#4211D6',
+    night: '#2C0C95',
+}
+const darkBackgroundColors = {
+    morning: '#04358B',
+    day: '#005FA3',
+    evening: '#3B0FBD',
+    night: '#210971',
+}
+//const darkBackgroundColors = {
 
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     isDay,
@@ -14,13 +32,30 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
 }: ColorLayerProps) => {
     //minutes in day = 1440
     console.log('DayNightColorLayer: ', isDay, timePercent)
+    const theme = useTheme().theme
+    const backgroundColors =
+        theme === 'dark' ? darkBackgroundColors : lightBackgroundColors
 
-    const gradientHour = percentToGradientStringMapper(isDay, timePercent)
-    const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
+    const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
+    const bgColor = () => {
+        if (isDay && 0.2 < timePercent && timePercent < 0.8)
+            return backgroundColors.day
+        else if ((isDay && timePercent < 0.2) || (!isDay && timePercent > 0.8))
+            return backgroundColors.morning
+        else if ((isDay && timePercent > 0.8) || (!isDay && timePercent < 0.2))
+            return backgroundColors.evening
+        else return backgroundColors.night
+    }
+    const bgGradient = isDay ? 'rgb(255,255,255)' : 'rgb(0,0,0)'
+
+    //const gradientHour = percentToGradientStringMapper(isDay, timePercent)
+    //const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
     return (
         <div
-            id={styles.dayNightColorLayer}
-            className={styles[dayNightColorStyle]}
+            className={styles.dayNightColorLayer}
+            style={{
+                background: `linear-gradient(${angle}deg, ${bgColor()} 0%, ${bgGradient} 200%)`,
+            }}
         >
             {isDay ? <></> : <StarryNightBackground />}
         </div>

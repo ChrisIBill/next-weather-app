@@ -2,6 +2,7 @@ import palette from './export.module.scss'
 export default function paletteHandler(theme?: string) {
     if (theme === 'dark')
         return {
+            primary: palette.darkPrimary,
             background: palette.darkBackground,
             secondary: palette.darkSecondary,
             textPrimary: palette.darkTextPrimary,
@@ -10,6 +11,7 @@ export default function paletteHandler(theme?: string) {
             accentSecondary: palette.darkAccentSecondary,
         }
     return {
+        primary: palette.lightPrimary,
         background: palette.lightBackground,
         secondary: palette.lightSecondary,
         textPrimary: palette.lightTextPrimary,
