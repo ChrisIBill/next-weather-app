@@ -1,11 +1,13 @@
 @import '../app/variables.scss';
 :export {
+    darkPrimary: $dark-primary;
     darkBackground: $dark-background;
     darkSecondary: $dark-secondary;
     darkTextPrimary: $dark-text-primary;
     darkTextSecondary: $dark-text-secondary;
     darkAccent: $dark-accent;
     darkAccentSecondary: $dark-accent-secondary;
+    lightPrimary: $light-primary;
     lightBackground: $light-background;
     lightSecondary: $light-secondary;
     lightTextPrimary: $light-text-primary;

@@ -26,11 +26,7 @@ const NavBar: React.FC<NavBarProps> = () => {
                 <Toolbar
                     className={styles.Toolbar}
                     sx={{
-                        background: `linear-gradient(
-                            180deg,
-                            ${palette.background},
-                            ${palette.secondary}
-                        )`,
+                        background: `${palette.primary}`,
                         borderRadius: '0 0 1rem 1rem',
                         color: palette.textPrimary,
                     }}

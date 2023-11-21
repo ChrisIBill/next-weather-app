@@ -43,6 +43,7 @@ export function GenericTableCell(props: CellProps) {
             title={props.title}
             sx={{
                 color: props.palette.textSecondary,
+                textAlign: 'center',
             }}
             style={{
                 width: props.columnWidth + '%',
@@ -162,15 +163,11 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             padding="checkbox"
                             size="small"
                             sx={{
-                                background: `linear-gradient(
-                                    5deg,
-                                    ${palette.background},
-                                    ${palette.secondary}
-                                )`,
-                                boxShadow: '0 0 1rem rgba(0, 0, 0, 0.5)',
+                                background: `${palette.primary}`,
                                 color: palette.textPrimary,
                                 height: '1rem',
                                 width: columnWidth + '%',
+                                textAlign: 'center',
                             }}
                         >
                             {titleObj.short}

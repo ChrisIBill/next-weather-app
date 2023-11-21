@@ -7,6 +7,7 @@ import ErrorBoundary from '@/lib/errorBoundary'
 import RainBackground from '@/app/rain'
 import paletteHandler from '@/lib/paletteHandler'
 import { useTheme, useUser } from '@/lib/context'
+import { Background } from '../background/background'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
@@ -29,7 +30,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             sx={{
                 //backgroundImage:
                 //    'linear-gradient(to bottom, #1E101A, #2a1726, #3d2243, #4a3266, #4a458e, #4954a5, #4263bc, #3173d4, #447fdd, #558be7, #6597f0, #74a3f9, #74a3f9)',
-                backgroundColor: 'transparent',
+                position: 'relative',
+                backgroundColor: `${palette.primary}`,
                 border: `1px solid ${palette.textPrimary}`,
                 color: `${palette.textPrimary}`,
                 borderRadius: '16px',
@@ -40,6 +42,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 className={styles.actionArea}
                 onClick={(event) => props.handleCardSelect(props.index)}
                 disabled={props.index == props.selectedDay}
+                sx={{
+                    zIndex: 20,
+                }}
             >
                 <CardContent>
                     <div className={styles.contentWrapper}>
@@ -65,6 +70,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                     </div>
                 </CardContent>
             </CardActionArea>
+            <Background weatherForecast={props.weather} isCard={true} />
         </Card>
     )
 }
@@ -146,5 +152,5 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
     )
 }
 const CardBackground: React.FC = (props) => {
-    return <RainBackground />
+    return <Background />
 }
