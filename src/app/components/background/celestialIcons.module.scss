@@ -1,7 +1,7 @@
 .wrapper {
     box-sizing: content-box;
     width: 100%;
-    position: absolute;
+    position: relative;
     bottom: 0;
 }
 .celestialIconWrapper {
@@ -24,7 +24,7 @@
 }
 
 .CelestialsSVG {
-    position: absolute;
+    position: fixed;
 }
 .svgCircle {
     display: flex;
@@ -33,6 +33,17 @@
 }
 .svgIconObject {
     position: relative;
+    overflow: visible;
     width: 9rem;
     height: 9rem;
+}
+.iconWrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -4.5rem;
+    left: -4.5rem;
+    height: 9rem;
+    width: 9rem;
 }

@@ -10,27 +10,17 @@ $size_icon: 7rem;
     transform: translate(-50%, -50%);
 }
 
-.iconWrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 9rem;
-    width: 9rem;
-}
-
 .moonIcon {
     $border-color: $icon_border_color;
     $background-color: $simple_icon_bg_color;
     position: relative;
     background-color: $background-color;
-    width: $size_icon;
-    height: $size_icon;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     border: 0.5rem solid var(--text-primary);
     box-shadow: 0 0 1rem $border-color;
     z-index: 3;
-    margin: 1rem;
 
     .crater {
         position: absolute;
@@ -76,26 +66,28 @@ $size_icon: 7rem;
     //$border-color: $icon_border_color;
     //$background-color: $simple_icon_bg_color;
     $ray_color: black;
-    $ray_length: 1rem;
-    $ray_offset: 1rem;
+    --icon_size: 7rem;
+    --ray_length: 2rem;
+    --ray_offset: 1rem;
     $ray_thickness: 10deg;
     $ray_numbers: 8;
     position: relative;
-    background-color: var(--background);
-    width: 4rem;
-    height: 4rem;
+    //background-color: var(--background);
+    box-sizing: border-box;
+    width: var(--icon_size);
+    height: var(--icon_size);
     border-radius: 50%;
-    border: 0.5rem solid var(--text-primary);
+    //border: 0.5rem solid var(--text-primary);
     z-index: 3;
     display: inline-block;
-    margin: calc($ray_length + $ray_offset + 10px);
+    //margin: calc(var(--ray_length) + var(--ray_offset) + 10px);
     &:before {
         content: '';
         position: absolute;
-        top: calc(-1 * $ray_length - $ray_offset);
-        bottom: calc(-1 * $ray_length - $ray_offset);
-        left: calc(-1 * $ray_length - $ray_offset);
-        right: calc(-1 * $ray_length - $ray_offset);
+        top: calc(-1 * var(--ray_length) - var(--ray_offset));
+        bottom: calc(-1 * var(--ray_length) - var(--ray_offset));
+        left: calc(-1 * var(--ray_length) - var(--ray_offset));
+        right: calc(-1 * var(--ray_length) - var(--ray_offset));
         border-radius: inherit;
         background: repeating-conic-gradient(
             from calc(-1 * $ray_thickness / 2),
@@ -105,13 +97,13 @@ $size_icon: 7rem;
         );
         -webkit-mask: radial-gradient(
             farthest-side,
-            transparent calc(100% - $ray_length),
-            #fff calc(100% - $ray_length)
+            transparent calc(100% - var(--ray_length)),
+            #fff calc(100% - var(--ray_length))
         );
         mask: radial-gradient(
             farthest-side,
-            transparent calc(100% - $ray_length),
-            #fff calc(100% - $ray_length)
+            transparent calc(100% - var(--ray_length)),
+            #fff calc(100% - var(--ray_length))
         );
     }
 }
