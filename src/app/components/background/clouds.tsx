@@ -2,9 +2,11 @@ import React from 'react'
 import styles from './clouds.module.scss'
 import { useTheme } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
+import { grey } from '@mui/material/colors'
 export interface CloudsProps {
     cloudCover: number
     windSpeed?: number
+    size?: string
     theme?: string
     palette?: any
 }
@@ -24,18 +26,20 @@ export interface CloudsProps {
 //}
 
 export const Clouds = (props: CloudsProps) => {
-    const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    const theme = useTheme().theme
+    const palette = paletteHandler(theme)
+    theme === 'dark' ? (palette.background = grey[400]) : {}
     const numMult = props.cloudCover / 100
-    const NUM_CLOUDS = 25 * numMult
+    const NUM_CLOUDS = Math.floor(25 * numMult)
     const clouds = Array(NUM_CLOUDS)
         .fill(undefined)
         .map((_cloud, index) => (
             <CloudGenerator
                 key={`cloud-${index}`}
                 index={index}
+                size={props.size}
                 cloudCover={numMult}
-                theme={theme.theme}
+                theme={theme}
                 palette={palette}
             />
         ))
@@ -45,15 +49,18 @@ export const Clouds = (props: CloudsProps) => {
 interface CloudProps {
     cloudCover: number
     index: number
+    size?: string
     theme?: string
     palette?: any
 }
 
 const CloudGenerator = (props: CloudProps) => {
-    const sizeScale = Math.random()
-    const animationTime = Math.random() * 15 + 15 * sizeScale + 20
-    const height = sizeScale * props.cloudCover + 3
-    const width = Math.random() * 20 * props.cloudCover + 10 * sizeScale + 10
+    const sizeScale = props.size === 'small' ? 0.2 : 1
+    const rndScale = Math.random()
+    const animationTime = Math.random() * 15 + 15 * rndScale + 20
+    const height = (rndScale * props.cloudCover + 3) * sizeScale
+    const width =
+        (Math.random() * 20 * props.cloudCover + 10 * rndScale + 10) * sizeScale
     const top = Math.random() * 100
     const isDouble = Math.random() > 0.5
     return isDouble ? (
@@ -74,7 +81,6 @@ const CloudGenerator = (props: CloudProps) => {
                     width: `${width}rem`,
                     height: `${height}rem`,
                     borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    zIndex: `${props.index + 5}`,
                     backgroundColor: `${props.palette.background}`,
                     position: 'relative',
                 }}
@@ -85,7 +91,6 @@ const CloudGenerator = (props: CloudProps) => {
                     width: `${width}rem`,
                     height: `${height}rem`,
                     borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    zIndex: `${props.index + 5}`,
                     backgroundColor: `${props.palette.background}`,
                     position: 'relative',
                     top: `-${height * 0.5}rem`,

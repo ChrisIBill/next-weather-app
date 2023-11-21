@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { DayNightColorLayer } from './dayNightColorLayer'
 import { CelestialIconsHandler } from './celestialIcons'
@@ -11,34 +11,65 @@ import { useTheme } from '@/lib/context'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
-    theme?: string
+    isCard?: boolean
 }
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
-    const theme = useTheme()
-    if (!props.weatherForecast?.time) {
-        //TODO:
-        //Need to return a default background
-        return (
-            <div className={styles.wrapper}>
-                <RainBackground />
-            </div>
-        )
-    }
-    const [date, time] = props.weatherForecast?.time.split('T')
-    //TODO: need better handling of this
-    if (!time) return <div className={styles.wrapper}></div>
+    const [height, setHeight] = React.useState<number>(0)
+    const [width, setWidth] = React.useState<number>(0)
+    const ref = React.useRef<HTMLDivElement>(null)
+    const theme = useTheme().theme
+    const cloudCover = props.weatherForecast?.cloudCover || '50'
+    const cloudCoverNum = parseInt(cloudCover as string)
 
-    const sunrise = props.weatherForecast?.sunrise?.split('T')[1]
-    const sunset = props.weatherForecast?.sunset?.split('T')[1]
+    useEffect(() => {
+        if (ref.current) {
+            setHeight(ref.current.clientHeight)
+            setWidth(ref.current.clientWidth)
+        }
+    }, [ref])
 
-    const curTimeMinutes = clockTimeToMinutes(time)
-    const sunriseMinutes = sunrise ? clockTimeToMinutes(sunrise) : 360
-    const sunsetMinutes = sunset ? clockTimeToMinutes(sunset) : 1080
+    return (
+        <div className={styles.wrapper} ref={ref}>
+            <Clouds
+                cloudCover={cloudCoverNum}
+                size={props.isCard ? 'small' : ''}
+            />
+            <ClockworkBackgroundComponents
+                isCard={props.isCard}
+                time={props.weatherForecast?.time?.split('T')[1]}
+                sunrise={props.weatherForecast?.sunrise?.split('T')[1]}
+                sunset={props.weatherForecast?.sunset?.split('T')[1]}
+            />
+
+            {/*
+            <RainBackground />
+            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
+            <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
+            */}
+        </div>
+    )
+}
+
+interface ClockworkProps {
+    isCard?: boolean
+    time?: string
+    sunrise?: string
+    sunset?: string
+}
+const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
+    props: ClockworkProps
+) => {
+    const ref = React.useRef<HTMLDivElement>(null)
+    const curTimeMinutes = props.time ? clockTimeToMinutes(props.time) : 900
+    const sunriseMinutes = props.sunrise
+        ? clockTimeToMinutes(props.sunrise)
+        : 360
+    const sunsetMinutes = props.sunset ? clockTimeToMinutes(props.sunset) : 1080
 
     const dayLength =
-        sunrise && sunset
+        props.sunrise && props.sunset
             ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
             : 720
     const { isDay, timePercent } = calcPercentOfDayNight(
@@ -49,13 +80,14 @@ export const Background: React.FC<BackgroundProps> = (
     )
     console.log('Day calcs: ', isDay, timePercent)
     return (
-        <div className={styles.wrapper}>
-            <Clouds cloudCover={100} />
-            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
-            {/*                <RainBackground />
-
-            
-            <DayNightColorLayer isDay={isDay} timePercent={timePercent} /> */}
+        <div className={styles.wrapper} ref={ref}>
+            <CelestialIconsHandler
+                isDay={isDay}
+                timePercent={timePercent}
+                parentRef={ref}
+                isCard={props.isCard}
+            />
+            <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
         </div>
     )
 }
