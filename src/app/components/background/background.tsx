@@ -19,7 +19,6 @@ export const Background: React.FC<BackgroundProps> = (
     const [height, setHeight] = React.useState<number>(0)
     const [width, setWidth] = React.useState<number>(0)
     const ref = React.useRef<HTMLDivElement>(null)
-    const theme = useTheme().theme
     const cloudCover = props.weatherForecast?.cloudCover || '50'
     const cloudCoverNum = parseInt(cloudCover as string)
 
@@ -62,32 +61,45 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
-    const curTimeMinutes = props.time ? clockTimeToMinutes(props.time) : 900
-    const sunriseMinutes = props.sunrise
-        ? clockTimeToMinutes(props.sunrise)
-        : 360
-    const sunsetMinutes = props.sunset ? clockTimeToMinutes(props.sunset) : 1080
+    const theme = useTheme().theme
+    let timeObj = {
+        isDay: theme === 'dark' ? false : true,
+        timePercent: 0.5,
+    }
+    //const [curTimeMin, sunriseMin, sunsetMin]
+    if (!props.isCard) {
+        const curTimeMinutes = props.time ? clockTimeToMinutes(props.time) : 900
+        const sunriseMinutes = props.sunrise
+            ? clockTimeToMinutes(props.sunrise)
+            : 360
+        const sunsetMinutes = props.sunset
+            ? clockTimeToMinutes(props.sunset)
+            : 1080
 
-    const dayLength =
-        props.sunrise && props.sunset
-            ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
-            : 720
-    const { isDay, timePercent } = calcPercentOfDayNight(
-        curTimeMinutes,
-        sunriseMinutes,
-        sunsetMinutes,
-        dayLength
-    )
-    console.log('Day calcs: ', isDay, timePercent)
+        const dayLength =
+            props.sunrise && props.sunset
+                ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
+                : 720
+        timeObj = calcPercentOfDayNight(
+            curTimeMinutes,
+            sunriseMinutes,
+            sunsetMinutes,
+            dayLength
+        )
+    }
+    console.log('Day calcs: ', timeObj.isDay, timeObj.timePercent)
     return (
         <div className={styles.wrapper} ref={ref}>
             <CelestialIconsHandler
-                isDay={isDay}
-                timePercent={timePercent}
+                isDay={timeObj.isDay}
+                timePercent={timeObj.timePercent}
                 parentRef={ref}
                 isCard={props.isCard}
             />
-            <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
+            <DayNightColorLayer
+                isDay={timeObj.isDay}
+                timePercent={timeObj.timePercent}
+            />
         </div>
     )
 }
