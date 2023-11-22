@@ -31,14 +31,16 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
     const yScale = height / 300
     const avgScale = (xScale + yScale) / 2
     const iconScaledX = xScale > 3 ? 20 * xScale : 60
-    console.log('XScale: ', iconScaledX)
     const [p0, p1, p2, p3] = [
         { x: 0 * xScale, y: 90 * yScale },
         { x: 100 * xScale, y: 0 * yScale },
         { x: 200 * xScale, y: 0 * yScale },
         { x: 300 * xScale, y: 90 * yScale },
     ]
-    const bezierPos = bezierCurve(timePercent, p0, p1, p2, p3)
+    const cardPos = { x: 50 * xScale, y: 45 * yScale }
+    const bezierPos = isCard
+        ? cardPos
+        : bezierCurve(timePercent, p0, p1, p2, p3)
     let bezierPath = ''
     for (let i = 0; i < 1.01; i += 0.01) {
         const { x, y } = bezierCurve(i, p0, p1, p2, p3)
