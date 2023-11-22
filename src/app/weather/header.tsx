@@ -25,8 +25,8 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             data-theme={theme.theme}
             style={{
                 color: palette.textPrimary,
-                backgroundColor: palette.background,
-                boxShadow: `0 -2rem 3rem 5rem ${palette.background}`,
+                backgroundColor: `rgba(0,0,0,0.6)`,
+                boxShadow: `0 -2rem 3rem 5rem rgba(0,0,0,0.6)`,
             }}
         >
             <Typography
@@ -58,7 +58,9 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                     color: palette.textSecondary,
                 }}
             >
-                {date.format('h:mm A')}
+                {props.time.includes('T')
+                    ? date.format('h:mm A')
+                    : date.format('M-D YYYY')}
             </Typography>
             {/*<div className={styles.headerContrastLayer} />*/}
         </div>
