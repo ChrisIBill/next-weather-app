@@ -26,6 +26,7 @@ import {
 import { useTheme, useUser } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
 import TemperatureClass, { ApiTempUnitStrings } from '@/lib/temperature'
+import { WeatherChart } from '../components/weatherCharts/weatherChart'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -129,29 +130,42 @@ export default function Page({
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
-                <div className={styles.reportsWrapper}>
-                    <CurrentWeatherReport
-                        forecast={getSelectedForecast()}
-                        metadata={weatherMetadata}
-                    />
-                    <WeatherPageHeader time={getSelectedForecast()?.time} />
+                <div className={styles.landingPage}>
+                    <div className={styles.reportsWrapper}>
+                        <WeatherPageHeader time={getSelectedForecast()?.time} />
+                        <CurrentWeatherReport
+                            forecast={getSelectedForecast()}
+                            metadata={weatherMetadata}
+                        />
+                    </div>
+                    <div className={styles.spacerElement}>
+                        <WeatherChart
+                            forecast={weatherForecast}
+                            selectedDay={selectedDay}
+                            handleChartSelect={handleTimeSelect}
+                        />
+                    </div>
+                    <div className={styles.cardsWrapper}>
+                        <WeatherCards
+                            weatherForecast={weatherForecast}
+                            metadata={weatherMetadata?.units.daily}
+                            handleCardSelect={handleTimeSelect}
+                            selectedDay={
+                                selectedHour == -1 ? undefined : selectedDay
+                            }
+                        />
+                    </div>
+                </div>
+
+                <div className={styles.reportsPage}>
                     <HourlyWeatherReport
                         forecast={getSelectedForecastDay()}
                         metadata={weatherMetadata}
                         handleTimeSelect={handleTimeSelect}
                     />
                 </div>
-                <div className={styles.cardsWrapper}>
-                    <WeatherCards
-                        weatherForecast={weatherForecast}
-                        metadata={weatherMetadata?.units.daily}
-                        handleCardSelect={handleTimeSelect}
-                        selectedDay={
-                            selectedHour == -1 ? undefined : selectedDay
-                        }
-                    />
-                </div>
             </div>
+
             <Background weatherForecast={getSelectedForecast()} />
         </div>
     )
