@@ -182,7 +182,8 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
             let firstRender = true
             if (firstRender && el.current) {
                 console.log('scrolling to element: ', el.current)
-                scrollToElement(el)
+                //TODO:
+                //scrollToElement(el)
                 firstRender = false
             }
         }, [])

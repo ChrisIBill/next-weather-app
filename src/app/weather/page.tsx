@@ -131,19 +131,24 @@ export default function Page({
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
-                    <div className={styles.reportsWrapper}>
-                        <WeatherPageHeader time={getSelectedForecast()?.time} />
-                        <CurrentWeatherReport
-                            forecast={getSelectedForecast()}
-                            metadata={weatherMetadata}
-                        />
-                    </div>
-                    <div className={styles.spacerElement}>
-                        <WeatherChart
-                            forecast={weatherForecast}
-                            selectedDay={selectedDay}
-                            handleChartSelect={handleTimeSelect}
-                        />
+                    <div className={styles.bodyWrapper}>
+                        <div className={styles.reportsWrapper}>
+                            <WeatherPageHeader
+                                time={getSelectedForecast()?.time}
+                            />
+                            <CurrentWeatherReport
+                                forecast={getSelectedForecast()}
+                                metadata={weatherMetadata}
+                            />
+                        </div>
+                        <div className={styles.chartWrapper}>
+                            <WeatherChart
+                                forecast={weatherForecast}
+                                metadata={weatherMetadata}
+                                selectedDay={selectedDay}
+                                handleChartSelect={handleTimeSelect}
+                            />
+                        </div>
                     </div>
                     <div className={styles.cardsWrapper}>
                         <WeatherCards
