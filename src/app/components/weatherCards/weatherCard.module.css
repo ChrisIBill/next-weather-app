@@ -1,5 +1,5 @@
 .MuiCard-root {
-    background-color: rgba(255, 255, 255, 0.01);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 .weatherCard {
     z-index: 10;
@@ -12,8 +12,14 @@
     -webkit-backdrop-filter: blur(5px);
 }
 .actionArea {
+    background-color: rgba(0, 0, 0, 0.9);
 }
 .contentWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.bodyWrapper {
     display: flex;
     flex-direction: column;
     align-items: center;

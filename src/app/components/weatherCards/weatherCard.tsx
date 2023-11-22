@@ -20,8 +20,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
     const weather = props.weather
-    const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    const theme = useTheme().theme
+    const palette = paletteHandler(theme)
     const User = useUser().user
     return (
         <Card
@@ -43,6 +43,10 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 onClick={(event) => props.handleCardSelect(props.index)}
                 disabled={props.index == props.selectedDay}
                 sx={{
+                    backgroundColor:
+                        theme === 'dark'
+                            ? `rgba(0, 0, 0, 0.35)`
+                            : `rgba(0,0,0, 0.0)`,
                     zIndex: 20,
                 }}
             >
@@ -123,7 +127,7 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
     }
     //const precipType = weather.rain_sum ?
     return (
-        <div className={styles.contentWrapper}>
+        <div className={styles.bodyWrapper}>
             <Typography
                 variant="body1"
                 title={'WMO Code: ' + weather.weathercode}
