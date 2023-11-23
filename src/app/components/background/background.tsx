@@ -19,8 +19,15 @@ export const Background: React.FC<BackgroundProps> = (
     const [height, setHeight] = React.useState<number>(0)
     const [width, setWidth] = React.useState<number>(0)
     const ref = React.useRef<HTMLDivElement>(null)
-    const cloudCover = props.weatherForecast?.cloudCover || '50'
-    const cloudCoverNum = parseInt(cloudCover as string)
+
+    const forecast = props.weatherForecast
+    const cloudCover = forecast
+        ? forecast.cloudcover !== undefined
+            ? forecast.cloudcover
+            : forecast.avg_daily_cloudcover !== undefined
+            ? forecast.avg_daily_cloudcover
+            : 50
+        : 50
 
     useEffect(() => {
         if (ref.current) {
@@ -32,7 +39,7 @@ export const Background: React.FC<BackgroundProps> = (
     return (
         <div className={styles.wrapper} ref={ref}>
             <Clouds
-                cloudCover={cloudCoverNum}
+                cloudCover={cloudCover as number}
                 size={props.isCard ? 'small' : ''}
             />
             <ClockworkBackgroundComponents
@@ -87,7 +94,6 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
             dayLength
         )
     }
-    console.log('Day calcs: ', timeObj.isDay, timeObj.timePercent)
     return (
         <div className={styles.wrapper} ref={ref}>
             <CelestialIconsHandler
