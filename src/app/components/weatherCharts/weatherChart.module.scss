@@ -1,0 +1,15 @@
+$drawerWidth: 240px;
+
+@mixin openDrawer {
+    width: #{$drawerWidth};
+    transition: width 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    overflow-x: hidden;
+}
+@mixin closeDrawer {
+    width: 2rem;
+    transition: width 195ms cubic-bezier(0, 0, 0.2, 1) 0ms;
+    overflow-x: hidden;
+}
+.weatherChart {
+    display: flex;
+}

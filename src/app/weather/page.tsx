@@ -132,7 +132,13 @@ export default function Page({
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
                     <div className={styles.bodyWrapper}>
-                        <div className={styles.reportsWrapper}>
+                        <div
+                            className={styles.readoutWrapper}
+                            style={{
+                                backgroundColor: `rgba(0,0,0,0.6)`,
+                                boxShadow: `0 -2rem 3rem 5rem rgba(0,0,0,0.6)`,
+                            }}
+                        >
                             <WeatherPageHeader
                                 time={getSelectedForecast()?.time}
                             />

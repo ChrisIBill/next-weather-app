@@ -31,7 +31,6 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     timePercent,
 }: ColorLayerProps) => {
     //minutes in day = 1440
-    console.log('DayNightColorLayer: ', isDay, timePercent)
     const theme = useTheme().theme
     const backgroundColors =
         theme === 'dark' ? darkBackgroundColors : lightBackgroundColors

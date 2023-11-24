@@ -25,8 +25,6 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
             data-theme={theme.theme}
             style={{
                 color: palette.textPrimary,
-                backgroundColor: `rgba(0,0,0,0.6)`,
-                boxShadow: `0 -2rem 3rem 5rem rgba(0,0,0,0.6)`,
             }}
         >
             <Typography
