@@ -9,101 +9,105 @@ import {
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Tabs,
+    Tab,
+    Button,
+    Typography,
 } from '@mui/material'
 import React from 'react'
-import { ChartDataKeys, ChartIconsMap } from './weatherChart'
+import {
+    ChartDataKeys,
+    ChartIconsMap,
+    ChartKeysType,
+    ChartTimespanType,
+} from './weatherChart'
 import { useTheme } from '@/lib/context'
+import styles from './weatherChart.module.scss'
+import { WiRaindrops, WiHumidity, WiThermometer } from 'react-icons/wi'
+import { LuWind } from 'react-icons/lu'
+import paletteHandler from '@/lib/paletteHandler'
 
 export interface WeatherChartControlsProps {
-    chartKeys: ChartDataKeys[]
-    selectedKey: ChartDataKeys
+    selectedKey: ChartKeysType
+    selectedTimespan: ChartTimespanType
     chartWidth?: number
-    handleKeySelect: (e: any, key: ChartDataKeys) => void
+    chartKeys: ChartKeysType[]
+    handleKeySelect: (e: any, val: any) => void
+    handleTimespanSelect: (e: any, timespan: ChartTimespanType) => void
 }
 
-const drawerWidth = 160
-
-const openMixin = (theme: any): CSSObject => ({
-    transition: `${drawerWidth}px 225ms cubic-bezier(0, 0, 0.2, 1) 0ms`,
-    overflowX: 'hidden',
-    width: `${drawerWidth}px`,
-})
-
-const closedMixin = (theme: any): CSSObject => ({
-    transition: `${drawerWidth}px 195ms cubic-bezier(0.4, 0, 0.6, 1) 0ms`,
-    overflowX: 'hidden',
-    width: '2.5rem',
-})
-export const WeatherChartControls: React.FC<WeatherChartControlsProps> = (
+export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
     props
 ) => {
-    const [open, setOpen] = React.useState<boolean>(true)
     const theme = useTheme().theme
+    const palette = paletteHandler(theme)
 
     return (
-        <Drawer
-            variant="permanent"
-            open={open}
-            anchor="right"
-            sx={{
-                position: 'relative',
-                top: '0',
-                left: '0',
-                ...(open && {
-                    ...openMixin(theme),
-                    '& .MuiPaper-root': openMixin(theme),
-                }),
-                ...(!open && {
-                    ...closedMixin(theme),
-                    '& .MuiPaper-root': closedMixin(theme),
-                }),
-                '& .MuiPaper-root': {
-                    position: 'relative',
-                    top: '0',
-                    right: '0',
-                },
-            }}
-            style={{}}
-        >
-            <div>
-                <IconButton onClick={() => setOpen(!open)}>
-                    {open ? <ChevronRight /> : <ChevronLeft />}
-                </IconButton>
-            </div>
-            <Divider />
-            <List>
+        <div className={styles.chartHeader}>
+            <Tabs
+                value={props.selectedTimespan}
+                onChange={props.handleTimespanSelect}
+                sx={{
+                    color: 'black',
+                }}
+            >
+                <Tab label="Day" value="Day" />
+                <Tab label="Week" value="Week" />
+            </Tabs>
+            <div className={styles.chartButtonsWrapper}>
                 {props.chartKeys.map((key) => (
-                    <ListItem
+                    <Button
                         key={key}
-                        disablePadding
-                        sx={{ display: 'block' }}
+                        value={key}
+                        variant="contained"
+                        onClick={(e) => props.handleKeySelect(e, key)}
+                        sx={{
+                            backgroundColor: palette.primary,
+
+                            marginRight: '0.5rem',
+                        }}
                     >
-                        <ListItemButton
-                            sx={{
-                                minHeight: 48,
-                                justifyContent: open ? 'flex-start' : 'center',
-                                px: 2.5,
-                            }}
-                        >
-                            <ListItemIcon
-                                sx={{
-                                    minWidth: 0,
-                                    mr: open ? 3 : 0,
-                                    justifyContent: 'center',
-                                }}
+                        {key === props.selectedKey ? (
+                            <div
+                                className={styles.chartButtonContent}
+                                style={{}}
                             >
-                                {ChartIconsMap[key]}
-                            </ListItemIcon>
-                            <ListItemText
-                                primary={key}
-                                sx={{
-                                    opacity: open ? 1 : 0,
-                                }}
-                            />
-                        </ListItemButton>
-                    </ListItem>
+                                <div className={styles.iconWrapper}>
+                                    <ChartKeyIcons chartKey={key} size={24} />
+                                </div>
+                                <Typography>{key}</Typography>
+                            </div>
+                        ) : (
+                            <div
+                                className={styles.chartButtonContent}
+                                title={key}
+                            >
+                                <div className={styles.iconWrapper}>
+                                    <ChartKeyIcons chartKey={key} size={24} />
+                                </div>
+                            </div>
+                        )}
+                    </Button>
                 ))}
-            </List>
-        </Drawer>
+            </div>
+        </div>
     )
+}
+
+export interface ChartKeyButtonProps {
+    chartKey: ChartDataKeys
+    size?: number
+}
+
+export const ChartKeyIcons: React.FC<ChartKeyButtonProps> = (props) => {
+    switch (props.chartKey) {
+        case 'Temperature':
+            return <WiThermometer size={props.size} />
+        case 'Precipitation':
+            return <WiRaindrops size={props.size} />
+        case 'Humidity':
+            return <WiHumidity size={props.size} />
+        case 'Wind':
+            return <LuWind size={props.size} />
+    }
 }

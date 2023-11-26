@@ -1,4 +1,6 @@
 import { HourlyWeatherDataType } from '@/lib/interfaces'
+import { getDatetimeObject } from '@/lib/time'
+import dayjs from 'dayjs'
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts'
 
 export interface HourlyWeatherChartProps {
@@ -12,15 +14,16 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
     props
 ) => {
     const data = props.forecast.map((hour, index) => {
+        const time = dayjs(hour.time).format('HH:mm')
         switch (props.chartKey) {
             case 'Temperature':
                 return {
-                    hour: hour.time,
+                    hour: time,
                     values: [hour.temperature_2m, hour.apparent_temperature],
                 }
             case 'Precipitation':
                 return {
-                    hour: hour.time,
+                    hour: time,
                     values: [
                         hour.precipitation,
                         hour.precipitation_probability,
@@ -28,12 +31,12 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 }
             case 'Humidity':
                 return {
-                    hour: hour.time,
+                    hour: time,
                     values: [hour.humidity],
                 }
             case 'Wind':
                 return {
-                    hour: hour.time,
+                    hour: time,
                     values: [hour.windspeed_10m, hour.windgusts_10m],
                 }
             default:
@@ -55,7 +58,14 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
                 </linearGradient>
             </defs>
-            <XAxis dataKey="hour" />
+            <XAxis
+                dataKey="hour"
+                interval={3}
+                tickCount={8}
+                style={{
+                    backgroundColor: 'red',
+                }}
+            />
             <YAxis />
             <Tooltip />
             <Area type="monotone" dataKey="values[0]" stroke="#8884d8" />

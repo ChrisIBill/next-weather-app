@@ -1,56 +1,33 @@
 import React, { useEffect } from 'react'
 import {
-    Area,
-    AreaChart,
-    Bar,
-    BarChart,
-    CartesianGrid,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts'
-import {
     DailyWeatherForecastType,
     DetailedWeatherDataType,
     HourlyWeatherDataType,
 } from '@/lib/interfaces'
 import styles from './weatherChart.module.scss'
-import {
-    Box,
-    CSSObject,
-    Divider,
-    Drawer,
-    IconButton,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
-    Paper,
-    Tab,
-    Tabs,
-} from '@mui/material'
-import DeviceThermostatIcon from '@mui/icons-material/DeviceThermostat'
-import WaterDropIcon from '@mui/icons-material/WaterDrop'
-import AirIcon from '@mui/icons-material/Air'
-import { WiRaindrops, WiHumidity, WiThermometer } from 'react-icons/wi'
-import { LuWind } from 'react-icons/lu'
-import { ChevronLeft, ChevronRight } from '@mui/icons-material'
+import { Box, Paper } from '@mui/material'
 import { useTheme } from '@/lib/context'
-import { WeatherChartControls } from './chartComponents'
+import { WeatherChartControls, WeatherChartHeader } from './chartComponents'
 import { HourlyWeatherChart } from './hourlyWeatherCharts'
 import { DailyWeatherChart } from './dailyWeatherChart'
+import paletteHandler from '@/lib/paletteHandler'
+
+export const ChartTimespan = ['Day', 'Week'] as const
+export const ChartKeys = [
+    'Temperature',
+    'Precipitation',
+    'Humidity',
+    'Wind',
+] as const
+
+export type ChartTimespanType = (typeof ChartTimespan)[number]
+export type ChartKeysType = (typeof ChartKeys)[number]
+
 export type ChartDataKeys =
     | 'Temperature'
     | 'Precipitation'
     | 'Humidity'
     | 'Wind'
-export const ChartIconsMap = {
-    Temperature: <WiThermometer />,
-    Precipitation: <WiRaindrops />,
-    Humidity: <WiHumidity />,
-    Wind: <LuWind />,
-}
 
 function getChartDataFromForecast(
     forecast: DetailedWeatherDataType[],
@@ -78,7 +55,9 @@ export interface WeatherChartProps {
     selectedHour?: number
 }
 export const WeatherChart: React.FC<WeatherChartProps> = (props) => {
-    const [chartType, setChartType] = React.useState<'Day' | 'Week'>('Day')
+    const theme = useTheme().theme
+    const palette = paletteHandler(theme)
+    const [chartType, setChartType] = React.useState<ChartTimespanType>('Day')
     const selectedForecast = props.selectedDay
         ? props.forecast[props.selectedDay]
         : props.forecast[0]
@@ -86,9 +65,11 @@ export const WeatherChart: React.FC<WeatherChartProps> = (props) => {
         React.useState<ChartDataKeys>('Temperature')
 
     const handleChartTypeChange = (e: any, val: any) => {
+        console.log(val)
         setChartType(val)
     }
     const handleChartKeyChange = (e: any, val: any) => {
+        console.log(val)
         setSelectedVar(val)
     }
     if (props.forecast[0] === undefined) return <div>Loading...</div>
@@ -100,17 +81,24 @@ export const WeatherChart: React.FC<WeatherChartProps> = (props) => {
                 height: '450px',
             }}
         >
-            <Paper className={styles.chartContainer}>
-                <Tabs
-                    value={chartType}
-                    onChange={handleChartTypeChange}
-                    sx={{
-                        color: 'black',
-                    }}
-                >
-                    <Tab label="Day" value="Day" />
-                    <Tab label="Week" value="Week" />
-                </Tabs>
+            <Paper
+                className={styles.chartContainer}
+                sx={{
+                    backgroundColor: 'transparent',
+                }}
+            >
+                <WeatherChartHeader
+                    selectedKey={selectedVar}
+                    selectedTimespan={chartType}
+                    chartKeys={[
+                        'Temperature',
+                        'Precipitation',
+                        'Humidity',
+                        'Wind',
+                    ]}
+                    handleKeySelect={handleChartKeyChange}
+                    handleTimespanSelect={handleChartTypeChange}
+                />
                 <div className={styles.chartWrapper}>
                     {chartType === 'Week' ? (
                         <DailyWeatherChart
@@ -131,12 +119,6 @@ export const WeatherChart: React.FC<WeatherChartProps> = (props) => {
                     )}
                 </div>
             </Paper>
-            <WeatherChartControls
-                chartKeys={['Temperature', 'Precipitation', 'Humidity', 'Wind']}
-                selectedKey={selectedVar}
-                chartWidth={850}
-                handleKeySelect={handleChartKeyChange}
-            />
         </Box>
     )
 }

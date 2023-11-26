@@ -13,6 +13,19 @@ $drawerWidth: 240px;
 
 .weatherDrawer {
 }
+.chartContainer {
+    background-color: transparent;
+}
 .weatherChart {
+    display: flex;
+}
+
+.chartHeader {
+    display: flex;
+    justify-content: space-between;
+}
+.chartButtonsWrapper {
+}
+.chartButtonContent {
     display: flex;
 }
