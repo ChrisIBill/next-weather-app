@@ -4,10 +4,10 @@ import styles from './celestialIcons.module.scss'
 import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
 import { GCProps, PosCoordinates } from '@/lib/interfaces'
 import { bezierCurve } from '@/lib/lib'
+import { TimeObjectType } from '@/lib/time'
 
 export interface CelestialIconsProps extends GCProps {
-    isDay: boolean
-    timePercent: number
+    timeObj: TimeObjectType
     parentRef?: React.RefObject<HTMLDivElement>
     isCard?: boolean
     eclipse?: boolean
@@ -16,8 +16,7 @@ export interface CelestialIconsProps extends GCProps {
 }
 
 export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
-    isDay,
-    timePercent,
+    timeObj,
     parentRef,
     isCard,
 }: CelestialIconsProps) => {
@@ -26,6 +25,8 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
     const width = parentRef?.current?.clientWidth || window.innerWidth
     const height = parentRef?.current?.clientHeight || window.innerHeight
     //const { innerWidth: width, innerHeight: height } = window
+    const isDay = timeObj.isDay
+    const timePercent = timeObj.timePercent
 
     const xScale = width / 300
     const yScale = height / 300
@@ -38,9 +39,10 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
         { x: 300 * xScale, y: 90 * yScale },
     ]
     const cardPos = { x: 50 * xScale, y: 45 * yScale }
-    const bezierPos = isCard
-        ? cardPos
-        : bezierCurve(timePercent, p0, p1, p2, p3)
+    const bezierPos =
+        timePercent === undefined
+            ? cardPos
+            : bezierCurve(timePercent, p0, p1, p2, p3)
     let bezierPath = ''
     for (let i = 0; i < 1.01; i += 0.01) {
         const { x, y } = bezierCurve(i, p0, p1, p2, p3)
@@ -76,7 +78,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
                     }}
                 >
                     <CelestialIcon
-                        isDay={isDay}
+                        isDay={isDay!}
                         size={iconScaledX}
                         parentRef={ref}
                     />

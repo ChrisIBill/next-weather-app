@@ -1,16 +1,13 @@
 //NOTE: Current implementation will struggle with unusual sunrise/sunset times
 //      as might appear in the far north or south.  For example, in Tromso, Norway,
-import { useTheme } from '@/lib/context'
+import { useTheme } from '@mui/material/styles'
 import styles from './dayNightColorLayer.module.scss'
-import { percentToGradientStringMapper } from '@/lib/time'
-
-export const TimesOfDAy = ['morning', 'day', 'evening', 'night'] as const
-export type TimeOfDay = (typeof TimesOfDAy)[number]
-
-export interface ColorLayerProps {
-    isDay: boolean
-    timePercent: number
-}
+import {
+    getTimeOfDay,
+    percentToGradientStringMapper,
+    TimeObjectType,
+    TimeOfDay,
+} from '@/lib/time'
 
 const lightBackgroundColors = {
     morning: '#0545B3',
@@ -24,27 +21,33 @@ const darkBackgroundColors = {
     evening: '#3B0FBD',
     night: '#210971',
 }
+
+export const useBackgroundColors = () => {
+    const palette = useTheme().palette
+    return palette.mode === 'dark'
+        ? darkBackgroundColors
+        : lightBackgroundColors
+}
 //const darkBackgroundColors = {
 
+export interface ColorLayerProps {
+    timeObj: TimeObjectType
+}
+
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
-    isDay,
-    timePercent,
+    timeObj,
 }: ColorLayerProps) => {
     //minutes in day = 1440
-    const theme = useTheme().theme
-    const backgroundColors =
-        theme === 'dark' ? darkBackgroundColors : lightBackgroundColors
+    const theme = useTheme()
+    const palette = theme.palette
+    const backgroundColors = useBackgroundColors()
 
+    const timePercent = timeObj.timePercent!
+    const isDay = timeObj.isDay!
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
-    const bgColor = () => {
-        if (isDay && 0.2 < timePercent && timePercent < 0.8)
-            return backgroundColors.day
-        else if ((isDay && timePercent < 0.2) || (!isDay && timePercent > 0.8))
-            return backgroundColors.morning
-        else if ((isDay && timePercent > 0.8) || (!isDay && timePercent < 0.2))
-            return backgroundColors.evening
-        else return backgroundColors.night
-    }
+
+    const bgColor = backgroundColors[timeObj.timeOfDay!]
+    if (!bgColor) console.log('bgColor undefined', timeObj)
     const bgGradient = isDay ? 'rgb(255,255,255)' : 'rgb(0,0,0)'
 
     //const gradientHour = percentToGradientStringMapper(isDay, timePercent)
@@ -53,7 +56,7 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
         <div
             className={styles.dayNightColorLayer}
             style={{
-                background: `linear-gradient(${angle}deg, ${bgColor()} 0%, ${bgGradient} 200%)`,
+                background: `linear-gradient(${angle}deg, ${bgColor} 0%, ${bgGradient} 200%)`,
             }}
         >
             {isDay ? <></> : <StarryNightBackground />}
