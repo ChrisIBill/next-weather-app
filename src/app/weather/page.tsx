@@ -23,10 +23,12 @@ import {
     getDatetimeObject,
     percentToGradientStringMapper,
 } from '@/lib/time'
-import { useTheme, useUser } from '@/lib/context'
+import { useUser } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
 import TemperatureClass, { ApiTempUnitStrings } from '@/lib/temperature'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
+import { useWindowDimensions } from '@/lib/hooks'
+import { useTheme } from '@mui/material'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -61,9 +63,9 @@ export default function Page({
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
     const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    const palette = theme.palette
     const User = useUser().user
-
+    const windowDimensions = useWindowDimensions()
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
 
@@ -131,30 +133,20 @@ export default function Page({
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
-                    <div className={styles.bodyWrapper}>
-                        <div
-                            className={styles.readoutWrapper}
-                            style={{
-                                backgroundColor: `rgba(0,0,0,0.6)`,
-                                boxShadow: `0 -2rem 3rem 5rem rgba(0,0,0,0.6)`,
-                            }}
-                        >
-                            <WeatherPageHeader
-                                time={getSelectedForecast()?.time}
-                            />
-                            <CurrentWeatherReport
-                                forecast={getSelectedForecast()}
-                                metadata={weatherMetadata}
-                            />
-                        </div>
-                        <div className={styles.chartWrapper}>
-                            <WeatherChart
-                                forecast={weatherForecast}
-                                metadata={weatherMetadata}
-                                selectedDay={selectedDay}
-                                handleChartSelect={handleTimeSelect}
-                            />
-                        </div>
+                    <div className={styles.readoutWrapper} style={{}}>
+                        <WeatherPageHeader time={getSelectedForecast()?.time} />
+                        <CurrentWeatherReport
+                            forecast={getSelectedForecast()}
+                            metadata={weatherMetadata}
+                        />
+                    </div>
+                    <div className={styles.chartWrapper}>
+                        <WeatherChart
+                            forecast={weatherForecast}
+                            metadata={weatherMetadata}
+                            selectedDay={selectedDay}
+                            handleChartSelect={handleTimeSelect}
+                        />
                     </div>
                     <div className={styles.cardsWrapper}>
                         <WeatherCards
@@ -176,7 +168,6 @@ export default function Page({
                     />
                 </div>
             </div>
-
             <Background weatherForecast={getSelectedForecast()} />
         </div>
     )
