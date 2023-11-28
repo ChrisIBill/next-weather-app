@@ -1,30 +1,39 @@
 import React from 'react'
 import styles from './page.module.scss'
-import { getDateObject } from '@/lib/time'
+import { TimeObjectType, getDateObject } from '@/lib/time'
 import { Typography } from '@mui/material'
 import paletteHandler from '@/lib/paletteHandler'
-import { useTheme } from '@/lib/context'
+import { useTheme } from '@mui/material/styles'
+import dayjs from 'dayjs'
+import { useBackgroundColors } from '../components/background/dayNightColorLayer'
+
 export interface WeatherPageHeaderProps {
-    time?: string
+    timeObj: TimeObjectType
 }
 export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
     props: WeatherPageHeaderProps
 ) => {
-    const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
-    if (!props.time)
+    const palette = useTheme().palette
+
+    const backgroundColor = useBackgroundColors()[props.timeObj.timeOfDay!]
+    console.log('bgcolor: ', backgroundColor)
+    if (typeof props.timeObj.time === 'undefined')
         return (
             <div className={styles.headerWrapper}>
                 Loading Weather Page Header
             </div>
         )
-    const date = getDateObject(props.time)
+
+    const date =
+        typeof props.timeObj.time === 'string'
+            ? getDateObject(props.timeObj.time)
+            : props.timeObj.time
     return (
         <div
             className={styles.headerWrapper}
-            data-theme={theme.theme}
+            data-theme={palette.mode}
             style={{
-                color: palette.textPrimary,
+                color: palette.getContrastText(backgroundColor),
             }}
         >
             <Typography
@@ -53,10 +62,9 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
                 className={styles.headerText}
                 sx={{
                     fontWeight: 'lighter',
-                    color: palette.textSecondary,
                 }}
             >
-                {props.time.includes('T')
+                {props.timeObj.time.includes('T')
                     ? date.format('h:mm A')
                     : date.format('M-D YYYY')}
             </Typography>

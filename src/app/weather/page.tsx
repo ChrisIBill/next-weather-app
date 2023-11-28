@@ -1,34 +1,21 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
-    CurrentWeatherDataType,
-    DailyWeatherForecastType,
-    DetailedWeatherDataType,
     LocationType,
-    WeatherApiResponseType,
     WeatherForecastType,
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { Background } from '../components/background/background'
-import UserPrefs, { ThemeType, UserPreferencesInterface } from '@/lib/user'
+import UserPrefs, { UserPreferencesInterface } from '@/lib/user'
 import { WeatherPageHeader } from './header'
 import { CurrentWeatherReport } from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
-import dayjs from 'dayjs'
-import {
-    celestialThemeGenerator,
-    getDatetimeObject,
-    percentToGradientStringMapper,
-} from '@/lib/time'
+import { getTimeObj } from '@/lib/time'
 import { useUser } from '@/lib/context'
-import paletteHandler from '@/lib/paletteHandler'
-import TemperatureClass, { ApiTempUnitStrings } from '@/lib/temperature'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
-import { useWindowDimensions } from '@/lib/hooks'
-import { useTheme } from '@mui/material'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -62,10 +49,8 @@ export default function Page({
     const [reload, setReload] = useState<boolean>(false)
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
-    const theme = useTheme()
-    const palette = theme.palette
+
     const User = useUser().user
-    const windowDimensions = useWindowDimensions()
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
 
@@ -84,6 +69,7 @@ export default function Page({
             setSelectedHour(hour)
         } else setSelectedHour(undefined)
     }
+
     const getSelectedForecast = () => {
         if (!selectedHour) {
             return weatherForecast[selectedDay]
@@ -95,9 +81,12 @@ export default function Page({
             return weatherForecast[selectedDay].hourly_weather![selectedHour]
         }
     }
+
     const getSelectedForecastDay = () => {
         return weatherForecast[selectedDay]
     }
+
+    const timeObj = getTimeObj(getSelectedForecast())
 
     const fetchWeather = () => {
         getWeather(location, User)
@@ -110,31 +99,18 @@ export default function Page({
                 setWeatherForecast(value.forecast)
             })
     }
-    if (!weatherMetadata || reload) {
+    if (!weatherMetadata || User.reload) {
         console.log('Fetching weather from server')
         fetchWeather()
+        User.reload = false
     }
-    useEffect(() => {
-        const time =
-            selectedHour == -1
-                ? weatherForecast[0]?.current_weather?.time
-                : selectedHour !== undefined
-                ? weatherForecast[selectedDay]?.hourly_weather![selectedHour]
-                      .time
-                : undefined
-        console.log('time: ', time)
-    }, [weatherForecast, selectedHour, selectedDay])
-    useEffect(() => {
-        if (User.reload === true) {
-            fetchWeather()
-        }
-    }, [User])
+
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
                     <div className={styles.readoutWrapper} style={{}}>
-                        <WeatherPageHeader time={getSelectedForecast()?.time} />
+                        <WeatherPageHeader timeObj={timeObj} />
                         <CurrentWeatherReport
                             forecast={getSelectedForecast()}
                             metadata={weatherMetadata}
@@ -168,7 +144,10 @@ export default function Page({
                     />
                 </div>
             </div>
-            <Background weatherForecast={getSelectedForecast()} />
+            <Background
+                weatherForecast={getSelectedForecast()}
+                timeObj={timeObj}
+            />
         </div>
     )
 }

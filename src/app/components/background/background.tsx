@@ -2,16 +2,22 @@ import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { DayNightColorLayer } from './dayNightColorLayer'
 import { CelestialIconsHandler } from './celestialIcons'
-import { clockTimeToMinutes, dayLengthCalculator } from '@/lib/time'
+import {
+    TimeObjectType,
+    clockTimeToMinutes,
+    dayLengthCalculator,
+} from '@/lib/time'
 import RainBackground from '@/app/rain'
 import { DetailedWeatherDataType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { Clouds } from './clouds'
 import { useTheme } from '@/lib/context'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
+    timeObj?: TimeObjectType
     isCard?: boolean
 }
 
@@ -33,24 +39,19 @@ export const Background: React.FC<BackgroundProps> = (
         <div
             className={styles.wrapper}
             ref={ref}
-            style={
-                {
-                    //height: props.isCard ? '100%' : height,
-                    //width: props.isCard ? '100%' : width,
-                }
-            }
+            style={{
+                top: props.isCard ? '0' : '-4rem',
+            }}
         >
             <Clouds
                 cloudCover={cloudCover as number}
                 size={props.isCard ? 'small' : ''}
+                isCard={props.isCard}
             />
             <ClockworkBackgroundComponents
                 isCard={props.isCard}
-                time={props.weatherForecast?.time?.split('T')[1]}
-                sunrise={props.weatherForecast?.sunrise?.split('T')[1]}
-                sunset={props.weatherForecast?.sunset?.split('T')[1]}
+                timeObj={props.timeObj}
             />
-
             {/*
             <RainBackground />
             <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
@@ -62,52 +63,30 @@ export const Background: React.FC<BackgroundProps> = (
 
 interface ClockworkProps {
     isCard?: boolean
-    time?: string
-    sunrise?: string
-    sunset?: string
+    timeObj?: TimeObjectType
 }
 const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
     const theme = useTheme().theme
-    let timeObj = {
-        isDay: theme === 'dark' ? false : true,
-        timePercent: 0.5,
-    }
-    //const [curTimeMin, sunriseMin, sunsetMin]
-    if (!props.isCard) {
-        const curTimeMinutes = props.time ? clockTimeToMinutes(props.time) : 900
-        const sunriseMinutes = props.sunrise
-            ? clockTimeToMinutes(props.sunrise)
-            : 360
-        const sunsetMinutes = props.sunset
-            ? clockTimeToMinutes(props.sunset)
-            : 1080
+    const palette = useMuiTheme().palette
+    const timeObj = props.timeObj
+        ? props.timeObj
+        : {
+              isDay: palette.mode === 'dark' ? false : true,
+              timePercent: 0.5,
+              timeOfDay: palette.mode === 'dark' ? 'night' : 'day',
+          }
 
-        const dayLength =
-            props.sunrise && props.sunset
-                ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
-                : 720
-        timeObj = calcPercentOfDayNight(
-            curTimeMinutes,
-            sunriseMinutes,
-            sunsetMinutes,
-            dayLength
-        )
-    }
     return (
-        <div className={styles.wrapper} ref={ref}>
+        <div className={styles.clockworkWrapper} ref={ref}>
             <CelestialIconsHandler
-                isDay={timeObj.isDay}
-                timePercent={timeObj.timePercent}
+                timeObj={timeObj}
                 parentRef={ref}
                 isCard={props.isCard}
             />
-            <DayNightColorLayer
-                isDay={timeObj.isDay}
-                timePercent={timeObj.timePercent}
-            />
+            <DayNightColorLayer timeObj={timeObj} />
         </div>
     )
 }
