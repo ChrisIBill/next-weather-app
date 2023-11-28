@@ -5,6 +5,7 @@ import paletteHandler from '@/lib/paletteHandler'
 import { grey } from '@mui/material/colors'
 export interface CloudsProps {
     cloudCover: number
+    isCard?: boolean
     windSpeed?: number
     size?: string
     theme?: string
@@ -43,7 +44,16 @@ export const Clouds = (props: CloudsProps) => {
                 palette={palette}
             />
         ))
-    return <ul className={styles.cloudsContainer}>{clouds}</ul>
+    return (
+        <ul
+            className={styles.cloudsContainer}
+            style={{
+                top: props.isCard ? '15%' : '20rem',
+            }}
+        >
+            {clouds}
+        </ul>
+    )
 }
 
 interface CloudProps {

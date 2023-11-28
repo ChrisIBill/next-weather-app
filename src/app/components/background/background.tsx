@@ -8,16 +8,16 @@ import { DetailedWeatherDataType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { Clouds } from './clouds'
 import { useTheme } from '@/lib/context'
+import { useWindowDimensions } from '@/lib/hooks'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
     isCard?: boolean
 }
+
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
-    const [height, setHeight] = React.useState<number>(0)
-    const [width, setWidth] = React.useState<number>(0)
     const ref = React.useRef<HTMLDivElement>(null)
 
     const forecast = props.weatherForecast
@@ -29,15 +29,17 @@ export const Background: React.FC<BackgroundProps> = (
             : 50
         : 50
 
-    useEffect(() => {
-        if (ref.current) {
-            setHeight(ref.current.clientHeight)
-            setWidth(ref.current.clientWidth)
-        }
-    }, [ref])
-
     return (
-        <div className={styles.wrapper} ref={ref}>
+        <div
+            className={styles.wrapper}
+            ref={ref}
+            style={
+                {
+                    //height: props.isCard ? '100%' : height,
+                    //width: props.isCard ? '100%' : width,
+                }
+            }
+        >
             <Clouds
                 cloudCover={cloudCover as number}
                 size={props.isCard ? 'small' : ''}
