@@ -1,12 +1,13 @@
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import styles from './weatherCard.module.css'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
-import { getDateObject } from '@/lib/time'
+import { getDateObject, getTimeObj } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
 import RainBackground from '@/app/rain'
 import paletteHandler from '@/lib/paletteHandler'
 import { useTheme, useUser } from '@/lib/context'
+import { useTheme as useMUITheme } from '@mui/material/styles'
 import { Background } from '../background/background'
 
 export interface WeatherCardProps {
@@ -20,9 +21,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
     const weather = props.weather
-    const theme = useTheme().theme
-    const palette = paletteHandler(theme)
-    const User = useUser().user
+    const palette = useMUITheme().palette
+
+    const timeObj = getTimeObj(weather, palette.mode)
     return (
         <Card
             className={styles.weatherCard}
@@ -31,9 +32,9 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 //backgroundImage:
                 //    'linear-gradient(to bottom, #1E101A, #2a1726, #3d2243, #4a3266, #4a458e, #4954a5, #4263bc, #3173d4, #447fdd, #558be7, #6597f0, #74a3f9, #74a3f9)',
                 position: 'relative',
-                backgroundColor: `${palette.primary}`,
-                border: `1px solid ${palette.textPrimary}`,
-                color: `${palette.textPrimary}`,
+                backgroundColor: `${palette.primary.main}`,
+                border: `1px solid ${palette.primary.contrastText}`,
+                color: `${palette.primary.contrastText}`,
                 borderRadius: '16px',
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
             }}
@@ -44,7 +45,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 disabled={props.index == props.selectedDay}
                 sx={{
                     backgroundColor:
-                        theme === 'dark'
+                        palette.mode === 'dark'
                             ? `rgba(0, 0, 0, 0.35)`
                             : `rgba(0,0,0, 0.0)`,
                     zIndex: 20,
@@ -74,7 +75,11 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                     </div>
                 </CardContent>
             </CardActionArea>
-            <Background weatherForecast={props.weather} isCard={true} />
+            <Background
+                weatherForecast={props.weather}
+                isCard={true}
+                timeObj={timeObj}
+            />
         </Card>
     )
 }

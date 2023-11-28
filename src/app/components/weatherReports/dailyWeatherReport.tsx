@@ -3,10 +3,8 @@ import {
     DailyWeatherForecastType,
     DetailedWeatherDataType,
 } from '@/lib/interfaces'
-import { Typography } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import styles from './dailyWeatherReport.module.css'
-import { useTheme } from '@/lib/context'
-import paletteHandler from '@/lib/paletteHandler'
 
 interface WeatherReportProps {
     forecast?: DetailedWeatherDataType
@@ -20,10 +18,15 @@ export const CurrentWeatherReport: React.FC<WeatherReportProps> = ({
     const [date, hours] = forecast?.time ? forecast.time.split('T') : ['', '']
 
     const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    const palette = theme.palette
 
     return (
-        <div className={styles.wrapper}>
+        <div
+            className={styles.wrapper}
+            style={{
+                color: palette.text.primary,
+            }}
+        >
             <Typography variant="body1" gutterBottom>
                 Temperature: {forecast?.temperature_2m}
             </Typography>
