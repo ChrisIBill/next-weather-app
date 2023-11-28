@@ -14,9 +14,9 @@ import UserPrefs, {
 } from '@/lib/user'
 import { stringLiteralGenerator } from '@/lib/lib'
 import palette from '@/lib/export.module.scss'
-import { useTheme, useUser } from '@/lib/context'
+import { useColorMode, useTheme, useUser } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
-
+import { useTheme as useMUITheme } from '@mui/material/styles'
 interface Preferences {
     TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
     WindSpeedUnit: 'Mph' | 'Kph' | 'Mps'
@@ -32,7 +32,10 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const [reload, setReload] = React.useState<boolean>(false)
 
     const theme = useTheme()
+    const muiTheme = useMUITheme()
     const palette = paletteHandler(theme.theme)
+    const mPalette = muiTheme.palette
+    const colorMode = useColorMode()
 
     const tempUnits = ContextUnits.TemperatureUnits
     const windUnits = ContextUnits.WindSpeedUnits
@@ -53,17 +56,18 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const precipGenerator = stringLiteralGenerator(precipPref, precipUnits)
     const themeGenerator = stringLiteralGenerator(theme.theme, themeTypes)
 
-    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
-        setUser({
-            tempUnit: tempPref,
-            windSpeedUnit: windPref,
-            precipitationUnit: precipPref,
-            reload: true,
-            themePrefs: theme.theme,
-        })
+        if (reload)
+            setUser({
+                tempUnit: tempPref,
+                windSpeedUnit: windPref,
+                precipitationUnit: precipPref,
+                reload: reload,
+                themePrefs: mPalette.mode,
+            })
         setAnchorEl(null)
     }
 
@@ -81,6 +85,11 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     }
     const handleThemeItem = () => {
         theme.setTheme(themeGenerator.next().value as 'light' | 'dark')
+        colorMode.toggleColorMode()
+        setUser({
+            ...User,
+            themePrefs: mPalette.mode,
+        })
     }
 
     return (
@@ -89,7 +98,7 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                 <SettingsIcon
                     sx={{
                         fontSize: '2rem',
-                        color: palette.textPrimary,
+                        color: mPalette.primary.contrastText,
                     }}
                 />
             </IconButton>
