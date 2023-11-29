@@ -1,5 +1,6 @@
 import dayjs from 'dayjs'
 import { ThemeType, themeTypeValidator } from './user'
+import { PaletteMode } from '@mui/material'
 /**
  * given a string of format YYYY-MM-DD, returns the day of the week
  * [Sunday-Saturday]
@@ -7,6 +8,96 @@ import { ThemeType, themeTypeValidator } from './user'
  * @throws {Error} - [TODO:description]
  * @returns {string} [TODO:description]
  */
+
+export enum TimeOfDay {
+    MORNING = 'morning',
+    DAY = 'day',
+    EVENING = 'evening',
+    NIGHT = 'night',
+}
+export const TIMES_OF_DAY = [
+    TimeOfDay.MORNING,
+    TimeOfDay.DAY,
+    TimeOfDay.EVENING,
+    TimeOfDay.NIGHT,
+] as const
+export type TimeOfDayType = (typeof TIMES_OF_DAY)[number]
+
+/**
+ * @property {string | dayjs.Dayjs} time
+ * @property {boolean | Promise<boolean>} isDay
+ * @property {number | Promise<number>} timePercent?
+ * @property {TimeOfDayType | Promise<TimeOfDayType>} timeOfDay?
+ * @property {string | Promise<string>} colorOfDay?
+ */
+export interface TimeObjectType {
+    //TODO:
+    time?: string
+    isDay: boolean //| Promise<boolean>
+    timePercent?: number //| Promise<number>
+    timeOfDay?: TimeOfDayType //| Promise<TimeOfDayType>
+    colorOfDay?: string //| Promise<string>
+}
+
+export const getTimeObj = (
+    forecast?: DetailedWeatherDataType,
+    theme?: PaletteMode
+) => {
+    const curTimeMinutes = forecast?.time.includes('T')
+        ? clockTimeToMinutes(forecast.time.split('T')[1])
+        : !theme || theme === 'light'
+        ? 900
+        : 1200
+    const sunriseMinutes =
+        typeof forecast?.sunrise === 'string'
+            ? clockTimeToMinutes(forecast.sunrise.split('T')[1])
+            : 360
+    const sunsetMinutes =
+        typeof forecast?.sunset === 'string'
+            ? clockTimeToMinutes(forecast.sunset.split('T')[1])
+            : 1080
+    const dayLength =
+        forecast?.sunrise && forecast?.sunset
+            ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
+            : 720
+    const { isDay, timePercent } = {
+        ...calcPercentOfDayNight(
+            curTimeMinutes,
+            sunriseMinutes,
+            sunsetMinutes,
+            dayLength
+        ),
+    }
+    const timeOfDay = getTimeOfDay(isDay, timePercent)
+    return {
+        time: forecast?.time,
+        isDay,
+        timePercent,
+        timeOfDay,
+    }
+}
+
+export const getTimeOfDay = (
+    isDay: boolean,
+    timePercent: number
+): TimeOfDayType => {
+    switch (isDay) {
+        case true: {
+            if (timePercent < 0.2) return TimeOfDay.MORNING
+            else if (timePercent < 0.8) return TimeOfDay.DAY
+            else return TimeOfDay.EVENING
+        }
+        case false: {
+            if (timePercent < 0.2) return TimeOfDay.EVENING
+            else if (timePercent < 0.8) TimeOfDay.NIGHT
+            else return TimeOfDay.MORNING
+        }
+        default: {
+            return TimeOfDay.NIGHT
+        }
+    }
+}
+
 export function getDayOfWeek(date: string): string {
     if (dayjs(date, 'YYYY-MM-DD', true).isValid()) {
         return dayjs(date).format('dddd')
