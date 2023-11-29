@@ -51,6 +51,10 @@ export interface PosCoordinates {
     x: number
     y: number
 }
+export interface DimensionsType {
+    width: number
+    height: number
+}
 export interface UserWeatherDataType {
     metadata: WeatherMetadata
     current: CurrentWeatherDataType
