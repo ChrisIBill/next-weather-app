@@ -46,7 +46,13 @@ $background: var(--background);
 .cardsWrapper {
     width: 100%;
     flex: 1;
+    padding-bottom: 4rem;
+    height: auto;
+    min-height: 15rem;
+    max-height: 25rem;
+    display: flex;
 }
+
 .weatherPage {
     width: 100%;
     height: fit-content;
