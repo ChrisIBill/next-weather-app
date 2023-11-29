@@ -110,11 +110,13 @@ export default function Page({
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
                     <div className={styles.readoutWrapper} style={{}}>
-                        <WeatherPageHeader timeObj={timeObj} />
                         <CurrentWeatherReport
                             forecast={getSelectedForecast()}
                             metadata={weatherMetadata}
+                            timeObj={timeObj}
                         />
+                        <WeatherPageHeader timeObj={timeObj} />
+                        <div className={styles.spacerElement} />
                     </div>
                     <div className={styles.chartWrapper}>
                         <WeatherChart
