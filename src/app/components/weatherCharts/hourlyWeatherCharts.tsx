@@ -1,4 +1,4 @@
-import { HourlyWeatherDataType } from '@/lib/interfaces'
+import { DimensionsType, HourlyWeatherDataType } from '@/lib/interfaces'
 import { getDatetimeObject } from '@/lib/time'
 import dayjs from 'dayjs'
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts'
@@ -9,6 +9,7 @@ export interface HourlyWeatherChartProps {
     metadata: any
     handleChartSelect: (day: number) => void
     selectedHour?: number
+    chartDimensions: DimensionsType
 }
 export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
     props
@@ -47,7 +48,11 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
         }
     })
     return (
-        <AreaChart width={800} height={400} data={data}>
+        <AreaChart
+            width={props.chartDimensions.width}
+            height={props.chartDimensions.height - 42}
+            data={data}
+        >
             <defs>
                 <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />

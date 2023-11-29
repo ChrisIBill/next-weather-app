@@ -1,4 +1,4 @@
-import { DailyWeatherForecastType } from '@/lib/interfaces'
+import { DailyWeatherForecastType, DimensionsType } from '@/lib/interfaces'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts'
 import { ChartDataKeys } from './weatherChart'
 import { useTheme } from '@/lib/context'
@@ -11,6 +11,7 @@ export interface DailyWeatherChartProps {
     metadata: any
     handleChartSelect: (day: number) => void
     selectedDay?: number
+    chartDimensions: DimensionsType
 }
 export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
     props: DailyWeatherChartProps
@@ -52,7 +53,11 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
     })
     console.log('chart data: ', data)
     return (
-        <BarChart width={800} height={400} data={data}>
+        <BarChart
+            width={props.chartDimensions.width}
+            height={props.chartDimensions.height - 42}
+            data={data}
+        >
             <XAxis
                 dataKey="day"
                 allowDataOverflow={true}
