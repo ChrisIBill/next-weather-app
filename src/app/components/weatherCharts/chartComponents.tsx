@@ -1,27 +1,16 @@
-import { CSSObject } from '@emotion/react'
-import { ChevronRight, ChevronLeft } from '@mui/icons-material'
 import {
-    Drawer,
-    IconButton,
-    Divider,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
     Tabs,
     Tab,
     Button,
     Typography,
+    SpeedDial,
+    SpeedDialIcon,
+    SpeedDialAction,
+    Box,
+    useTheme,
 } from '@mui/material'
 import React from 'react'
-import {
-    ChartDataKeys,
-    ChartIconsMap,
-    ChartKeysType,
-    ChartTimespanType,
-} from './weatherChart'
-import { useTheme } from '@/lib/context'
+import { ChartDataKeys, ChartKeysType, ChartTimespanType } from './weatherChart'
 import styles from './weatherChart.module.scss'
 import { WiRaindrops, WiHumidity, WiThermometer } from 'react-icons/wi'
 import { LuWind } from 'react-icons/lu'
@@ -39,58 +28,108 @@ export interface WeatherChartControlsProps {
 export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
     props
 ) => {
-    const theme = useTheme().theme
-    const palette = paletteHandler(theme)
+    const palette = useTheme().palette
 
     return (
-        <div className={styles.chartHeader}>
+        <div className={styles.chartHeader} style={{}}>
             <Tabs
                 value={props.selectedTimespan}
                 onChange={props.handleTimespanSelect}
                 sx={{
-                    color: 'black',
+                    minHeight: '56px',
+                    zIndex: 2000,
                 }}
             >
-                <Tab label="Day" value="Day" />
-                <Tab label="Week" value="Week" />
+                <Tab
+                    label="Day"
+                    value="Day"
+                    sx={{
+                        borderRadius: '16px',
+                        marginRight: '8px',
+                        marginLeft: '8px',
+                        marginBottom: '8px',
+                    }}
+                    style={{
+                        backgroundColor:
+                            props.selectedTimespan === 'Day'
+                                ? palette.primary.dark
+                                : palette.primary.main,
+                        color: palette.primary.contrastText,
+                    }}
+                />
+                <Tab
+                    label="Week"
+                    value="Week"
+                    sx={{
+                        borderRadius: '16px',
+                        marginRight: '8px',
+                        marginLeft: '8px',
+                        marginBottom: '8px',
+                    }}
+                    style={{
+                        backgroundColor:
+                            props.selectedTimespan === 'Week'
+                                ? palette.primary.dark
+                                : palette.primary.main,
+                        color: palette.primary.contrastText,
+                    }}
+                />
             </Tabs>
-            <div className={styles.chartButtonsWrapper}>
-                {props.chartKeys.map((key) => (
-                    <Button
-                        key={key}
-                        value={key}
-                        variant="contained"
-                        onClick={(e) => props.handleKeySelect(e, key)}
-                        sx={{
-                            backgroundColor: palette.primary,
-
-                            marginRight: '0.5rem',
-                        }}
-                    >
-                        {key === props.selectedKey ? (
-                            <div
-                                className={styles.chartButtonContent}
-                                style={{}}
-                            >
-                                <div className={styles.iconWrapper}>
-                                    <ChartKeyIcons chartKey={key} size={24} />
-                                </div>
-                                <Typography>{key}</Typography>
-                            </div>
-                        ) : (
-                            <div
-                                className={styles.chartButtonContent}
-                                title={key}
-                            >
-                                <div className={styles.iconWrapper}>
-                                    <ChartKeyIcons chartKey={key} size={24} />
-                                </div>
-                            </div>
-                        )}
-                    </Button>
-                ))}
-            </div>
+            <WeatherChartDial
+                handleDialSelect={props.handleKeySelect}
+                chartKey={props.selectedKey}
+            />
         </div>
+    )
+}
+
+export interface ChartDialActionsProps {
+    size?: number
+}
+const ChartDialActionsMap = ({ size = 24 }: ChartDialActionsProps) => {
+    return [
+        { icon: <WiThermometer size={size} />, name: 'Temperature' },
+        { icon: <WiRaindrops size={size} />, name: 'Precipitation' },
+        { icon: <WiHumidity size={size} />, name: 'Humidity' },
+        { icon: <LuWind size={size} />, name: 'Wind' },
+    ]
+}
+
+export interface WeatherChartDialProps {
+    handleDialSelect: (e: any, val: any) => void
+    chartKey: ChartKeysType
+}
+
+export const WeatherChartDial: React.FC<WeatherChartDialProps> = (props) => {
+    /*TODO:
+     * Need to handle position of dial so it doesn't
+     * overlap vital parts of chart
+     */
+    return (
+        <Box
+            sx={{
+                width: 320,
+                transform: 'translateZ(0px)',
+                flexGrow: 1,
+                zIndex: 2000,
+            }}
+        >
+            <SpeedDial
+                ariaLabel={'ChartDial'}
+                direction={'left'}
+                sx={{}}
+                icon={ChartKeyIcons({ chartKey: props.chartKey, size: 24 })}
+            >
+                {ChartDialActionsMap({ size: 24 }).map((action) => (
+                    <SpeedDialAction
+                        key={action.name}
+                        icon={action.icon}
+                        onClick={(e) => props.handleDialSelect(e, action.name)}
+                        tooltipTitle={action.name}
+                    />
+                ))}
+            </SpeedDial>
+        </Box>
     )
 }
 
