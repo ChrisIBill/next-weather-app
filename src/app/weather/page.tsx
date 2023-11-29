@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
@@ -53,6 +53,8 @@ export default function Page({
     const User = useUser().user
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
+
+    const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
     //Handles users time selection, which controls which weather data is displayed in detail
     const handleTimeSelect = (day?: number, hour?: number) => {
@@ -118,13 +120,18 @@ export default function Page({
                         <WeatherPageHeader timeObj={timeObj} />
                         <div className={styles.spacerElement} />
                     </div>
-                    <div className={styles.chartWrapper}>
-                        <WeatherChart
-                            forecast={weatherForecast}
-                            metadata={weatherMetadata}
-                            selectedDay={selectedDay}
-                            handleChartSelect={handleTimeSelect}
-                        />
+                    <div className={styles.chartWrapper} ref={chartWrapperRef}>
+                        {chartWrapperRef.current !== null ? (
+                            <WeatherChart
+                                forecast={weatherForecast}
+                                metadata={weatherMetadata}
+                                selectedDay={selectedDay}
+                                handleChartSelect={handleTimeSelect}
+                                parentRef={chartWrapperRef}
+                            />
+                        ) : (
+                            <></>
+                        )}
                     </div>
                     <div className={styles.cardsWrapper}>
                         <WeatherCards
