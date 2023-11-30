@@ -5,9 +5,7 @@ import { getDateObject, getTimeObj } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
 import RainBackground from '@/app/rain'
-import paletteHandler from '@/lib/paletteHandler'
-import { useTheme, useUser } from '@/lib/context'
-import { useTheme as useMUITheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 import { Background } from '../background/background'
 
 export interface WeatherCardProps {
@@ -21,7 +19,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
     const weather = props.weather
-    const palette = useMUITheme().palette
+    const palette = useTheme().palette
 
     const timeObj = getTimeObj(weather, palette.mode)
     return (

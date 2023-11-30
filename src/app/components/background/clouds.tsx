@@ -1,8 +1,8 @@
 import React from 'react'
 import styles from './clouds.module.scss'
-import { useTheme } from '@/lib/context'
-import paletteHandler from '@/lib/paletteHandler'
+import { useTheme } from '@mui/material/styles'
 import { grey } from '@mui/material/colors'
+import { Color } from '@mui/material'
 export interface CloudsProps {
     cloudCover: number
     isCard?: boolean
@@ -27,9 +27,8 @@ export interface CloudsProps {
 //}
 
 export const Clouds = (props: CloudsProps) => {
-    const theme = useTheme().theme
-    const palette = paletteHandler(theme)
-    theme === 'dark' ? (palette.background = grey[400]) : {}
+    const palette = useTheme().palette
+    const cloudColor = palette.mode === 'dark' ? grey[400] : grey[200]
     const numMult = props.cloudCover / 100
     const NUM_CLOUDS = Math.floor(25 * numMult)
     const clouds = Array(NUM_CLOUDS)
@@ -40,8 +39,8 @@ export const Clouds = (props: CloudsProps) => {
                 index={index}
                 size={props.size}
                 cloudCover={numMult}
-                theme={theme}
-                palette={palette}
+                theme={palette.mode}
+                cloudColor={cloudColor}
             />
         ))
     return (
@@ -61,7 +60,7 @@ interface CloudProps {
     index: number
     size?: string
     theme?: string
-    palette?: any
+    cloudColor?: string
 }
 
 const CloudGenerator = (props: CloudProps) => {
@@ -91,7 +90,7 @@ const CloudGenerator = (props: CloudProps) => {
                     width: `${width}rem`,
                     height: `${height}rem`,
                     borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    backgroundColor: `${props.palette.background}`,
+                    backgroundColor: `${props.cloudColor}`,
                     position: 'relative',
                 }}
             ></div>
@@ -101,7 +100,7 @@ const CloudGenerator = (props: CloudProps) => {
                     width: `${width}rem`,
                     height: `${height}rem`,
                     borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    backgroundColor: `${props.palette.background}`,
+                    backgroundColor: `${props.cloudColor}`,
                     position: 'relative',
                     top: `-${height * 0.5}rem`,
                     left: `${
@@ -126,60 +125,10 @@ const CloudGenerator = (props: CloudProps) => {
                     height: `${height}rem`,
                     borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
                     zIndex: `${props.index + 5}`,
-                    backgroundColor: `${props.palette.background}`,
+                    backgroundColor: `${props.cloudCover}`,
                     position: 'static',
                 }}
             ></div>
         </div>
-    )
-}
-
-export const CloudsTest: React.FC<CloudsProps> = (props: CloudsProps) => {
-    const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
-    return (
-        <div
-            data-theme={theme.theme}
-            style={{
-                width: '100%',
-                height: '100%',
-            }}
-        >
-            <CloudTestGenerator
-                cloudCover={props.cloudCover}
-                windSpeed={props.windSpeed}
-                theme={theme.theme}
-                palette={palette}
-            />
-        </div>
-    )
-}
-
-export const CloudTestGenerator = (props: CloudsProps) => {
-    const numMult = props.cloudCover / 100
-    const NUM_CLOUDS = 50 * numMult
-    const clouds = Array(NUM_CLOUDS)
-        .fill(undefined)
-        .map((_cloud, index) => (
-            <CloudGenerator
-                key={`cloud-${index}`}
-                index={index}
-                cloudCover={numMult}
-                theme={props.theme}
-                palette={props.palette}
-            />
-        ))
-    console.log('Clouds: ', clouds)
-    return (
-        <ul
-            className={styles.cloudsLayer}
-            style={{
-                margin: '1rem',
-                height: 'fit-content',
-                position: 'relative',
-            }}
-        >
-            {clouds}
-        </ul>
     )
 }

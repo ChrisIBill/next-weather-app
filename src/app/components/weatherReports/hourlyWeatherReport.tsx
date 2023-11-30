@@ -16,6 +16,7 @@ import { getDatetimeObject } from '@/lib/time'
 import React from 'react'
 import dayjs from 'dayjs'
 import { useTheme } from '@/lib/context'
+import { useTheme as useMuiTheme } from '@mui/material/styles'
 import paletteHandler from '@/lib/paletteHandler'
 import { precipitationHandler } from '@/lib/weather'
 import { WeatherCodesMap } from '@/lib/weathercodes'
@@ -117,8 +118,9 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
 
-    const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    //const theme = useTheme()
+    //const palette = paletteHandler(theme.theme)
+    const palette = useMuiTheme().palette
 
     const el = React.useRef<HTMLTableRowElement>(null)
     const hourlyForecast = props.forecast?.hourly_weather
@@ -163,7 +165,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                             padding="checkbox"
                             size="small"
                             sx={{
-                                background: `${palette.primary}`,
+                                background: palette.primary.main,
                                 color: palette.textPrimary,
                                 height: '1rem',
                                 width: columnWidth + '%',
@@ -198,7 +200,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         }}
                         style={{
                             color: palette.textPrimary,
-                            backgroundColor: `${palette.secondary}`,
+                            backgroundColor: palette.secondary.main,
                             //borderRight: `1px solid ${palette.textPrimary}`,
                             //borderLeft: `1px solid ${palette.textPrimary}`,
                         }}
@@ -246,11 +248,13 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         <TableHeader keys={propKeys} />
                         <div
                             className="glowBox"
-                            style={{
-                                //set glowbox css vars
-                                '--height': '20rem',
-                                '--width': '100%',
-                            }}
+                            style={
+                                {
+                                    //set glowbox css vars
+                                    '--height': '20rem',
+                                    '--width': '100%',
+                                } as React.CSSProperties
+                            }
                         />
                     </TableHead>
                     <TableBody

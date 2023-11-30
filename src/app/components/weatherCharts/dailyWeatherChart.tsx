@@ -1,9 +1,9 @@
 import { DailyWeatherForecastType, DimensionsType } from '@/lib/interfaces'
 import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts'
 import { ChartDataKeys } from './weatherChart'
-import { useTheme } from '@/lib/context'
 import paletteHandler from '@/lib/paletteHandler'
 import dayjs from 'dayjs'
+import { useTheme } from '@mui/material'
 
 export interface DailyWeatherChartProps {
     forecast: DailyWeatherForecastType[]
@@ -16,8 +16,7 @@ export interface DailyWeatherChartProps {
 export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
     props: DailyWeatherChartProps
 ) => {
-    const theme = useTheme().theme
-    const palette = paletteHandler(theme)
+    const palette = useTheme().palette
     const data = props.forecast.map((day, index) => {
         const time = dayjs(day.time).format('MM-DD')
         switch (props.chartKey) {
@@ -66,7 +65,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
             />
             <YAxis />
             <Tooltip />
-            <Bar dataKey="values" fill={palette.primary} />
+            <Bar dataKey="values" fill={palette.primary.main} />
         </BarChart>
     )
 }

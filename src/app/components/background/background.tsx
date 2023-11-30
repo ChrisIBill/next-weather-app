@@ -11,8 +11,7 @@ import RainBackground from '@/app/rain'
 import { DetailedWeatherDataType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { Clouds } from './clouds'
-import { useTheme } from '@/lib/context'
-import { useTheme as useMuiTheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
 
 export interface BackgroundProps {
@@ -69,8 +68,7 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
-    const theme = useTheme().theme
-    const palette = useMuiTheme().palette
+    const palette = useTheme().palette
     const timeObj = props.timeObj
         ? props.timeObj
         : {

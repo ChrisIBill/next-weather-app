@@ -25,7 +25,7 @@ const darkBackgroundColors = {
 export const useBackgroundColors = () => {
     const palette = useTheme().palette
     return palette.mode === 'dark'
-        ? darkBackgroundColors
+        ? palette.augmentColor
         : lightBackgroundColors
 }
 //const darkBackgroundColors = {
@@ -52,6 +52,18 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
 
     //const gradientHour = percentToGradientStringMapper(isDay, timePercent)
     //const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
+    const lightBackgroundColors = {
+        morning: '#0545B3',
+        day: '#0098DB',
+        evening: '#4211D6',
+        night: '#2C0C95',
+    }
+    const darkBackgroundColors = {
+        morning: '#04358B',
+        day: '#005FA3',
+        evening: '#3B0FBD',
+        night: '#210971',
+    }
     return (
         <div
             className={styles.dayNightColorLayer}
