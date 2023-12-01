@@ -2,33 +2,48 @@
 //      as might appear in the far north or south.  For example, in Tromso, Norway,
 import { useTheme } from '@mui/material/styles'
 import styles from './dayNightColorLayer.module.scss'
-import {
-    getTimeOfDay,
-    percentToGradientStringMapper,
-    TimeObjectType,
-    TimeOfDay,
-} from '@/lib/time'
-
-const lightBackgroundColors = {
-    morning: '#0545B3',
-    day: '#0098DB',
-    evening: '#4211D6',
-    night: '#2C0C95',
-}
-const darkBackgroundColors = {
-    morning: '#04358B',
-    day: '#005FA3',
-    evening: '#3B0FBD',
-    night: '#210971',
-}
+import { TimeObjectType } from '@/lib/time'
 
 export const useBackgroundColors = () => {
     const palette = useTheme().palette
     return palette.mode === 'dark'
-        ? palette.augmentColor
-        : lightBackgroundColors
+        ? {
+              morning: {
+                  sky: palette.morningSky.dark,
+                  horizon: palette.morningHorizon.dark,
+              },
+              day: {
+                  sky: palette.daySky.dark,
+                  horizon: palette.dayHorizon.dark,
+              },
+              evening: {
+                  sky: palette.eveningSky.dark,
+                  horizon: palette.eveningHorizon.dark,
+              },
+              night: {
+                  sky: palette.nightSky.dark,
+                  horizon: palette.nightHorizon.dark,
+              },
+          }
+        : {
+              morning: {
+                  sky: palette.morningSky.light,
+                  horizon: palette.morningHorizon.light,
+              },
+              day: {
+                  sky: palette.daySky.light,
+                  horizon: palette.dayHorizon.light,
+              },
+              evening: {
+                  sky: palette.eveningSky.light,
+                  horizon: palette.eveningHorizon.light,
+              },
+              night: {
+                  sky: palette.nightSky.light,
+                  horizon: palette.nightHorizon.light,
+              },
+          }
 }
-//const darkBackgroundColors = {
 
 export interface ColorLayerProps {
     timeObj: TimeObjectType
@@ -37,9 +52,6 @@ export interface ColorLayerProps {
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     timeObj,
 }: ColorLayerProps) => {
-    //minutes in day = 1440
-    const theme = useTheme()
-    const palette = theme.palette
     const backgroundColors = useBackgroundColors()
 
     const timePercent = timeObj.timePercent!
@@ -47,28 +59,15 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
 
     const bgColor = backgroundColors[timeObj.timeOfDay!]
+    console.log('Background time of day: ', timeObj.timeOfDay)
+    const gradientString = `linear-gradient(${angle}deg, ${bgColor.horizon} 0%, ${bgColor.sky} 100%)`
     if (!bgColor) console.log('bgColor undefined', timeObj)
-    const bgGradient = isDay ? 'rgb(255,255,255)' : 'rgb(0,0,0)'
 
-    //const gradientHour = percentToGradientStringMapper(isDay, timePercent)
-    //const dayNightColorStyle = `dayNightColorGradient${gradientHour}`
-    const lightBackgroundColors = {
-        morning: '#0545B3',
-        day: '#0098DB',
-        evening: '#4211D6',
-        night: '#2C0C95',
-    }
-    const darkBackgroundColors = {
-        morning: '#04358B',
-        day: '#005FA3',
-        evening: '#3B0FBD',
-        night: '#210971',
-    }
     return (
         <div
             className={styles.dayNightColorLayer}
             style={{
-                background: `linear-gradient(${angle}deg, ${bgColor} 0%, ${bgGradient} 200%)`,
+                background: gradientString,
             }}
         >
             {isDay ? <></> : <StarryNightBackground />}

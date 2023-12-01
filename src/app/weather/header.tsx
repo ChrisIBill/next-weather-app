@@ -15,7 +15,7 @@ export const WeatherPageHeader: React.FC<WeatherPageHeaderProps> = (
 ) => {
     const palette = useTheme().palette
 
-    const backgroundColor = useBackgroundColors()[props.timeObj.timeOfDay!]
+    const backgroundColor = useBackgroundColors()[props.timeObj.timeOfDay!].sky
     console.log('bgcolor: ', backgroundColor)
     if (typeof props.timeObj.time === 'undefined')
         return (

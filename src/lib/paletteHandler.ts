@@ -1,67 +1,117 @@
-import { PaletteMode } from '@mui/material'
-import palette from './export.module.scss'
+import { PaletteMode, createTheme } from '@mui/material'
+import impPalette from './export.module.scss'
 export default function paletteHandler(theme?: string) {
     if (theme === 'dark')
         return {
-            primary: palette.darkPrimary,
-            background: palette.darkBackground,
-            secondary: palette.darkSecondary,
-            textPrimary: palette.darkTextPrimary,
-            textSecondary: palette.darkTextSecondary,
-            accent: palette.darkAccent,
-            accentSecondary: palette.darkAccentSecondary,
+            primary: impPalette.darkPrimary,
+            background: impPalette.darkBackground,
+            secondary: impPalette.darkSecondary,
+            textPrimary: impPalette.darkTextPrimary,
+            textSecondary: impPalette.darkTextSecondary,
+            accent: impPalette.darkAccent,
+            accentSecondary: impPalette.darkAccentSecondary,
         }
     return {
-        primary: palette.lightPrimary,
-        background: palette.lightBackground,
-        secondary: palette.lightSecondary,
-        textPrimary: palette.lightTextPrimary,
-        textSecondary: palette.lightTextSecondary,
-        accent: palette.lightAccent,
-        accentSecondary: palette.lightAccentSecondary,
+        primary: impPalette.lightPrimary,
+        background: impPalette.lightBackground,
+        secondary: impPalette.lightSecondary,
+        textPrimary: impPalette.lightTextPrimary,
+        textSecondary: impPalette.lightTextSecondary,
+        accent: impPalette.lightAccent,
+        accentSecondary: impPalette.lightAccentSecondary,
     }
 }
+
+const empty_palette = createTheme()
 
 export const getPaletteMode = (mode: PaletteMode) => ({
     palette: {
         mode,
         contrastThreshold: 4.5,
+        morningHorizon: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.morningHorizon,
+            },
+            name: 'morningHorizon',
+        }),
+        morningSky: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.morningSky,
+            },
+            name: 'morningSky',
+        }),
+        dayHorizon: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.dayHorizon,
+            },
+            name: 'dayHorizon',
+        }),
+        daySky: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.daySky,
+            },
+            name: 'daySky',
+        }),
+        eveningHorizon: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.eveningHorizon,
+            },
+            name: 'eveningHorizon',
+        }),
+        eveningSky: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.eveningSky,
+            },
+            name: 'eveningSky',
+        }),
+        nightHorizon: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.nightHorizon,
+            },
+            name: 'nightHorizon',
+        }),
+        nightSky: empty_palette.palette.augmentColor({
+            color: {
+                main: impPalette.nightSky,
+            },
+            name: 'nightSky',
+        }),
         ...(mode === 'light'
             ? {
                   primary: {
-                      main: palette.lightPrimary,
+                      main: impPalette.lightPrimary,
                   },
                   secondary: {
-                      main: palette.lightSecondary,
+                      main: impPalette.lightSecondary,
                   },
                   blue: {
-                      main: palette.lightBlue,
+                      main: impPalette.lightBlue,
                   },
                   violet: {
                       main: '#7c4dff',
                   },
-                  textPrimary: palette.lightTextPrimary,
-                  textSecondary: palette.lightTextSecondary,
-                  textDarkPrimary: palette.darkTextPrimary,
-                  textDarkSecondary: palette.darkTextSecondary,
+                  textPrimary: impPalette.lightTextPrimary,
+                  textSecondary: impPalette.lightTextSecondary,
+                  textDarkPrimary: impPalette.darkTextPrimary,
+                  textDarkSecondary: impPalette.darkTextSecondary,
               }
             : {
                   primary: {
-                      main: palette.darkPrimary,
+                      main: impPalette.darkPrimary,
                   },
                   secondary: {
-                      main: palette.darkSecondary,
+                      main: impPalette.darkSecondary,
                   },
                   blue: {
-                      main: palette.darkBlue,
+                      main: impPalette.darkBlue,
                   },
                   violet: {
-                      main: palette.darkViolet,
+                      main: impPalette.darkViolet,
                   },
-                  textPrimary: palette.darkTextPrimary,
-                  textSecondary: palette.darkTextSecondary,
-                  textLightPrimary: palette.lightTextPrimary,
-                  textLightSecondary: palette.lightTextSecondary,
+                  textPrimary: impPalette.darkTextPrimary,
+                  textSecondary: impPalette.darkTextSecondary,
+                  textLightPrimary: impPalette.lightTextPrimary,
+                  textLightSecondary: impPalette.lightTextSecondary,
               }),
     },
 })
