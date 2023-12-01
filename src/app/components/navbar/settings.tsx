@@ -3,25 +3,17 @@
 import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './navbar.module.scss'
 import { IconButton, Menu, MenuItem } from '@mui/material'
-import React, { useEffect } from 'react'
-import UserPrefs, {
+import React from 'react'
+import {
     ContextUnits,
     TemperatureUnitType,
     PrecipitationUnitType,
     WindSpeedUnitType,
-    UserPreferencesInterface,
     TemperatureEnum,
 } from '@/lib/user'
 import { stringLiteralGenerator } from '@/lib/lib'
-import palette from '@/lib/export.module.scss'
 import { useColorMode, useTheme, useUser } from '@/lib/context'
-import paletteHandler from '@/lib/paletteHandler'
 import { useTheme as useMUITheme } from '@mui/material/styles'
-interface Preferences {
-    TempUnit: 'Fahrenheit' | 'Celsius' | 'Kelvin'
-    WindSpeedUnit: 'Mph' | 'Kph' | 'Mps'
-    PrecipitationUnit: 'in' | 'mm' | 'cm'
-}
 
 export interface SettingsProps {}
 
@@ -29,11 +21,11 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     const [User, setUser] = [useUser().user, useUser().setUser]
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
+    const settingsRef = React.useRef<HTMLDivElement>(null)
     const [reload, setReload] = React.useState<boolean>(false)
 
     const theme = useTheme()
     const muiTheme = useMUITheme()
-    const palette = paletteHandler(theme.theme)
     const mPalette = muiTheme.palette
     const colorMode = useColorMode()
 
@@ -93,9 +85,14 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     }
 
     return (
-        <div className={styles.settingsWrapper}>
-            <IconButton aria-label="settings" onClick={handleClick}>
+        <div className={styles.settingsWrapper} ref={settingsRef}>
+            <IconButton
+                aria-label="settings"
+                onClick={handleClick}
+                className={styles.iconButton}
+            >
                 <SettingsIcon
+                    className={styles.settingsIcon}
                     sx={{
                         fontSize: '2rem',
                         color: mPalette.primary.contrastText,

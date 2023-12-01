@@ -2,6 +2,31 @@ $background: var(--background);
 $text-primary: var(--text-primary);
 $text-secondary: var(--text-secondary);
 $accent: var(--accent);
+
+@keyframes rotateRight {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+@keyframes rotateLeft {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(-360deg);
+    }
+}
+@keyframes scaleUp {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
 .header {
     position: static;
     width: 100%;
@@ -102,4 +127,19 @@ $accent: var(--accent);
 
 .settingsWrapper {
     position: relative;
+    &:hover {
+        .iconButton {
+            .settingsIcon {
+                animation: scaleUp 0.5s forwards;
+            }
+        }
+    }
+
+    .iconButton {
+        .settingsIcon {
+            &:active {
+                animation: rotateRight 0.5s forwards;
+            }
+        }
+    }
 }
