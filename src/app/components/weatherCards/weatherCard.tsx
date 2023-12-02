@@ -75,6 +75,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             </CardActionArea>
             <Background
                 weatherForecast={props.weather}
+                cloudcover={props.weather.avg_cloudcover}
                 isCard={true}
                 timeObj={timeObj}
             />
@@ -152,9 +153,9 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
                 {units.apparent_temperature_max}
             </Typography>
             <Typography variant="body1">
-                {weather.precipitation_probability_max}% chance of{' '}
+                {weather.precipitation_probability_max}% chance of rain
             </Typography>
-            <Typography variant="body1"></Typography>
+            <Typography variant="body1">{weather.avg_cloudcover}</Typography>
         </div>
     )
 }

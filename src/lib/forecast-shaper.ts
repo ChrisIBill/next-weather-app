@@ -70,22 +70,21 @@ export function forecastFormater(weatherApiData: any): string {
     }
 
     //TODO: Make this generic
-    function getAvgCloudCover(index: number): number[] {
+    function getAvgCloudCover(index: number): number {
         const r = index * 24
-        let [dsum, nsum] = [0, 0]
-        for (let i = 0; i < 12; i++) {
-            dsum += hdf.cloudcover[r + i + 8]
-            nsum += i < 8 ? hdf.cloudcover[r + i] : hdf.cloudcover[r + i + 20]
+        let sum = 0
+        for (let i = 0; i < 24; i++) {
+            sum += hdf.cloudcover[r + i]
         }
-        return [Math.round(dsum / 12), Math.round(nsum / 12)]
+        return Math.round(sum / 24)
     }
 
-    const [day_cloudcover, night_cloudcover] = getAvgCloudCover(0)
+    const avg_cloudcover = getAvgCloudCover(0)
 
     const weather_forecast: WeatherForecastType = new Array(8)
         .fill({})
         .map((day, index) => {
-            const [dsum, nsum] = getAvgCloudCover(index)
+            const dsum = getAvgCloudCover(index)
             return {
                 time: adf.time[index],
                 weathercode: adf.weathercode[index],
@@ -107,8 +106,7 @@ export function forecastFormater(weatherApiData: any): string {
                 windgusts_10m_max: adf.windgusts_10m_max[index],
                 winddirection_10m_dominant:
                     adf.winddirection_10m_dominant[index],
-                avg_day_cloudcover: dsum.toString(),
-                avg_night_cloudcover: nsum.toString(),
+                avg_cloudcover: dsum.toString(),
                 hourly_weather: getHourlyWeather(adf.time[index], index),
                 current_weather: index === 0 ? current_weather : undefined,
             }

@@ -13,11 +13,13 @@ import { calcPercentOfDayNight } from '@/lib/time'
 import { Clouds } from './clouds'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
+import { Clouds2, Clouds2Generator } from './clouds2'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
     timeObj?: TimeObjectType
     isCard?: boolean
+    cloudCover?: number
 }
 
 export const Background: React.FC<BackgroundProps> = (
@@ -29,8 +31,8 @@ export const Background: React.FC<BackgroundProps> = (
     const cloudCover = forecast
         ? forecast.cloudcover !== undefined
             ? forecast.cloudcover
-            : forecast.avg_daily_cloudcover !== undefined
-            ? forecast.avg_daily_cloudcover
+            : forecast.avg_cloudcover !== undefined
+            ? forecast.avg_cloudcover
             : 50
         : 50
 
@@ -42,17 +44,23 @@ export const Background: React.FC<BackgroundProps> = (
                 top: props.isCard ? '0' : '-4rem',
             }}
         >
-            <Clouds
-                cloudCover={cloudCover as number}
-                size={props.isCard ? 'small' : ''}
-                isCard={props.isCard}
-            />
             <ClockworkBackgroundComponents
                 isCard={props.isCard}
                 timeObj={props.timeObj}
             />
+            <Clouds2Generator
+                cloudCover={cloudCover as number}
+                parentRef={ref}
+            />
             {/*
-            <RainBackground />
+                            <RainBackground />
+                <Clouds
+                cloudCover={cloudCover as number}
+                size={props.isCard ? 'small' : ''}
+                isCard={props.isCard}
+            />
+                        <Clouds2 />
+
             <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
             <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
             */}
@@ -79,11 +87,11 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
 
     return (
         <div className={styles.clockworkWrapper} ref={ref}>
-            <CelestialIconsHandler
-                timeObj={timeObj}
-                parentRef={ref}
-                isCard={props.isCard}
-            />
+            {/* <CelestialIconsHandler */}
+            {/*     timeObj={timeObj} */}
+            {/*     parentRef={ref} */}
+            {/*     isCard={props.isCard} */}
+            {/* /> */}
             <DayNightColorLayer timeObj={timeObj} />
         </div>
     )
