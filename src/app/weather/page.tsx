@@ -127,6 +127,7 @@ export default function Page({
                                 metadata={weatherMetadata}
                                 selectedDay={selectedDay}
                                 handleChartSelect={handleTimeSelect}
+                                timeObj={timeObj}
                                 parentRef={chartWrapperRef}
                             />
                         ) : (

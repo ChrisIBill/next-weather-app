@@ -1,5 +1,5 @@
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
-import styles from './weatherCard.module.css'
+import styles from './weatherCards.module.scss'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
 import { getDateObject, getTimeObj } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'

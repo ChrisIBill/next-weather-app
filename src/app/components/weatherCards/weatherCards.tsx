@@ -1,6 +1,6 @@
 import { CoordinatesType } from '@/app/geolocation/page'
 import { WeatherCard, WeatherCardProps } from './weatherCard'
-import styles from './weatherCards.module.css'
+import styles from './weatherCards.module.scss'
 import { DailyWeatherForecastType } from '@/lib/interfaces'
 import { Skeleton } from '@mui/material'
 import dayjs from 'dayjs'

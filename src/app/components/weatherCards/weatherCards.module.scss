@@ -1,0 +1,66 @@
+@use '../../keyframes' as *;
+.MuiCard-root {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.weatherCard {
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+.actionArea {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+.contentWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.bodyWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.headerWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.cardsList {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: 114.2%;
+    height: 100%;
+    min-height: 15rem;
+    max-height: 25rem;
+    flex: 1;
+}
+.cardsListWrapper {
+    width: 100%;
+    min-height: 15rem;
+    max-height: 25rem;
+    display: flex;
+    position: relative;
+    z-index: 10;
+    overflow: scroll;
+}
+.cardWrapper {
+    flex: 1 1 0;
+    overflow: visible;
+    margin: 0.5rem;
+    &:hover {
+        transform: scale(1.05);
+        transition: transform 0.5s ease;
+    }
+}
+
+.cardWrapper .weatherCard.fullscreen {
+    width: calc(100vw);
+    height: calc(100vh - 4rem);
+}

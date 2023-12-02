@@ -24,7 +24,6 @@ export const CurrentWeatherReport: React.FC<WeatherReportProps> = ({
     const theme = useTheme()
     const palette = theme.palette
     const backgroundColor = useBackgroundColors()[timeObj.timeOfDay!].sky
-    console.log(backgroundColor)
 
     return (
         <div
