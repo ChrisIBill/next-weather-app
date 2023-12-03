@@ -8,6 +8,7 @@ import React, { ReactHTMLElement, useEffect } from 'react'
 
 export interface WeatherCardsProps {
     weatherForecast: DailyWeatherForecastType[]
+    forecastObj: any
     metadata: any
     handleCardSelect: (day: number) => void
     selectedDay?: number
@@ -29,12 +30,16 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     }
 
     //need a generator to create the formatted data for the cards
-    const weatherCards = props.weatherForecast?.map((weather, index) => {
+    const weatherCards = props.forecastObj.map((weather, index) => {
+        console.log('index: ', index)
+        console.log('forecast: ', weather)
+        console.log('weather: ', props.weatherForecast[index])
         return (
             <div key={index} className={styles.cardWrapper}>
                 {weather ? (
                     <WeatherCard
-                        weather={weather}
+                        weather={props.weatherForecast[index]}
+                        forecastObj={props.forecastObj[index]}
                         metadata={props.metadata}
                         handleCardSelect={props.handleCardSelect}
                         index={index}

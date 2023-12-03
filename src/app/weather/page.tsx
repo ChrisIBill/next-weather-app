@@ -1,9 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
+    DailyWeatherForecastObjectType,
     LocationType,
     WeatherForecastType,
     WeatherMetadata,
@@ -16,6 +17,8 @@ import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherR
 import { getTimeObj } from '@/lib/time'
 import { useUser } from '@/lib/context'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
+import PrecipitationClass from '@/lib/obj/precipitation'
+import { useWindowDimensions } from '@/lib/hooks'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -35,6 +38,49 @@ function handleWeatherSearch(searchParams: {
     else throw new Error('Invalid search parameters')
 }
 
+function handleWeatherForecast(
+    forecast: WeatherForecastType,
+    metadata: WeatherMetadata,
+    user: () => UserPreferencesInterface
+) {
+    return forecast.map((day) => {
+        return {
+            timeObj: getTimeObj(day),
+            precipitation: new PrecipitationClass(
+                day.precipitation_probability_max!,
+                day.precipitation_sum!,
+                day.snowfall_sum!,
+                () => user().precipitationUnit!
+            ),
+            cloud_cover: day.cloud_cover!,
+            hourly_weather: day.hourly_weather?.map((hour) => {
+                return {
+                    timeObj: getTimeObj(hour),
+                    precipitation: new PrecipitationClass(
+                        hour.precipitation_probability!,
+                        hour.precipitation!,
+                        hour.snowfall!,
+                        () => user().precipitationUnit!
+                    ),
+                    cloud_cover: hour.cloud_cover!,
+                }
+            }),
+            current_weather: day.current_weather
+                ? {
+                      timeObj: getTimeObj(day.current_weather),
+                      precipitation: new PrecipitationClass(
+                          100,
+                          day.current_weather.precipitation!,
+                          day.current_weather!.snowfall!,
+                          () => user().precipitationUnit!
+                      ),
+                      cloud_cover: day.current_weather!.cloud_cover!,
+                  }
+                : undefined,
+        }
+    })
+}
+
 export default function Page({
     params,
     searchParams,
@@ -46,6 +92,9 @@ export default function Page({
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
     )
+    const [forecastObj, setForecastObj] = useState<
+        DailyWeatherForecastObjectType[]
+    >(Array(8).fill(undefined))
     const [reload, setReload] = useState<boolean>(false)
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
@@ -83,6 +132,16 @@ export default function Page({
             return weatherForecast[selectedDay].hourly_weather![selectedHour]
         }
     }
+    const getSelectedForecastObj = () => {
+        if (!selectedHour) {
+            return forecastObj[selectedDay]
+        } else if (selectedHour == -1) return forecastObj[0]?.current_weather
+        else {
+            if (!forecastObj[selectedDay]?.hourly_weather)
+                throw new Error('No hourly weather data for this day')
+            return forecastObj[selectedDay].hourly_weather![selectedHour]
+        }
+    }
 
     const getSelectedForecastDay = () => {
         return weatherForecast[selectedDay]
@@ -99,6 +158,14 @@ export default function Page({
                 console.log(value)
                 setWeatherMetadata(value.metadata)
                 setWeatherForecast(value.forecast)
+                setForecastObj(
+                    handleWeatherForecast(
+                        value.forecast,
+                        value.metadata,
+                        () => User
+                    )
+                )
+                console.log(forecastObj)
             })
     }
     if (!weatherMetadata || User.reload) {
@@ -137,6 +204,7 @@ export default function Page({
                     <div className={styles.cardsWrapper}>
                         <WeatherCards
                             weatherForecast={weatherForecast}
+                            forecastObj={forecastObj}
                             metadata={weatherMetadata?.units.daily}
                             handleCardSelect={handleTimeSelect}
                             selectedDay={
@@ -154,10 +222,16 @@ export default function Page({
                     />
                 </div>
             </div>
-            <Background
-                weatherForecast={getSelectedForecast()}
-                timeObj={timeObj}
-            />
+            {getSelectedForecastObj() ? (
+                <Background
+                    weatherForecast={getSelectedForecast()}
+                    forecastObj={getSelectedForecastObj()}
+                    timeObj={timeObj}
+                />
+            ) : (
+                <></>
+            )}
+            <div className={styles.gradientLayer} />
         </div>
     )
 }

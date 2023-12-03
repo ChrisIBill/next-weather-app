@@ -84,69 +84,79 @@ export interface WeatherMetadata {
 }
 export interface CurrentWeatherDataType {
     time?: string
-    interval?: string
-    temperature_2m?: string
-    relativehumidity_2m?: string
-    apparent_temperature?: string
-    precipitation?: string
-    rain?: string
-    showers?: string
-    snowfall?: string
-    weathercode?: string
-    cloudcover?: string
-    pressure_msl?: string
-    surface_pressure?: string
-    windspeed_10m?: string
-    winddirection_10m?: string
-    windgusts_10m?: string
-    sunrise?: string
-    sunset?: string
-    [index: string]: {} | string | undefined
+    interval?: number
+    temperature_2m?: number
+    relativehumidity_2m?: number
+    apparent_temperature?: number
+    precipitation?: number
+    rain?: number
+    showers?: number
+    snowfall?: number
+    weathercode?: number
+    cloudcover?: number
+    pressure_msl?: number
+    surface_pressure?: number
+    windspeed_10m?: number
+    winddirection_10m?: number
+    windgusts_10m?: number
+    sunrise?: number
+    sunset?: number
+    [index: string]: {} | string | number | undefined
 }
 export interface HourlyWeatherDataType {
     time?: string
-    temperature_2m?: string
-    relativehumidity_2m?: string
-    dewpoint_2m?: string
-    apparent_temperature?: string
-    precipitation_probability?: string
-    precipitation?: string
-    rain?: string
-    showers?: string
-    snowfall?: string
-    snow_depth?: string
-    weathercode?: string
-    cloudcover?: string
-    pressure_msl?: string
-    surface_pressure?: string
-    windspeed_10m?: string
-    winddirection_10m?: string
-    windgusts_10m?: string
-    uv_index?: string
-    visibility?: string
-    [index: string]: {} | string | undefined
+    temperature_2m?: number
+    relativehumidity_2m?: number
+    dewpoint_2m?: number
+    apparent_temperature?: number
+    precipitation_probability?: number
+    precipitation?: number
+    rain?: number
+    showers?: number
+    snowfall?: number
+    snow_depth?: number
+    weathercode?: number
+    cloudcover?: number
+    pressure_msl?: number
+    surface_pressure?: number
+    windspeed_10m?: number
+    winddirection_10m?: number
+    windgusts_10m?: number
+    uv_index?: number
+    visibility?: number
+    [index: string]: {} | string | number | undefined
 }
 export interface DailyWeatherDataType {
     time?: string
-    weathercode?: string
+    weathercode?: number
     temperature_2m_max?: number
     temperature_2m_min?: number
     apparent_temperature_max?: number
     apparent_temperature_min?: number
-    sunrise?: string
-    sunset?: string
-    uv_index_max?: string
-    precipitation_sum?: string
-    rain_sum?: string
-    showers_sum?: string
-    snowfall_sum?: string
-    precipitation_hours?: string
-    precipitation_probability_max?: string
-    windspeed_10m_max?: string
-    windgusts_10m_max?: string
-    winddirection_10m_dominant?: string
+    sunrise?: number
+    sunset?: number
+    uv_index_max?: number
+    precipitation_sum?: number
+    rain_sum?: number
+    showers_sum?: number
+    snowfall_sum?: number
+    precipitation_hours?: number
+    precipitation_probability_max?: number
+    windspeed_10m_max?: number
+    windgusts_10m_max?: number
+    winddirection_10m_dominant?: number
     [index: string]: {} | number | string | undefined
 }
+export interface ForecastObjectType {
+    timeObj: TimeObjType
+    precipitation: PrecipitationClass
+    cloud_cover: number
+}
+export interface DailyWeatherForecastObjectType extends ForecastObjectType {
+    hourly_weather: ForecastObjectType[]
+    current_weather?: ForecastObjectType
+}
+
 export type DetailedWeatherDataType = CurrentWeatherDataType &
     HourlyWeatherDataType &
     DailyWeatherDataType
@@ -182,3 +192,9 @@ export interface AreaChartHandlerProps {
     labelDatasets: Array<string>
     title?: string
 }
+export type StringLiteralType<T> = T extends string
+    ? string extends T
+        ? never
+        : T
+    : never
+export type StringLiteralUnion<T extends U, U = string> = T | (U & {})

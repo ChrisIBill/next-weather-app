@@ -1,6 +1,6 @@
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import styles from './weatherCards.module.scss'
-import { DailyWeatherForecastType } from '@/lib/interfaces'
+import { DailyWeatherForecastType, ForecastObjectType } from '@/lib/interfaces'
 import { getDateObject, getTimeObj } from '@/lib/time'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
@@ -10,6 +10,7 @@ import { Background } from '../background/background'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
+    forecastObj: ForecastObjectType
     metadata: any
     handleCardSelect: (day: number) => void
     index: number
@@ -68,6 +69,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                         <br />
                         <WeatherCardContent
                             weather={weather}
+                            forecastObj={props.forecastObj}
                             units={props.metadata}
                         />
                     </div>
@@ -75,6 +77,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             </CardActionArea>
             <Background
                 weatherForecast={props.weather}
+                forecastObj={props.forecastObj}
                 cloudcover={props.weather.avg_cloudcover}
                 isCard={true}
                 timeObj={timeObj}
@@ -118,10 +121,12 @@ export const CardContentKeys = [
 
 export interface CardContentProps {
     units: any
+    forecastObj: any
     weather: DailyWeatherForecastType
 }
 const WeatherCardContent: React.FC<CardContentProps> = ({
     units,
+    forecastObj,
     weather,
 }: CardContentProps) => {
     for (const key of CardContentKeys) {
@@ -153,9 +158,8 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
                 {units.apparent_temperature_max}
             </Typography>
             <Typography variant="body1">
-                {weather.precipitation_probability_max}% chance of rain
+                {forecastObj.precipitation.displayString()}
             </Typography>
-            <Typography variant="body1">{weather.avg_cloudcover}</Typography>
         </div>
     )
 }
