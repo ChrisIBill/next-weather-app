@@ -30,7 +30,7 @@ body.back-row-toggle .rain.back-row {
     width: 15px;
     height: 120px;
     pointer-events: none;
-    animation: drop 0.5s linear infinite;
+    //animation: drop 0.5s linear infinite;
 }
 
 @keyframes drop {
@@ -38,10 +38,10 @@ body.back-row-toggle .rain.back-row {
         transform: translateY(0vh);
     }
     75% {
-        transform: translateY(90vh);
+        transform: translateY(75vh);
     }
     100% {
-        transform: translateY(90vh);
+        transform: translateY(100vh);
     }
 }
 
@@ -65,7 +65,7 @@ body.back-row-toggle .rain.back-row {
         opacity: 1;
     }
     75% {
-        opacity: 0;
+        opacity: 0.5;
     }
     100% {
         opacity: 0;
