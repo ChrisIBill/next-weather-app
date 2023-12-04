@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { PrecipitationUnitStrings } from './obj/precipitation'
 
 export const enum TemperatureEnum {
     fahrenheit = 'fahrenheit',
@@ -23,7 +24,6 @@ export const ContextUnits = {
 
 export type TemperatureUnitType = (typeof TemperatureUnits)[number]
 export type WindSpeedUnitType = (typeof WindSpeedUnits)[number]
-export type PrecipitationUnitType = (typeof PrecipitationUnits)[number]
 export type ThemeLiteralsType = (typeof ThemeTypes)[number]
 
 export function themeTypeValidator(theme: string): theme is ThemeLiteralsType {
@@ -33,7 +33,7 @@ export function themeTypeValidator(theme: string): theme is ThemeLiteralsType {
 export interface UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
-    precipitationUnit?: PrecipitationUnitType
+    precipitationUnit?: PrecipitationUnitStrings
     reload?: boolean
     themePrefs: ThemeLiteralsType
 }
@@ -59,7 +59,7 @@ export function setToLocalStorage(key: string, value: string) {
 export default class UserPrefs implements UserPreferencesInterface {
     tempUnit?: TemperatureUnitType
     windSpeedUnit?: WindSpeedUnitType
-    precipitationUnit?: PrecipitationUnitType
+    precipitationUnit?: PrecipitationUnitStrings
     themePrefs: ThemeLiteralsType
 
     constructor() {
@@ -76,8 +76,8 @@ export default class UserPrefs implements UserPreferencesInterface {
     public isWindSpeedUnit(unit: any): unit is WindSpeedUnitType {
         return WindSpeedUnits.includes(unit as WindSpeedUnitType)
     }
-    public isPrecipitationUnit(unit: any): unit is PrecipitationUnitType {
-        return PrecipitationUnits.includes(unit as PrecipitationUnitType)
+    public isPrecipitationUnit(unit: any): unit is PrecipitationUnitStrings {
+        return PrecipitationUnits.includes(unit as PrecipitationUnitStrings)
     }
     public isThemeType(unit: any): unit is ThemeLiteralsType {
         return ThemeTypes.includes(unit as ThemeLiteralsType)
@@ -157,7 +157,7 @@ export default class UserPrefs implements UserPreferencesInterface {
             localStorage.setItem('windSpeedUnit', unit)
         } else throw new Error('Invalid Wind Speed Unit')
     }
-    public setPrecipitationUnit(unit: PrecipitationUnitType) {
+    public setPrecipitationUnit(unit: PrecipitationUnitStrings) {
         if (this.isPrecipitationUnit(unit)) {
             this.precipitationUnit = unit
             localStorage.setItem('precipitationUnit', unit)

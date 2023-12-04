@@ -1,3 +1,5 @@
+import PrecipitationClass from './obj/precipitation'
+import { TimeObjectType } from './time'
 import { TemperatureUnitType } from './user'
 
 export interface WeatherReportDataType {
@@ -148,8 +150,9 @@ export interface DailyWeatherDataType {
     [index: string]: {} | number | string | undefined
 }
 export interface ForecastObjectType {
-    timeObj: TimeObjType
+    timeObj: TimeObjectType
     precipitation: PrecipitationClass
+    clouds: CloudsClass
     cloud_cover: number
 }
 export interface DailyWeatherForecastObjectType extends ForecastObjectType {

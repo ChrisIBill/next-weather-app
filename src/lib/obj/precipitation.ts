@@ -14,6 +14,9 @@ export interface PrecipitationClassType {
     inch: number | (() => number)
     mm: number | (() => number)
     type: PrecipitationType
+    getUserValue: () => () => number
+    getMagnitude: () => number
+    displayString: () => string
 }
 
 export const RAIN_VOLUME_STRINGS = [
