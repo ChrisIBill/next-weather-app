@@ -67,7 +67,7 @@ $background: var(--background);
     width: 100%;
     height: fit-content;
     min-height: fit-content;
-    overflow: hidden;
+    overflow: visible;
     position: relative;
 }
 .landingPage {
@@ -106,7 +106,7 @@ $background: var(--background);
     max-height: 80vh;
 }
 .gradientLayer {
-    position: absolute;
+    position: fixed;
     z-index: 10;
     height: 100%;
     width: 100%;

@@ -11,9 +11,12 @@
 }
 .main {
     display: flex;
-    width: 100%;
-    height: calc(100% - 4rem);
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
     box-sizing: border-box;
     overflow-x: hidden;
     overflow-y: scroll;
+    padding-top: 4rem;
 }
