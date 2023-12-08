@@ -1,6 +1,156 @@
 import dayjs from 'dayjs'
-import { DetailedWeatherDataType } from '../interfaces'
 
+export const UNIX_HOURS_OF_DAY = [
+    0, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000,
+    39600, 43200, 46800, 50400, 54000, 57600, 61200, 64800, 68400, 72000, 75600,
+    79200, 82800,
+] as const
+export const DEFAULT_HOUR_DATA = [
+    {
+        _timePercent: 0.5,
+        _isDay: false,
+        _clockString: '12:00 AM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.5833333333333334,
+        _isDay: false,
+        _clockString: '1:00 AM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.6666666666666666,
+        _isDay: false,
+        _clockString: '2:00 AM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.75,
+        _isDay: false,
+        _clockString: '3:00 AM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.8333333333333334,
+        _isDay: false,
+        _clockString: '4:00 AM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.9166666666666666,
+        _isDay: false,
+        _clockString: '5:00 AM',
+        _timeOfDay: 'morning',
+    },
+    {
+        _timePercent: 0,
+        _isDay: true,
+        _clockString: '6:00 AM',
+        _timeOfDay: 'morning',
+    },
+    {
+        _timePercent: 0.08333333333333333,
+        _isDay: true,
+        _clockString: '7:00 AM',
+        _timeOfDay: 'morning',
+    },
+    {
+        _timePercent: 0.16666666666666666,
+        _isDay: true,
+        _clockString: '8:00 AM',
+        _timeOfDay: 'morning',
+    },
+    {
+        _timePercent: 0.25,
+        _isDay: true,
+        _clockString: '9:00 AM',
+        _timeOfDay: 'morning',
+    },
+    {
+        _timePercent: 0.3333333333333333,
+        _isDay: true,
+        _clockString: '10:00 AM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.4166666666666667,
+        _isDay: true,
+        _clockString: '11:00 AM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.5,
+        _isDay: true,
+        _clockString: '12:00 PM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.5833333333333334,
+        _isDay: true,
+        _clockString: '1:00 PM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.6666666666666666,
+        _isDay: true,
+        _clockString: '2:00 PM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.75,
+        _isDay: true,
+        _clockString: '3:00 PM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.8333333333333334,
+        _isDay: true,
+        _clockString: '4:00 PM',
+        _timeOfDay: 'day',
+    },
+    {
+        _timePercent: 0.9166666666666666,
+        _isDay: true,
+        _clockString: '5:00 PM',
+        _timeOfDay: 'evening',
+    },
+    {
+        _timePercent: 0,
+        _isDay: false,
+        _clockString: '6:00 PM',
+        _timeOfDay: 'evening',
+    },
+    {
+        _timePercent: 0.08333333333333333,
+        _isDay: false,
+        _clockString: '7:00 PM',
+        _timeOfDay: 'evening',
+    },
+    {
+        _timePercent: 0.16666666666666666,
+        _isDay: false,
+        _clockString: '8:00 PM',
+        _timeOfDay: 'evening',
+    },
+    {
+        _timePercent: 0.25,
+        _isDay: false,
+        _clockString: '9:00 PM',
+        _timeOfDay: 'evening',
+    },
+    {
+        _timePercent: 0.3333333333333333,
+        _isDay: false,
+        _clockString: '10:00 PM',
+        _timeOfDay: 'night',
+    },
+    {
+        _timePercent: 0.4166666666666667,
+        _isDay: false,
+        _clockString: '11:00 PM',
+        _timeOfDay: 'night',
+    },
+] as const
 export const TIME_OF_DAY_STRINGS = [
     'morning',
     'day',
@@ -15,183 +165,208 @@ export interface TimeClassType {
     value: number
     sunrise: number
     sunset: number
-    obj: dayjs.Dayjs
-    dayOfWeekString: string | (() => string)
-    dateString: string | (() => string)
+    dateObj: dayjs.Dayjs
+    getIsDay?: () => boolean
+    getTimePercent?: () => number
+    getTimeOfDay?: () => TimeOfDayType
 }
 
 export interface DayTimeClassType extends TimeClassType {
-    hours: TimeClassType[]
+    hours: HourTimeClass[]
 }
 
 export default class DayTimeClass implements DayTimeClassType {
     value: number
     sunrise: number
     sunset: number
-    obj: dayjs.Dayjs
-    current?: HourTimeClassType
-    hours: HourTimeClassType[]
-    dayOfWeekString: string | (() => string)
-    dateString: string | (() => string)
+    dateObj: dayjs.Dayjs
+    current?: HourTimeClass
+    hours: HourTimeClass[]
     constructor(value: number, sunrise?: number, sunset?: number) {
-        this.value = value
-        this.obj = dayjs.unix(value)
+        this.value = value //Start of day so 12:00 AM
+        this.dateObj = dayjs.unix(value)
         this.sunrise = sunrise || value + 21600 //6:00 AM
         this.sunset = sunset || value + 64800 //6:00 PM
         this.hours = this.constructHours()
-        this.dayOfWeekString = this.calcDayOfWeekString.bind(this)
-        this.dateString = this.calcDateString.bind(this)
     }
     constructHours = () => {
-        const hours = []
-        for (let i = 0; i < 24; i++) {
-            hours.push(
-                new HourTimeClass(
-                    this.value + i * 3600,
-                    this.sunrise,
-                    this.sunset,
-                    this
-                )
+        return UNIX_HOURS_OF_DAY.map((hour) => {
+            return new HourTimeClass(
+                hour,
+                this.sunrise - this.value,
+                this.sunset - this.value,
+                this
             )
-        }
-        return hours
-    }
-    setCurrent = (value: number) => {
-        this.current = new HourTimeClass(value, this.sunrise, this.sunset, this)
+        })
     }
 
-    private calcDayOfWeekString = () => {
+    createCurrent(value: number) {
+        this.current = new HourTimeClass(
+            value - this.value,
+            this.sunrise,
+            this.sunset,
+            this
+        )
+        return this.current
+    }
+
+    private generateDayjsObj() {
+        //TODO: Depending on situation, this may or may not be recoverable
+        // Testing needed
         try {
-            console.log('im running')
-            const str = this.obj.format('ddd')
-            this.dayOfWeekString = str
-            return this.dayOfWeekString
+            this.dateObj = dayjs.unix(this.value)
+            if (this.dateObj.isValid()) return this.dateObj
+            else throw new Error('Invalid dayjs object')
         } catch (e) {
-            return `Error: ${e}`
+            console.error(
+                `${e} \n
+                Ocucred generating dayjs object for DayTimeClass: ${this} \n
+                From value: ${this.value}`
+            )
+            throw e
         }
     }
-    private calcDateString = () => {
+
+    _calcTimePercents = () => {
+        console.log('CALCULATING TIME PERCENTS')
         try {
-            return dayjs(this.value).format('MMM D')
+            const [sunrise, sunset] = [
+                this.sunrise - this.value,
+                this.sunset - this.value,
+                this.current ? this.current.value : undefined,
+            ]
+            const [dayLength, nightLength] = [
+                sunset - sunrise,
+                sunrise + 86400 - sunset,
+            ]
+            const times = this.current
+                ? [...this.hours, this.current]
+                : this.hours
+            times.forEach((hour, index) => {
+                if (hour.value === undefined)
+                    throw new Error(
+                        `Hour value is undefined for hour ${index} on day: ${this}`
+                    )
+                if (hour.value < sunrise) {
+                    hour._timePercent =
+                        (hour.value + 86400 - sunset) / nightLength
+                    hour._isDay = false
+                } else if (hour.value < sunset) {
+                    hour._timePercent = (hour.value - sunrise) / dayLength
+                    hour._isDay = true
+                } else if (hour.value <= 86400) {
+                    hour._timePercent = (hour.value - sunset) / nightLength
+                    hour._isDay = false
+                } else
+                    throw new Error(
+                        `Hour value ${hour.value} is out of range for index ${index} on day: ${this}`
+                    )
+            })
+            return true
         } catch (e) {
-            return `Error: ${e}`
+            console.error(
+                `${e} while calculating time percents for DayTimeClass: `,
+                this
+            )
+            this.hours.forEach((hour, index) => {
+                const hourDefaults = DEFAULT_HOUR_DATA[index]
+                hour._timePercent = hourDefaults._timePercent
+                hour._isDay = hourDefaults._isDay
+                hour._timeOfDay = hourDefaults._timeOfDay
+            })
+            return false
         }
+        toString()
     }
 }
 
 export interface HourTimeClassType extends TimeClassType {
-    day: DayTimeClassType
-    isDay: (() => boolean) | boolean
-    clockString: (() => string) | string
-    timePercent: (() => number) | number
-    timeOfDay: (() => TimeOfDayType) | TimeOfDayType
+    day: DayTimeClass
+    //clockString: (() => string) | string
+    //timePercent: (() => number) | number
+    //timeOfDay: (() => TimeOfDayType) | TimeOfDayType
+    getIsDay: () => boolean
+    getTimePercent: () => number
+    getTimeOfDay: () => TimeOfDayType
 }
 
 export class HourTimeClass implements HourTimeClassType {
     value: number
     sunrise: number
     sunset: number
-    obj: dayjs.Dayjs
-    day: DayTimeClassType
-    dayOfWeekString: (() => string) | string
-    dateString: (() => string) | string
-    isDay: (() => boolean) | boolean
+    dateObj: dayjs.Dayjs
+    day: DayTimeClass
+    _timePercent?: number
+    _isDay?: boolean
+    _timeOfDay: (() => TimeOfDayType) | TimeOfDayType
     constructor(
         value: number,
         sunrise: number,
         sunset: number,
-        day: DayTimeClassType
+        day: DayTimeClass
     ) {
         this.value = value
-        this.obj = dayjs.unix(value)
+        this.dateObj = dayjs.unix(value + day.value)
         this.sunrise = sunrise
         this.sunset = sunset
         this.day = day
-        this.isDay = this.calcIsDay.bind(this)
-        this.clockString = this.clockString.bind(this)
-        this.timePercent = this.timePercent.bind(this)
-        this.timeOfDay = this.timeOfDay.bind(this)
-        this.dayOfWeekString = day.dayOfWeekString
-        this.dateString = day.dateString
+        this._isDay = undefined
+        this._timePercent = undefined
+        this._timeOfDay = this.calcTimeOfDay
     }
-    private calcIsDay = () => {
-        try {
-            const sunrise = dayjs(this.sunrise)
-            const sunset = dayjs(this.sunset)
-            return this.obj.isAfter(sunrise) && this.obj.isBefore(sunset)
-        } catch (e) {
-            console.log(e)
-            throw e
-        }
+    getIsDay = () => {
+        if (typeof this._isDay === 'undefined') {
+            this.day._calcTimePercents()
+            if (typeof this._isDay !== 'boolean')
+                throw new Error('isDay is still undefined')
+            else return this._isDay
+        } else return this._isDay
     }
-    clockString = () => {
-        try {
-            return this.obj.format('h:mm A')
-        } catch (e) {
-            return `Error: ${e}`
-        }
+    getTimePercent = () => {
+        if (typeof this._timePercent === 'undefined') {
+            this.day._calcTimePercents()
+            if (typeof this._timePercent !== 'number')
+                throw new Error('timePercent is still undefined')
+            else return this._timePercent
+        } else return this._timePercent
     }
-    timePercent = () => {
-        try {
-            const sunrise = dayjs(this.sunrise)
-            const sunset = dayjs(this.sunset)
-            const dayLength = sunset.diff(sunrise, 'minute')
-            const curTime = this.obj.diff(sunrise, 'minute')
-            return curTime / dayLength
-        } catch (e) {
-            console.log(e)
-            return NaN
-        }
+
+    getTimeOfDay = () => {
+        return typeof this._timeOfDay === 'string'
+            ? this._timeOfDay
+            : this._timeOfDay()
     }
-    timeOfDay = () => {
+    private calcTimeOfDay = () => {
         try {
-            const timePercent = this.timePercent()
-            if (timePercent < 0.25) return 'night'
-            if (timePercent < 0.5) return 'morning'
-            if (timePercent < 0.75) return 'day'
-            return 'evening'
+            const timePercent = this.getTimePercent()
+            const isDay = this.getIsDay()
+            switch (isDay) {
+                case true: {
+                    if (timePercent < 0.2) return 'morning'
+                    else if (timePercent < 0.8) return 'day'
+                    else return 'evening'
+                }
+                case false: {
+                    if (timePercent < 0.2) return 'night'
+                    else if (timePercent < 0.8) return 'night'
+                    else return 'night'
+                }
+                default: {
+                    return 'night'
+                }
+            }
         } catch (e) {
-            console.log(e)
-            return 'day'
+            console.error(
+                `Error calculating time of day for HourTimeClass: `,
+                this
+            )
+            return 'night'
         }
     }
 }
-//    export const getTimeObj = (
-//    forecast?: DetailedWeatherDataType,
-//) => {
-//    try {
-//        const curMinutes =
-//
-//    } catch (e) {
-//    }
-//    const curTimeMinutes = forecast?.time.includes('T')
-//        ? clockTimeToMinutes(forecast.time.split('T')[1])
-//        : -100'
-//    const sunriseMinutes =
-//        typeof forecast?.sunrise === 'string'
-//            ? clockTimeToMinutes(forecast.sunrise.split('T')[1])
-//            : 360
-//    const sunsetMinutes =
-//        typeof forecast?.sunset === 'string'
-//            ? clockTimeToMinutes(forecast.sunset.split('T')[1])
-//            : 1080
-//    const dayLength =
-//        forecast?.sunrise && forecast?.sunset
-//            ? dayLengthCalculator(sunriseMinutes, sunsetMinutes)
-//            : 720
-//    const { isDay, timePercent } = {
-//        ...calcPercentOfDayNight(
-//            curTimeMinutes,
-//            sunriseMinutes,
-//            sunsetMinutes,
-//            dayLength
-//        ),
-//    }
-//    const timeOfDay = getTimeOfDay(isDay, timePercent)
-//    return {
-//        time: forecast?.time,
-//        isDay,
-//        timePercent,
-//        timeOfDay,
-//    }
-//}
+
+export function getTimeClassType(time: TimeClassType): TimeType {
+    if (time instanceof DayTimeClass) return 'day'
+    else if (time instanceof HourTimeClass) return 'hour'
+    else throw new Error('Invalid time type')
+}
