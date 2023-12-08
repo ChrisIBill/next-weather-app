@@ -1,5 +1,6 @@
 import { DimensionsType, HourlyWeatherDataType } from '@/lib/interfaces'
 import { getDatetimeObject } from '@/lib/time'
+import { useTheme } from '@mui/material'
 import dayjs from 'dayjs'
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts'
 
@@ -9,11 +10,13 @@ export interface HourlyWeatherChartProps {
     metadata: any
     handleChartSelect: (day: number) => void
     selectedHour?: number
+    textColor?: string
     chartDimensions: DimensionsType
 }
 export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
     props
 ) => {
+    const palette = useTheme().palette
     const data = props.forecast.map((hour, index) => {
         const time = dayjs(hour.time).format('HH:mm')
         switch (props.chartKey) {
@@ -52,6 +55,9 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
             width={props.chartDimensions.width}
             height={props.chartDimensions.height - 42}
             data={data}
+            style={{
+                color: 'white',
+            }}
         >
             <defs>
                 <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
@@ -67,11 +73,16 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 dataKey="hour"
                 interval={3}
                 tickCount={8}
-                style={{
-                    backgroundColor: 'red',
+                color={props.textColor}
+                tick={{
+                    fill: palette.text.secondary,
                 }}
             />
-            <YAxis />
+            <YAxis
+                tick={{
+                    fill: palette.text.secondary,
+                }}
+            />
             <Tooltip />
             <Area type="monotone" dataKey="values[0]" stroke="#8884d8" />
             <Area type="monotone" dataKey="values[1]" stroke="#82ca9d" />

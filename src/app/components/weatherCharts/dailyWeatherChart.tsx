@@ -10,6 +10,7 @@ export interface DailyWeatherChartProps {
     chartKey: ChartDataKeys
     metadata: any
     handleChartSelect: (day: number) => void
+    textColor?: string
     selectedDay?: number
     chartDimensions: DimensionsType
 }
