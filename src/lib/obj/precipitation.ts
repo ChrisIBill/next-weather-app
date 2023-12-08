@@ -6,19 +6,6 @@ export type PrecipitationUnitStrings =
     (typeof PRECIPIATION_UNIT_STRINGS)[number]
 export type PrecipitationType = (typeof PRECIPITATION_TYPES)[number]
 
-export interface PrecipitationClassType {
-    value: number
-    unit: () => PrecipitationUnitStrings
-    userValue: () => number
-    chance: number
-    inch: number | (() => number)
-    mm: number | (() => number)
-    type: PrecipitationType
-    getUserValue: () => () => number
-    getMagnitude: () => number
-    displayString: () => string
-}
-
 export const RAIN_VOLUME_STRINGS = [
     'none',
     'drizzle',
@@ -42,14 +29,28 @@ export const RAIN_CHANCE_STRINGS = [
     'very likely',
     'certain',
 ] as const
+
+export interface PrecipitationClassType {
+    _mm: number
+    userUnit: () => PrecipitationUnitStrings
+    userValue: (() => number) | number
+    chance: number
+    _inch: number | (() => number)
+    type: PrecipitationType
+    getUserValue: () => number
+    getMagnitude: () => number
+    getDisplayString: () => string
+}
+
 export default class PrecipitationClass implements PrecipitationClassType {
-    value: number
-    unit: () => PrecipitationUnitStrings
+    _mm: number
+    userUnit: () => PrecipitationUnitStrings
     userValue: () => number
     chance: number
-    inch: number | (() => number)
-    mm: number | (() => number)
+    _inch: number | (() => number)
     type: PrecipitationType
+    _magnitude: (() => number) | number
+    _displayString: (() => string) | string
 
     //Since api returns rain, showers and snow amounts, as well as total precip,
     //we only need to check if snow is present to determine if it's snowing or raining
@@ -57,38 +58,51 @@ export default class PrecipitationClass implements PrecipitationClassType {
         chance: number,
         precip: number,
         snow: number,
-        userUnit: () => PrecipitationUnitStrings
+        getUserUnit: () => PrecipitationUnitStrings
     ) {
-        this.value = precip
-        this.unit = userUnit
-        this.userValue = this.getUserValue()
+        this._mm = precip
+        this.userUnit = getUserUnit
+        this.userValue = this.getUserValue
         this.chance = chance
-        this.inch = () => this.convertToInch(precip)
-        this.mm = precip
+        this._inch = () => this.convertToInch()
         this.type = snow > 0 ? 'snow' : 'rain'
+        this._magnitude = this.generateMagnitude
+        this._displayString = this.calcDisplayString
     }
-    [key: string]: string | number | Function | (() => number) | (() => string)
 
     //converts mm to inches
-    convertToInch(precip: number): number {
-        return precip * 0.0394
+    convertToInch(): number {
+        this._inch = this._mm * 0.0394
+        return this._inch
     }
-    getUserValue(): () => number {
-        return () => {
-            if (this.unit() === 'inch') return this.convertToInch(this.value)
-            else return this.value
-        }
+    getUserValue() {
+        return this.userUnit() === 'inch'
+            ? typeof this._inch === 'function'
+                ? this._inch()
+                : this._inch
+            : this._mm
     }
+    getDisplayString(): string {
+        return typeof this._displayString === 'function'
+            ? this._displayString()
+            : this._displayString
+    }
+    getMagnitude(): number {
+        return typeof this._magnitude === 'function'
+            ? this._magnitude()
+            : this._magnitude
+    }
+
     private getValueMagnitude(): number {
-        return this.value <= 0
+        return this._mm <= 0
             ? 0
-            : this.value < 1
+            : this._mm < 1
             ? 1 //drizzle
-            : this.value < 2.5
+            : this._mm < 2.5
             ? 2 //light rain
-            : this.value < 10
+            : this._mm < 10
             ? 3 //moderate rain
-            : this.value < 50
+            : this._mm < 50
             ? 4 //heavy rain
             : 5 //torrential rain
     }
@@ -105,10 +119,10 @@ export default class PrecipitationClass implements PrecipitationClassType {
             ? 4
             : 5
     }
-    getMagnitude(): number {
-        return this.value > 0
+    private generateMagnitude(): number {
+        return this._mm > 0
             ? this.getValueMagnitude()
-            : this.chance > 0
+            : this._mm > 0
             ? this.getChanceMagnitude()
             : 0
     }
@@ -121,22 +135,11 @@ export default class PrecipitationClass implements PrecipitationClassType {
         return `${this.chance}% chance of`
     }
 
-    displayString(): string {
-        return this.value > 0
+    private calcDisplayString(): string {
+        return this._mm > 0
             ? `${this.getChanceString()} ${this.getValueString()}`
             : this.chance > 0
             ? `${this.getChanceString()} ${this.type}`
             : 'No rain'
     }
 }
-interface GenericIdentityFn {
-    <Type>(arg: Type): Type
-}
-
-function identity<Type>(arg: Type): Type {
-    return arg
-}
-
-let myIdentity: GenericIdentityFn = identity
-const stuff = myIdentity(1)
-const str = myIdentity('1')
