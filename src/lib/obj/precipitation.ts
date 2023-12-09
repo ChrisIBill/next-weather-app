@@ -33,7 +33,6 @@ export const RAIN_CHANCE_STRINGS = [
 export interface PrecipitationClassType {
     _mm: number
     userUnit: () => PrecipitationUnitStrings
-    userValue: (() => number) | number
     chance: number
     _inch: number | (() => number)
     type: PrecipitationType
@@ -45,7 +44,6 @@ export interface PrecipitationClassType {
 export default class PrecipitationClass implements PrecipitationClassType {
     _mm: number
     userUnit: () => PrecipitationUnitStrings
-    userValue: () => number
     chance: number
     _inch: number | (() => number)
     type: PrecipitationType
@@ -62,7 +60,6 @@ export default class PrecipitationClass implements PrecipitationClassType {
     ) {
         this._mm = precip
         this.userUnit = getUserUnit
-        this.userValue = this.getUserValue
         this.chance = chance
         this._inch = () => this.convertToInch()
         this.type = snow > 0 ? 'snow' : 'rain'
