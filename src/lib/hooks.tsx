@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import _ from 'lodash'
 
 function getWindowDimensions() {
     if (typeof window === 'undefined')
@@ -18,9 +19,9 @@ export function useWindowDimensions() {
     )
 
     useEffect(() => {
-        function handleResize() {
+        const handleResize = _.debounce(() => {
             setWindowDimensions(getWindowDimensions())
-        }
+        }, 300)
 
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
