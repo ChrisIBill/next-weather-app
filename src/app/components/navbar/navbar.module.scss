@@ -4,92 +4,91 @@ $text-primary: var(--text-primary);
 $text-secondary: var(--text-secondary);
 $accent: var(--accent);
 
-.header {
-    position: static;
+//.header {
+//    position: static;
+//    width: 100%;
+//    height: 4rem;
+//    min-height: 4rem;
+//    z-index: 1100;
+//
+.MuiAppBar {
+    z-index: 100;
     width: 100%;
     height: 4rem;
-    min-height: 4rem;
-    z-index: 1100;
+    border-radius: 16px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
 
-    .MuiAppBar {
-        z-index: 100;
+    .Toolbar {
         width: 100%;
-        height: 4rem;
-        border-radius: 16px;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        z-index: 1100;
 
-        .Toolbar {
-            width: 100%;
+        .titleWrapper {
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1200;
+        }
+
+        .itemsWrapper {
+            display: flex;
+            flex: 1;
             flex-direction: row;
-            justify-content: space-around;
-            z-index: 1100;
-
-            .titleWrapper {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                z-index: 1200;
+            align-items: center;
+            justify-content: flex-end;
+            height: 4rem;
+        }
+        .searchForm {
+            height: 2.5rem;
+            .searchLabel {
+                position: absolute;
+                margin: auto;
             }
-
-            .itemsWrapper {
-                display: flex;
-                flex: 1;
-                flex-direction: row;
-                align-items: center;
-                justify-content: flex-end;
-                height: 4rem;
-            }
-            .searchForm {
+            .searchBar {
                 height: 2.5rem;
-                .searchLabel {
-                    position: absolute;
-                    margin: auto;
+                border-radius: 2rem;
+                & fieldset {
+                    border-width: 0.1rem;
                 }
-                .searchBar {
-                    height: 2.5rem;
-                    border-radius: 2rem;
-                    & fieldset {
-                        border-width: 0.1rem;
-                    }
-                    & input:focus + fieldset {
-                        border-width: 0.1rem;
-                    }
-                    & input:valid {
-                        border-top: transparent;
-                    }
-                    & input:invalid + fieldset {
-                        border-width: 0.15rem;
-                        background-color: green;
-                        border-color: red;
-                    }
-                    & input:valid:focus + fieldset {
-                        border-top: transparent;
-                    }
+                & input:focus + fieldset {
+                    border-width: 0.1rem;
+                }
+                & input:valid {
+                    border-top: transparent;
+                }
+                & input:invalid + fieldset {
+                    border-width: 0.15rem;
+                    background-color: green;
+                    border-color: red;
+                }
+                & input:valid:focus + fieldset {
+                    border-top: transparent;
                 }
             }
         }
     }
-    .glowBox {
-        --width: 20rem;
-        --height: 12rem;
-        --offset: -2.5rem;
-        position: absolute;
-        pointer-events: none;
-        left: 0;
-        right: 0;
-        top: var(--offset);
-        margin-left: auto;
-        margin-right: auto;
-        width: var(--width);
-        height: var(--height);
-        background: radial-gradient(
-            rgba(255, 255, 255, 0.1),
-            rgba(255, 255, 255, 0) 70%
-        );
-        border-radius: 50%;
-    }
+}
+.glowBox {
+    --width: 20rem;
+    --height: 12rem;
+    --offset: -2.5rem;
+    position: absolute;
+    pointer-events: none;
+    left: 0;
+    right: 0;
+    top: var(--offset);
+    margin-left: auto;
+    margin-right: auto;
+    width: var(--width);
+    height: var(--height);
+    background: radial-gradient(
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0) 70%
+    );
+    border-radius: 50%;
 }
 
 .fillerElement {

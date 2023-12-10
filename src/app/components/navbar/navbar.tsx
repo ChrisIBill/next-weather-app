@@ -22,40 +22,38 @@ const NavBar: React.FC<NavBarProps> = () => {
     const palette = theme.palette
     const windowDimensions = useWindowDimensions()
     return (
-        <header className={styles.header} data-theme={theme.palette.mode}>
-            <div className={styles.glowBox} />
-            <AppBar
-                className={styles.MuiAppBar}
-                data-theme={theme.palette.mode}
-                sx={{}}
+        <AppBar
+            className={styles.MuiAppBar}
+            data-theme={theme.palette.mode}
+            sx={{}}
+        >
+            <Toolbar
+                className={styles.Toolbar}
+                sx={{
+                    background: palette.primary.main,
+                    color: palette.primary.contrastText,
+                    borderRadius: '0 0 1rem 1rem',
+                    [theme.breakpoints.down('md')]: {
+                        justifyContent: 'center',
+                    },
+                }}
             >
-                <Toolbar
-                    className={styles.Toolbar}
-                    sx={{
-                        background: palette.primary.main,
-                        color: palette.primary.contrastText,
-                        borderRadius: '0 0 1rem 1rem',
-                        [theme.breakpoints.down('md')]: {
-                            justifyContent: 'center',
-                        },
-                    }}
-                >
-                    {windowDimensions.width > 900 ? (
-                        <div className={styles.fillerElement}></div>
-                    ) : null}
-                    <TitleWrapper className={styles.titleWrapper}>
-                        <h1 className={styles.title}>Drizzle</h1>
-                        <h3 className={styles.subtitle}>
-                            (Yet Another Weather App)
-                        </h3>
-                    </TitleWrapper>
-                    <div className={styles.itemsWrapper}>
-                        <SearchBar />
-                        <Settings />
-                    </div>
-                </Toolbar>
-            </AppBar>
-        </header>
+                {windowDimensions.width > 900 ? (
+                    <div className={styles.fillerElement}></div>
+                ) : null}
+                <TitleWrapper className={styles.titleWrapper}>
+                    <h1 className={styles.title}>Drizzle</h1>
+                    <h3 className={styles.subtitle}>
+                        (Yet Another Weather App)
+                    </h3>
+                </TitleWrapper>
+                <div className={styles.itemsWrapper}>
+                    <SearchBar />
+                    <Settings />
+                </div>
+            </Toolbar>
+            <div className={styles.glowBox} />
+        </AppBar>
     )
 }
 
