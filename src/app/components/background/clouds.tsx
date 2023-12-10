@@ -1,134 +1,115 @@
-import React from 'react'
+/** @jsxImportSource @emotion/react */
+import React, { useEffect } from 'react'
 import styles from './clouds.module.scss'
-import { useTheme } from '@mui/material/styles'
-import { grey } from '@mui/material/colors'
-import { Color } from '@mui/material'
+import { bezierCurve } from '@/lib/lib'
+import { TimeObjectType } from '@/lib/time'
+import { jsx, css, Global, keyframes } from '@emotion/react'
+import { useTheme } from '@mui/material'
+import { useWindowDimensions } from '@/lib/hooks'
+import { BackgroundComponentsProps } from './background'
+
 export interface CloudsProps {
-    cloudCover: number
-    isCard?: boolean
-    windSpeed?: number
-    size?: string
-    theme?: string
-    palette?: any
-}
-//export const Clouds: React.FC<CloudsProps> = (props: CloudsProps) => {
-//    const theme = useTheme()
-//    const palette = paletteHandler(theme.theme)
-//    return (
-//        <div className={styles.cloudsContainer} data-theme={theme.theme}>
-//            <CloudLayerGenerator
-//                cloudCover={props.cloudCover}
-//                windSpeed={props.windSpeed}
-//                theme={theme.theme}
-//                palette={palette}
-//            />
-//        </div>
-//    )
-//}
-
-export const Clouds = (props: CloudsProps) => {
-    const palette = useTheme().palette
-    const cloudColor = palette.mode === 'dark' ? grey[400] : grey[200]
-    const numMult = props.cloudCover / 100
-    const NUM_CLOUDS = Math.floor(25 * numMult)
-    const clouds = Array(NUM_CLOUDS)
-        .fill(undefined)
-        .map((_cloud, index) => (
-            <CloudGenerator
-                key={`cloud-${index}`}
-                index={index}
-                size={props.size}
-                cloudCover={numMult}
-                theme={palette.mode}
-                cloudColor={cloudColor}
-            />
-        ))
-    return (
-        <ul
-            className={styles.cloudsContainer}
-            style={{
-                top: props.isCard ? '15%' : '20rem',
-            }}
-        >
-            {clouds}
-        </ul>
-    )
-}
-
-interface CloudProps {
-    cloudCover: number
     index: number
-    size?: string
-    theme?: string
-    cloudColor?: string
+    width: number
+    height: number
+    baseHeight: number
+    color: string
+    zIndex?: number
+    scale?: number
+    arch: number
+    startPos: number
 }
+export const Clouds: React.FC<CloudsProps> = ({
+    index,
+    width,
+    height,
+    baseHeight,
+    color,
+    zIndex = 0,
+    scale = 1,
+    arch,
+    startPos,
+}: CloudsProps) => {
+    const speed = 8 + index * 3 + Math.random() * 2
+    const cloudsKeyframe = keyframes`
+        from {
+            transform: translateX(${0}px);
+                    }
+        to {
+            transform: translateX(${width}px);
+        }
+    `
 
-const CloudGenerator = (props: CloudProps) => {
-    const sizeScale = props.size === 'small' ? 0.2 : 1
-    const rndScale = Math.random()
-    const animationTime = Math.random() * 15 + 15 * rndScale + 20
-    const height = (rndScale * props.cloudCover + 3) * sizeScale
-    const width =
-        (Math.random() * 20 * props.cloudCover + 10 * rndScale + 10) * sizeScale
-    const top = Math.random() * 100
-    const isDouble = Math.random() > 0.5
-    return isDouble ? (
+    const points = [
+        `M ${width} 0, ${-width * 2} 0`,
+        `Q ${-width * 1.5} ${arch}`,
+        `${-width} ${baseHeight}`,
+        `Q ${-width * 0.5} ${arch}`,
+        `0 ${baseHeight}`,
+        `Q ${width * 0.5} ${arch}`,
+        `${width} ${baseHeight}`,
+        `Q ${width * 1.5} ${arch}`,
+        `${width * 2} ${baseHeight}`,
+        `L ${width * 2} 0`,
+    ]
+    const testPath = points.join(' ')
+
+    return (
         <div
-            className={styles.cloudWrapper}
-            data-theme={props.theme}
+            className={styles.clouds}
+            css={css`
+                animation: ${speed}s linear infinite forwards ${cloudsKeyframe};
+            `}
             style={{
-                width: `${width * 1.5}rem`,
-                height: `${height * 1.5}rem`,
-                top: `${top}%`,
-                animationDelay: `${Math.random() * 20 + 3}s`,
-                animationDuration: `${animationTime}s`,
+                zIndex: zIndex,
+                left: `${-startPos}px`,
             }}
         >
-            <div
+            <svg
                 className={styles.cloud}
-                style={{
-                    width: `${width}rem`,
-                    height: `${height}rem`,
-                    borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    backgroundColor: `${props.cloudColor}`,
-                    position: 'relative',
-                }}
-            ></div>
-            <div
-                className={styles.cloud}
-                style={{
-                    width: `${width}rem`,
-                    height: `${height}rem`,
-                    borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    backgroundColor: `${props.cloudColor}`,
-                    position: 'relative',
-                    top: `-${height * 0.5}rem`,
-                    left: `${
-                        Math.random() > 0.5 ? width * 0.33 : -width * 0.33
-                    }rem`,
-                }}
-            ></div>
-        </div>
-    ) : (
-        <div
-            className={styles.cloudWrapper}
-            data-theme={props.theme}
-            style={{
-                width: `${width}rem`,
-                height: `${height}rem`,
-            }}
-        >
-            <div
-                className={styles.cloud}
-                style={{
-                    width: `${width}rem`,
-                    height: `${height}rem`,
-                    borderRadius: `${height * 0.67}rem / ${height * 0.67}rem`,
-                    zIndex: `${props.index + 5}`,
-                    backgroundColor: `${props.cloudCover}`,
-                    position: 'static',
-                }}
-            ></div>
+                width={width * 4}
+                height={height}
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <path d={testPath} fill={color} style={{}} />
+            </svg>
         </div>
     )
+}
+
+export interface CloudsGeneratorProps extends BackgroundComponentsProps {
+    cloudCover: number
+}
+
+export const CloudsGenerator: React.FC<Clouds2GeneratorProps> = (props) => {
+    const palette = useTheme().palette
+    const windowDimensions = useWindowDimensions()
+    const numClouds = Math.round(props.cloudCover / 25)
+    const [xScale, yScale] = [props.xScale, props.yScale]
+    const width = xScale * 100
+
+    useEffect(() => {}, [windowDimensions])
+    const clouds = new Array(numClouds).fill(0).map((e, i) => {
+        const startPos = (i / numClouds) * 100 * xScale
+        const baseHeight = (5 + 10 * (i + 1) + Math.random() * 5) * yScale
+        const height = yScale * 20 + baseHeight
+        const arch = 10 * Math.random() + yScale * 10 + baseHeight
+
+        return (
+            <Clouds
+                key={i}
+                index={i}
+                width={width}
+                height={height}
+                baseHeight={baseHeight}
+                color={palette.grey[(i + 1) * 100]}
+                zIndex={5 - i}
+                startPos={startPos}
+                scale={xScale}
+                arch={arch}
+            />
+        )
+    })
+    return <div className={'clouds'}>{clouds}</div>
 }

@@ -7,25 +7,46 @@ import {
     clockTimeToMinutes,
     dayLengthCalculator,
 } from '@/lib/time'
-import RainBackground from '@/app/rain'
-import { DetailedWeatherDataType } from '@/lib/interfaces'
+import { RainBackground } from '@/app/rain'
+import { DetailedWeatherDataType, ForecastObjectType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
-import { Clouds } from './clouds'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
-import { Clouds2, Clouds2Generator } from './clouds2'
+import { CloudsGenerator } from './clouds'
+import PrecipitationClass, {
+    DEFAULT_PRECIPITATION_CLASS,
+} from '@/lib/obj/precipitation'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
+    forecastObj?: ForecastObjectType
     timeObj?: TimeObjectType
     isCard?: boolean
-    cloudCover?: number
 }
 
+export interface BackgroundComponentsProps {
+    xScale: number
+    yScale: number
+    width: number
+    height: number
+}
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
+
+    const palette = useTheme().palette
+    const precipObj =
+        props.forecastObj?.precipitationObj || DEFAULT_PRECIPITATION_CLASS
+
+    //TODO: Should probably handle client scaling higher up the tree
+    const containerWidth = ref?.current?.clientWidth || window.innerWidth
+    const containerHeight = ref?.current?.clientHeight || window.innerHeight
+
+    const width = containerWidth
+    const height = containerHeight
+    const xScale = containerWidth / 100
+    const yScale = containerHeight / 100
 
     const forecast = props.weatherForecast
     const cloudCover = forecast
@@ -44,26 +65,30 @@ export const Background: React.FC<BackgroundProps> = (
                 top: props.isCard ? '0' : '-4rem',
             }}
         >
+            <RainBackground
+                isCard={props.isCard ? true : false}
+                precipObj={precipObj as PrecipitationClass}
+                xScale={xScale}
+                yScale={yScale}
+                width={width}
+                height={height}
+                precipitation_probability={
+                    forecast?.precipitation_probability as number
+                }
+                precipitation={forecast?.precipitation as number}
+                precipitation_type={forecast?.precipitation_type as string}
+            />
+            <CloudsGenerator
+                xScale={xScale}
+                yScale={props.isCard ? yScale : window.innerHeight / 100}
+                width={width}
+                height={props.isCard ? height : window.innerHeight}
+                cloudCover={cloudCover as number}
+            />
             <ClockworkBackgroundComponents
                 isCard={props.isCard}
                 timeObj={props.timeObj}
             />
-            <Clouds2Generator
-                cloudCover={cloudCover as number}
-                parentRef={ref}
-            />
-            {/*
-                            <RainBackground />
-                <Clouds
-                cloudCover={cloudCover as number}
-                size={props.isCard ? 'small' : ''}
-                isCard={props.isCard}
-            />
-                        <Clouds2 />
-
-            <CelestialIconsHandler isDay={isDay} timePercent={timePercent} />
-            <DayNightColorLayer isDay={isDay} timePercent={timePercent} />
-            */}
         </div>
     )
 }

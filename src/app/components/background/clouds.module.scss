@@ -1,80 +1,23 @@
-@use '../../_variables.scss' as *;
-$background: var(--background);
-$accent: var(--accent);
-$text-primary: var(--text-primary);
-$text-secondary: var(--text-secondary);
-.cloudsContainer {
-    --cloudWidth: 9rem;
-    --cloudHeigth: 3rem;
-    --initX: 0%;
-    --yPos: 65%;
-    top: 15%;
-    width: 100%;
-    height: 20%;
-    position: absolute;
-    z-index: 4;
-}
-.cloudsLayer {
-}
-
-@keyframes cloudMove {
+@keyframes clouds-loop {
     from {
-        left: -100%;
+        transform: translateX(0%);
     }
     to {
-        left: 125%;
+        transform: translateX(51%);
     }
 }
-@keyframes cloudMoveSecond {
+.clouds {
+    pointer-events: none;
+    position: absolute;
+    overflow: visible;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
 }
 
 .cloud {
-    --cloudHeight: 3rem;
-    --animationSpeed: 20s;
-    --initX: -5%;
-    --delay: 2s;
-    --zIndex: 4;
-    border-radius: 1rem / 2rem;
-    height: 3rem;
-    width: 9rem;
-    //animation-delay: 3s;
-    z-index: var(--zIndex);
-}
-.cloudWrapper {
     position: absolute;
-    left: -50%;
-    animation: cloudMove 20s linear infinite;
-    animation-delay: 3s;
-}
-.cloud.initial {
-}
-.cloud.second {
-}
-
-.clouds_1 {
-    position: absolute;
-    border-radius: 1.1rem;
-    top: 50%;
-    left: 50%;
-    height: 3rem;
-    width: 9rem;
-    background: transparent;
-}
-.clouds_2 {
-    position: absolute;
-    border-radius: 1.1rem;
-    top: 50%;
-    left: 50%;
-    height: 3rem;
-    width: 9rem;
-    background: transparent;
-}
-.clouds_3 {
-    position: absolute;
-    border-radius: 1.1rem;
-    top: 50%;
-    left: 50%;
-    height: 3rem;
-    width: 9rem;
-    background: transparent;
+    transition: fill 2s ease;
+    overflow: visible;
 }
