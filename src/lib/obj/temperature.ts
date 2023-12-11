@@ -1,16 +1,14 @@
+import { cloneElement } from 'react'
+import { useUserPrefsStore } from '../stores'
+
 const LOWEST_TEMPERATURE = -40
 const MEDIAN_TEMPERATURE = 21
 const HIGHEST_TEMPERATURE = 50
 const COLD_TEMPERATURE_RANGE = MEDIAN_TEMPERATURE - LOWEST_TEMPERATURE
 const HOT_TEMPERATURE_RANGE = HIGHEST_TEMPERATURE - MEDIAN_TEMPERATURE
-export interface TemperatureClassType {
-    _celsius?: number
-    _appCelsius?: number
-    _celsiusRange?: number[]
-    _appCelsiusRange?: number[]
-}
 export const TEMPERATURE_UNIT_STRINGS = ['°F', '°C'] as const
-export type TemperatureUnitStrings = (typeof TEMPERATURE_UNIT_STRINGS)[number]
+export type TemperatureUnitStringsType =
+    (typeof TEMPERATURE_UNIT_STRINGS)[number]
 type NumUnionType = number | number[]
 
 //class _TemperatureClass implements TemperatureClassType {
@@ -30,13 +28,16 @@ type NumUnionType = number | number[]
 //}
 
 export interface TemperatureClassType {
-    _tempDisplayString: (() => string) | string
-    _appTempDisplayString: (() => string) | string
+    //_tempDisplayString: () => string
+    //_appTempDisplayString: () => string
     getMagnitude: () => number
     getAppMagnitude: () => number
     getTempDisplayString: () => string
     getAppTempDisplayString: () => string
     getUserTempRange?: () => number[]
+    getUserAppTempRange?: () => number[]
+    getUserTemp?: () => number
+    getUserAppTemp?: () => number
 }
 export interface DayTemperatureClassType extends TemperatureClassType {
     _celsiusRange: number[]
@@ -45,7 +46,6 @@ export interface DayTemperatureClassType extends TemperatureClassType {
     _appFahrenheitRange: (() => number[]) | number[]
     _magnitude: (() => number) | number
     _appMagnitude: (() => number) | number
-    userUnit: () => TemperatureUnitStrings
     hours: HourTemperatureClassType[]
     current?: HourTemperatureClassType
     _convertToFahrenheit: (vals: NumUnionType) => NumUnionType
@@ -59,37 +59,36 @@ export default class DayTemperatureClass implements TemperatureClassType {
     _appFahrenheitRange: (() => number[]) | number[]
     _magnitude: (() => number) | number
     _appMagnitude: (() => number) | number
-    _tempDisplayString: (() => string) | string
-    _appTempDisplayString: (() => string) | string
-    userUnit: () => TemperatureUnitStrings
+    //_tempDisplayString: () => string
+    //_appTempDisplayString: () => string
     hours: HourTemperatureClassType[]
     current?: HourTemperatureClassType
     constructor(
         celsiusRange: [number?, number?],
-        appCelsiusRange: [number?, number?],
-        getUserUnit: () => TemperatureUnitStrings
+        appCelsiusRange: [number?, number?]
     ) {
         this._celsiusRange = celsiusRange.map((temp) => temp || NaN)
         this._appCelsiusRange = appCelsiusRange.map((temp) => temp || NaN)
         this._magnitude = () => this.generateMagnitude()
         this._appMagnitude = () => this.generateAppMagnitude()
-        this.userUnit = getUserUnit
         this.hours = []
         this._fahrenheitRange = () => this.generateFahrenheitRange()
         this._appFahrenheitRange = () => this.generateAppFahrenheitRange()
-        this._tempDisplayString = () => this.generateTempDisplayString()
-        this._appTempDisplayString = () => this.generateAppTempDisplayString()
+        //this._tempDisplayString = () => this.generateTempDisplayString()
+        //this._appTempDisplayString = () => this.generateAppTempDisplayString()
     }
 
     getUserTempRange(): number[] {
-        return this.userUnit() === '°F'
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        return userUnit === '°F'
             ? this._fahrenheitRange instanceof Function
                 ? this._fahrenheitRange()
                 : this._fahrenheitRange
             : this._celsiusRange
     }
     getUserAppTempRange(): number[] {
-        return this.userUnit() === '°F'
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        return userUnit === '°F'
             ? this._appFahrenheitRange instanceof Function
                 ? this._appFahrenheitRange()
                 : this._appFahrenheitRange
@@ -106,37 +105,33 @@ export default class DayTemperatureClass implements TemperatureClassType {
             : this._appMagnitude
     }
     getSetHour(
-        getUserUnit: () => TemperatureUnitStrings,
         celsius?: number,
         appCelsius?: number
     ): HourTemperatureClassType {
-        this.hours.push(
-            new HourTemperatureClass(getUserUnit, this, celsius, appCelsius)
-        )
+        this.hours.push(new HourTemperatureClass(this, celsius, appCelsius))
         return this.hours[this.hours.length - 1]
     }
-    getSetCurrent(
-        getUserUnit: () => TemperatureUnitStrings,
-        celsius?: number,
-        appCelsius?: number
-    ) {
-        this.current = new HourTemperatureClass(
-            getUserUnit,
-            this,
-            celsius,
-            appCelsius
-        )
+    getSetCurrent(celsius?: number, appCelsius?: number) {
+        console.log('getSetCurrent', celsius, appCelsius)
+        this.current = new HourTemperatureClass(this, celsius, appCelsius)
         return this.current
     }
     getTempDisplayString(): string {
-        return typeof this._tempDisplayString === 'function'
-            ? this._tempDisplayString()
-            : this._tempDisplayString
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        const tempRange =
+            userUnit === '°F'
+                ? this.getUserTempRange().map((temp) => temp.toFixed(0))
+                : this.getUserTempRange().map((temp) => temp.toFixed(1))
+        return `${tempRange[0]}${userUnit} / ${tempRange[1]}${userUnit}`
     }
+
     getAppTempDisplayString(): string {
-        return typeof this._appTempDisplayString === 'function'
-            ? this._appTempDisplayString()
-            : this._appTempDisplayString
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        const tempRange =
+            userUnit === '°F'
+                ? this.getUserAppTempRange().map((temp) => temp.toFixed(0))
+                : this.getUserAppTempRange().map((temp) => temp.toFixed(1))
+        return `${tempRange[0]}${userUnit} / ${tempRange[1]}${userUnit}`
     }
     _convertToFahrenheit = (vals: NumUnionType): NumUnionType => {
         return vals instanceof Array
@@ -144,20 +139,19 @@ export default class DayTemperatureClass implements TemperatureClassType {
             : (vals * 9) / 5 + 32
     }
 
-    private generateTempDisplayString(): string {
-        const tempRange = this.getUserTempRange()
-        this._tempDisplayString = `${tempRange[0]}${this.userUnit()} / ${
-            tempRange[1]
-        }${this.userUnit()}`
-        return this._tempDisplayString
-    }
-    private generateAppTempDisplayString(): string {
-        const tempRange = this.getUserAppTempRange()
-        this._appTempDisplayString = `${tempRange[0]}${this.userUnit()} / ${
-            tempRange[1]
-        }${this.userUnit()}`
-        return this._appTempDisplayString
-    }
+    //private generateTempDisplayString(): string {
+    //    const tempRange = this.getUserTempRange()
+    //    const userUnit = this.userUnit()
+    //    console.log('tempRange: ', tempRange, userUnit)
+    //    return `${tempRange[0]}${userUnit} / ${tempRange[1]}${this.userUnit()}`
+    //}
+    //private generateAppTempDisplayString(): string {
+    //    const tempRange = this.getUserAppTempRange()
+    //    this._appTempDisplayString = `${tempRange[0]}${this.userUnit()} / ${
+    //        tempRange[1]
+    //    }${this.userUnit()}`
+    //    return this._appTempDisplayString
+    //}
     private generateFahrenheitRange(): number[] {
         this._fahrenheitRange = this._convertToFahrenheit(
             this._celsiusRange
@@ -202,7 +196,7 @@ export default class DayTemperatureClass implements TemperatureClassType {
     }
 }
 
-interface HourTemperatureClassType extends TemperatureClassType {
+export interface HourTemperatureClassType extends TemperatureClassType {
     _celsius: number
     _appCelsius: number
     _fahrenheit: number | (() => number)
@@ -210,7 +204,6 @@ interface HourTemperatureClassType extends TemperatureClassType {
     _magnitude: number | (() => number)
     _appMagnitude: number | (() => number)
     day: DayTemperatureClassType
-    userUnit: () => TemperatureUnitStrings
     getUserTemp: () => number
     getUserAppTemp: () => number
     getMagnitude: () => number
@@ -223,12 +216,10 @@ export class HourTemperatureClass implements HourTemperatureClassType {
     _appFahrenheit: number | (() => number)
     _magnitude: number | (() => number)
     _appMagnitude: number | (() => number)
-    _tempDisplayString: (() => string) | string
-    _appTempDisplayString: (() => string) | string
+    //_tempDisplayString: () => string
+    //_appTempDisplayString: () => string
     day: DayTemperatureClassType
-    userUnit: () => TemperatureUnitStrings
     constructor(
-        getUserUnit: () => TemperatureUnitStrings,
         day: DayTemperatureClassType,
         celsius?: number,
         appCelsius?: number
@@ -239,20 +230,23 @@ export class HourTemperatureClass implements HourTemperatureClassType {
         this._appFahrenheit = () => this.generateAppFahrenheit()
         this._magnitude = () => this.generateMagnitude()
         this._appMagnitude = () => this.generateAppMagnitude()
-        this._tempDisplayString = () => this.generateTempDisplayString()
-        this._appTempDisplayString = () => this.generateAppTempDisplayString()
-        this.userUnit = getUserUnit
+        //this._tempDisplayString = () => this.generateTempDisplayString()
+        //this._appTempDisplayString = () => this.generateAppTempDisplayString()
         this.day = day
     }
-    getUserTemp(): number {
-        return this.userUnit() === '°F'
+    getUserTemp = (): number => {
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        console.log('userUnit: ', userUnit, this._celsius)
+        return userUnit === TEMPERATURE_UNIT_STRINGS[0]
             ? typeof this._fahrenheit === 'function'
                 ? this._fahrenheit()
                 : this._fahrenheit
             : this._celsius
     }
-    getUserAppTemp(): number {
-        return this.userUnit() === '°F'
+    getUserAppTemp = (): number => {
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        console.log('userUnit: ', userUnit)
+        return userUnit === '°F'
             ? typeof this._appFahrenheit === 'function'
                 ? this._appFahrenheit()
                 : this._appFahrenheit
@@ -268,23 +262,22 @@ export class HourTemperatureClass implements HourTemperatureClassType {
             ? this._appMagnitude()
             : this._appMagnitude
     }
-    getTempDisplayString(): string {
-        return typeof this._tempDisplayString === 'function'
-            ? this._tempDisplayString()
-            : this._tempDisplayString
+    getTempDisplayString = (): string => {
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        const temp =
+            userUnit === '°F'
+                ? this.getUserTemp().toFixed(0)
+                : this.getUserTemp().toFixed(1)
+        console.log('temp: ', temp, userUnit)
+        return `${temp}${userUnit}`
     }
     getAppTempDisplayString(): string {
-        return typeof this._appTempDisplayString === 'function'
-            ? this._appTempDisplayString()
-            : this._appTempDisplayString
-    }
-
-    private generateTempDisplayString(): string {
-        this._tempDisplayString = `${this.getUserTemp()}${this.userUnit()}`
-        return this._tempDisplayString
-    }
-    private generateAppTempDisplayString(): string {
-        return `${this.getUserAppTemp()}${this.userUnit()}`
+        const userUnit = useUserPrefsStore.getState().temperatureUnit
+        const temp =
+            userUnit === '°F'
+                ? this.getUserTemp().toFixed(0)
+                : this.getUserTemp().toFixed(1)
+        return `${temp}${userUnit}`
     }
     private generateFahrenheit(): number {
         this._fahrenheit = this.day._convertToFahrenheit(
@@ -310,4 +303,22 @@ export class HourTemperatureClass implements HourTemperatureClassType {
         ) as number
         return this._appMagnitude
     }
+}
+
+export interface TemperatureComponentWrapperProps {
+    children: React.ReactNode
+}
+
+export const TemperatureComponentWrapper: React.FC<
+    TemperatureComponentWrapperProps
+> = (props: TemperatureComponentWrapperProps): JSX.Element => {
+    const userUnit = useUserPrefsStore((state) => state.temperatureUnit)
+    return cloneElement(props.children as React.ReactElement, { userUnit })
+}
+export const convertToUserTemp = (
+    value: number,
+    tempUnit: TemperatureUnitStringsType
+) => {
+    if (tempUnit == '°C') return value
+    else return (value * 9) / 5 + 32
 }

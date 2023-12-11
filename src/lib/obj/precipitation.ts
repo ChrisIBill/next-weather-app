@@ -1,8 +1,10 @@
+import { cloneElement } from 'react'
+import { useUserPrefsStore } from '../stores'
 import { ForecastObjectType } from './forecastClass'
 
 export const PRECIPIATION_UNIT_STRINGS = ['inch', 'mm'] as const
 export const PRECIPITATION_TYPES = ['rain', 'snow', 'hail'] as const
-export type PrecipitationUnitStrings =
+export type PrecipitationUnitStringsType =
     (typeof PRECIPIATION_UNIT_STRINGS)[number]
 export type PrecipitationType = (typeof PRECIPITATION_TYPES)[number]
 
@@ -30,12 +32,27 @@ export const RAIN_CHANCE_STRINGS = [
     'certain',
 ] as const
 
+export const DEFAULT_PRECIPITATION_CLASS: PrecipitationClassType = {
+    _mm: 0,
+    chance: 0,
+    _inch: 0,
+    type: 'rain',
+    _magnitude: 0,
+    _displayString: 'No rain',
+    convertToInch: () => 0,
+    getUserValue: () => 0,
+    getMagnitude: () => 0,
+    getDisplayString: () => 'No rain',
+}
+
 export interface PrecipitationClassType {
     _mm: number
-    userUnit: () => PrecipitationUnitStrings
     chance: number
     _inch: number | (() => number)
     type: PrecipitationType
+    _magnitude: (() => number) | number
+    _displayString: (() => string) | string
+    convertToInch: () => number
     getUserValue: () => number
     getMagnitude: () => number
     getDisplayString: () => string
@@ -43,7 +60,6 @@ export interface PrecipitationClassType {
 
 export default class PrecipitationClass implements PrecipitationClassType {
     _mm: number
-    userUnit: () => PrecipitationUnitStrings
     chance: number
     _inch: number | (() => number)
     type: PrecipitationType
@@ -52,14 +68,8 @@ export default class PrecipitationClass implements PrecipitationClassType {
 
     //Since api returns rain, showers and snow amounts, as well as total precip,
     //we only need to check if snow is present to determine if it's snowing or raining
-    constructor(
-        chance: number,
-        precip: number,
-        snow: number,
-        getUserUnit: () => PrecipitationUnitStrings
-    ) {
+    constructor(chance: number, precip: number, snow: number) {
         this._mm = precip
-        this.userUnit = getUserUnit
         this.chance = chance
         this._inch = () => this.convertToInch()
         this.type = snow > 0 ? 'snow' : 'rain'
@@ -73,7 +83,8 @@ export default class PrecipitationClass implements PrecipitationClassType {
         return this._inch
     }
     getUserValue() {
-        return this.userUnit() === 'inch'
+        const userUnit = useUserPrefsStore.getState().precipitationUnit
+        return userUnit === 'inch'
             ? typeof this._inch === 'function'
                 ? this._inch()
                 : this._inch
@@ -139,4 +150,15 @@ export default class PrecipitationClass implements PrecipitationClassType {
             ? `${this.getChanceString()} ${this.type}`
             : 'No rain'
     }
+}
+
+export interface PrecipitationComponentWrapperProps {
+    children: React.ReactNode
+}
+
+export const PrecipitationComponentWrapper: React.FC<
+    PrecipitationComponentWrapperProps
+> = (props: PrecipitationComponentWrapperProps): JSX.Element => {
+    const userUnit = useUserPrefsStore((state) => state.precipitationUnit)
+    return cloneElement(props.children as React.ReactElement, { userUnit })
 }
