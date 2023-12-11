@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react'
 import {
+    DailyWeatherForecastObjectType,
     DailyWeatherForecastType,
     DimensionsType,
+    ForecastObjectType,
     HourlyWeatherDataType,
 } from '@/lib/interfaces'
 import styles from './weatherChart.module.scss'
@@ -66,7 +68,8 @@ export interface WeatherChartProps {
     selectedDay?: number
     selectedHour?: number
     timeObj: TimeObjectType
-    parentRef?: React.MutableRefObject<HTMLDivElement>
+    forecastObj?: DailyWeatherForecastObjectType[]
+    parentRef: React.RefObject<HTMLDivElement>
 }
 export const WeatherChart: React.FC<WeatherChartProps> = (
     props: WeatherChartProps
@@ -75,8 +78,8 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
     const windowDimensions = useWindowDimensions()
     console.log('Chart Parent ref: ', props.parentRef)
     const chartDimensions: DimensionsType = {
-        height: getChartHeight(props.parentRef?.current.clientHeight),
-        width: getChartWidth(props.parentRef?.current.clientWidth),
+        height: getChartHeight(props.parentRef.current?.clientHeight),
+        width: getChartWidth(props.parentRef.current?.clientWidth),
     }
     const chartHeightPadding = 4
     console.log('chart dimensions: ', chartDimensions)
@@ -163,29 +166,77 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
                         zIndex: 1000,
                     }}
                 >
-                    {chartType === 'Week' ? (
-                        <DailyWeatherChart
-                            forecast={props.forecast}
-                            chartKey={selectedVar}
-                            metadata={props.metadata}
-                            handleChartSelect={props.handleChartSelect}
-                            selectedDay={props.selectedDay}
-                            chartDimensions={chartDimensions}
-                            textColor={contrastColor}
-                        />
-                    ) : (
-                        <HourlyWeatherChart
-                            forecast={selectedForecast?.hourly_weather!}
-                            chartKey={selectedVar}
-                            metadata={props.metadata}
-                            handleChartSelect={props.handleChartSelect}
-                            selectedHour={props.selectedHour}
-                            chartDimensions={chartDimensions}
-                            textColor={contrastColor}
-                        />
-                    )}
+                    <ChartComponent
+                        forecastObj={props.forecastObj}
+                        chartKey={selectedVar}
+                        chartType={chartType}
+                        handleChartSelect={props.handleChartSelect}
+                        selectedDay={props.selectedDay}
+                        chartDimensions={chartDimensions}
+                        textColor={contrastColor}
+                    />
+                    {/* {chartType === 'Week' ? ( */}
+                    {/*     <DailyWeatherChart */}
+                    {/*         forecast={props.forecast} */}
+                    {/*         chartKey={selectedVar} */}
+                    {/*         metadata={props.metadata} */}
+                    {/*         handleChartSelect={props.handleChartSelect} */}
+                    {/*         selectedDay={props.selectedDay} */}
+                    {/*         chartDimensions={chartDimensions} */}
+                    {/*         forecastObj={props.forecastObj} */}
+                    {/*         textColor={contrastColor} */}
+                    {/*     /> */}
+                    {/* ) : ( */}
+                    {/*     <HourlyWeatherChart */}
+                    {/*         forecast={selectedForecast?.hourly_weather!} */}
+                    {/*         chartKey={selectedVar} */}
+                    {/*         metadata={props.metadata} */}
+                    {/*         handleChartSelect={props.handleChartSelect} */}
+                    {/*         selectedHour={props.selectedHour} */}
+                    {/*         chartDimensions={chartDimensions} */}
+                    {/*         forecastObj={props.forecastObj} */}
+                    {/*         textColor={contrastColor} */}
+                    {/*     /> */}
+                    {/* )} */}
                 </div>
             </Paper>
         </Box>
+    )
+}
+
+interface ChartComponentProps {
+    chartKey: ChartDataKeys
+    chartType: ChartTimespanType
+    handleChartSelect: (day: number, hour?: number) => void
+    selectedDay?: number
+    chartDimensions: DimensionsType
+    forecastObj?: DailyWeatherForecastObjectType[]
+    textColor?: string
+}
+
+const ChartComponent: React.FC<ChartComponentProps> = (props) => {
+    return props.forecastObj === undefined ||
+        props.forecastObj[0] === undefined ? (
+        <div>Loading...</div>
+    ) : (
+        <div className={styles.chartWrapper}>
+            {props.chartType === 'Week' ? (
+                <DailyWeatherChart
+                    chartKey={props.chartKey}
+                    handleChartSelect={props.handleChartSelect}
+                    chartDimensions={props.chartDimensions}
+                    forecastObj={props.forecastObj}
+                    textColor={props.textColor}
+                />
+            ) : (
+                <HourlyWeatherChart
+                    chartKey={props.chartKey}
+                    handleChartSelect={props.handleChartSelect}
+                    chartDimensions={props.chartDimensions}
+                    forecastObj={props.forecastObj[props.selectedDay || 0]}
+                    textColor={props.textColor}
+                />
+            )}
+        </div>
     )
 }

@@ -10,7 +10,6 @@ import {
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { Background } from '../components/background/background'
-import UserPrefs, { UserPreferencesInterface } from '@/lib/user'
 import { WeatherPageHeader } from './header'
 import { CurrentWeatherReport } from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
@@ -19,6 +18,12 @@ import { useUser } from '@/lib/context'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
 import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
+import DayTimeClass from '@/lib/obj/time'
+import { SelectedForecastReadout } from '../components/weatherReports/selectedForecastReadout'
+import DayTemperatureClass, {
+    TemperatureUnitStringsType,
+} from '@/lib/obj/temperature'
+import { UserPreferencesInterface, useUserPrefsStore } from '@/lib/stores'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -40,41 +45,53 @@ function handleWeatherSearch(searchParams: {
 
 function handleWeatherForecast(
     forecast: WeatherForecastType,
-    metadata: WeatherMetadata,
-    user: () => UserPreferencesInterface
-) {
+    metadata: WeatherMetadata
+): DailyWeatherForecastObjectType[] {
     return forecast.map((day) => {
+        if (!day.time2)
+            throw new Error('Malformed forecast data, no time field')
+        const timeObj = new DayTimeClass(day.time2, day.sunrise2, day.sunset2)
+        const tempObj = new DayTemperatureClass(
+            [day.temperature_2m_max, day.temperature_2m_min],
+            [day.apparent_temperature_max, day.apparent_temperature_min]
+        )
+
         return {
-            timeObj: getTimeObj(day),
-            precipitation: new PrecipitationClass(
+            timeObj: timeObj,
+            precipitationObj: new PrecipitationClass(
                 day.precipitation_probability_max!,
                 day.precipitation_sum!,
-                day.snowfall_sum!,
-                () => user().precipitationUnit!
+                day.snowfall_sum!
             ),
-            cloud_cover: day.cloud_cover!,
-            hourly_weather: day.hourly_weather?.map((hour) => {
+            temperatureObj: tempObj,
+            hourly_weather: day.hourly_weather?.map((hour, index) => {
                 return {
-                    timeObj: getTimeObj(hour),
-                    precipitation: new PrecipitationClass(
+                    timeObj: timeObj.hours[index],
+                    precipitationObj: new PrecipitationClass(
                         hour.precipitation_probability!,
                         hour.precipitation!,
-                        hour.snowfall!,
-                        () => user().precipitationUnit!
+                        hour.snowfall!
                     ),
-                    cloud_cover: hour.cloud_cover!,
+                    temperatureObj: tempObj.getSetHour(
+                        hour.temperature_2m,
+                        hour.apparent_temperature
+                    ),
                 }
             }),
             current_weather: day.current_weather
                 ? {
-                      timeObj: getTimeObj(day.current_weather),
-                      precipitation: new PrecipitationClass(
-                          100,
-                          day.current_weather.precipitation!,
-                          day.current_weather!.snowfall!,
-                          () => user().precipitationUnit!
+                      timeObj: timeObj.createCurrent(
+                          day.current_weather.time2!
                       ),
-                      cloud_cover: day.current_weather!.cloud_cover!,
+                      precipitationObj: new PrecipitationClass(
+                          day.current_weather.precipitation ? 100 : 0,
+                          day.current_weather.precipitation!,
+                          day.current_weather!.snowfall!
+                      ),
+                      temperatureObj: tempObj.getSetCurrent(
+                          day.current_weather.temperature_2m,
+                          day.current_weather.apparent_temperature
+                      ),
                   }
                 : undefined,
         }
@@ -99,7 +116,6 @@ export default function Page({
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
 
-    const User = useUser().user
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
 
@@ -147,10 +163,14 @@ export default function Page({
         return weatherForecast[selectedDay]
     }
 
+    const getSelectedForecastDayObj = () => {
+        return forecastObj[selectedDay]
+    }
+
     const timeObj = getTimeObj(getSelectedForecast())
 
     const fetchWeather = () => {
-        getWeather(location, User)
+        getWeather(location)
             .then((response) => {
                 return JSON.parse(response)
             })
@@ -159,34 +179,22 @@ export default function Page({
                 setWeatherMetadata(value.metadata)
                 setWeatherForecast(value.forecast)
                 setForecastObj(
-                    handleWeatherForecast(
-                        value.forecast,
-                        value.metadata,
-                        () => User
-                    )
+                    handleWeatherForecast(value.forecast, value.metadata)
                 )
-                console.log(forecastObj)
             })
     }
-    if (!weatherMetadata || User.reload) {
-        console.log('Fetching weather from server')
+    if (!weatherMetadata) {
         fetchWeather()
-        User.reload = false
     }
 
+    const { width, height } = useWindowDimensions()
     return (
         <div className={styles.weatherPage}>
             <div className={styles.contentWrapper}>
                 <div className={styles.landingPage}>
-                    <div className={styles.readoutWrapper} style={{}}>
-                        <CurrentWeatherReport
-                            forecast={getSelectedForecast()}
-                            metadata={weatherMetadata}
-                            timeObj={timeObj}
-                        />
-                        <WeatherPageHeader timeObj={timeObj} />
-                        <div className={styles.spacerElement} />
-                    </div>
+                    <SelectedForecastReadout
+                        forecastObj={getSelectedForecastObj()}
+                    />
                     <div className={styles.chartWrapper} ref={chartWrapperRef}>
                         {chartWrapperRef.current !== null ? (
                             <WeatherChart
@@ -195,10 +203,11 @@ export default function Page({
                                 selectedDay={selectedDay}
                                 handleChartSelect={handleTimeSelect}
                                 timeObj={timeObj}
+                                forecastObj={forecastObj}
                                 parentRef={chartWrapperRef}
                             />
                         ) : (
-                            <></>
+                            <div></div>
                         )}
                     </div>
                     <div className={styles.cardsWrapper}>
