@@ -11,6 +11,7 @@ import {
     OutlinedInput,
     TextField,
     styled,
+    useTheme,
 } from '@mui/material'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -18,7 +19,6 @@ import styles from './navbar.module.scss'
 import { CoordinatesType } from '@/lib/interfaces'
 import palette from '@/lib/export.module.scss'
 import paletteHandler from '@/lib/paletteHandler'
-import { useTheme } from '@/lib/context'
 
 const ValidationOutlinedInput = styled(OutlinedInput)({
     '& input:valid + fieldset': {
@@ -39,7 +39,8 @@ export default function SearchBar() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
     const theme = useTheme()
-    const palette = paletteHandler(theme.theme)
+    const palette = theme.palette
+    //const palette = paletteHandler(theme.theme)
 
     const [userAddress, setUserAddress] = useState<string>('')
     const [isInputError, setIsInputError] = useState<boolean>(false)
@@ -128,7 +129,7 @@ export default function SearchBar() {
                 htmlFor="location-search"
                 className={styles.searchLabel}
                 sx={{
-                    color: palette.textSecondary,
+                    color: palette.text.secondary,
                 }}
             >
                 Location
@@ -136,18 +137,18 @@ export default function SearchBar() {
             <OutlinedInput
                 id="location-search"
                 sx={{
-                    color: palette.textPrimary,
+                    color: palette.text.primary,
                     '& fieldset': {
-                        borderColor: palette.textPrimary,
+                        borderColor: palette.text.secondary,
                     },
                     '& input:valid + fieldset': {
-                        borderColor: palette.textPrimary,
+                        borderColor: palette.text.primary,
                     },
                     '& input:focus + fieldset': {
-                        borderColor: palette.accent,
+                        borderColor: palette.secondary.main,
                     },
                     '& input:valid:focus + fieldset': {
-                        border: `0.1rem solid ${palette.accent}`,
+                        border: `0.1rem solid ${palette.secondary.main}`,
                     },
                 }}
                 className={styles.searchBar}

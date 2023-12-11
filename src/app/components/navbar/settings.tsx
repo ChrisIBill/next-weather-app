@@ -4,90 +4,49 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import styles from './navbar.module.scss'
 import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
-import {
-    ContextUnits,
-    TemperatureUnitType,
-    PrecipitationUnitType,
-    WindSpeedUnitType,
-    TemperatureEnum,
-} from '@/lib/user'
-import { stringLiteralGenerator } from '@/lib/lib'
-import { useColorMode, useTheme, useUser } from '@/lib/context'
-import { useTheme as useMUITheme } from '@mui/material/styles'
+import { useColorMode } from '@/lib/context'
+import { useTheme } from '@mui/material/styles'
+import { useUserPrefsStore } from '@/lib/stores'
 
 export interface SettingsProps {}
 
 export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
-    const [User, setUser] = [useUser().user, useUser().setUser]
+    const userPrefs = useUserPrefsStore()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
     const open = Boolean(anchorEl)
     const settingsRef = React.useRef<HTMLDivElement>(null)
-    const [reload, setReload] = React.useState<boolean>(false)
 
-    const theme = useTheme()
-    const muiTheme = useMUITheme()
-    const mPalette = muiTheme.palette
+    const palette = useTheme().palette
     const colorMode = useColorMode()
 
-    const tempUnits = ContextUnits.TemperatureUnits
-    const windUnits = ContextUnits.WindSpeedUnits
-    const precipUnits = ContextUnits.PrecipitationUnits
-    const themeTypes = ContextUnits.ThemeTypes
-
-    const [tempPref, setTempPref] = React.useState<TemperatureUnitType>(
-        User.tempUnit ? User.tempUnit : TemperatureEnum.fahrenheit
-    )
-    const [windPref, setWindPref] = React.useState<WindSpeedUnitType>(
-        User.windSpeedUnit ? User.windSpeedUnit : 'mph'
-    )
-    const [precipPref, setPrecipPref] = React.useState<PrecipitationUnitType>(
-        User.precipitationUnit ? User.precipitationUnit : 'inch'
-    )
-    const tempGenerator = stringLiteralGenerator(tempPref, tempUnits)
-    const windGenerator = stringLiteralGenerator(windPref, windUnits)
-    const precipGenerator = stringLiteralGenerator(precipPref, precipUnits)
-    const themeGenerator = stringLiteralGenerator(theme.theme, themeTypes)
-
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        console.log('clicked', event.currentTarget)
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
-        if (reload)
-            setUser({
-                tempUnit: tempPref,
-                windSpeedUnit: windPref,
-                precipitationUnit: precipPref,
-                reload: reload,
-                themePrefs: mPalette.mode,
-            })
         setAnchorEl(null)
     }
 
     const handleTemperatureItem = () => {
-        setTempPref(tempGenerator.next().value as TemperatureUnitType)
-        setReload(true)
+        userPrefs.nextTempUnit()
     }
     const handleWindSpeedItem = () => {
-        setWindPref(windGenerator.next().value as WindSpeedUnitType)
-        setReload(true)
+        userPrefs.nextWindUnit()
     }
     const handlePrecipitationItem = () => {
-        setPrecipPref(precipGenerator.next().value as PrecipitationUnitType)
-        setReload(true)
+        userPrefs.nextPrecipitationUnit()
     }
     const handleThemeItem = () => {
-        theme.setTheme(themeGenerator.next().value as 'light' | 'dark')
         colorMode.toggleColorMode()
-        setUser({
-            ...User,
-            themePrefs: mPalette.mode,
-        })
     }
 
     return (
         <div className={styles.settingsWrapper} ref={settingsRef}>
             <IconButton
                 aria-label="settings"
+                aria-controls={open ? 'basic-menu' : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? 'true' : undefined}
                 onClick={handleClick}
                 className={styles.iconButton}
             >
@@ -95,31 +54,43 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                     className={styles.settingsIcon}
                     sx={{
                         fontSize: '2rem',
-                        color: mPalette.primary.contrastText,
+                        color: palette.primary.contrastText,
                     }}
                 />
             </IconButton>
             <Menu
                 className={styles.settingsMenu}
+                disablePortal={true}
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}
+                sx={{
+                    '.MuiPaper-root': {
+                        overflow: 'visible',
+                        height: 'fit-content',
+                        width: 'fit-content',
+                        maxHeight: 'max-content',
+                        maxWidth: 'max-content',
+                        minWidth: 'min-content',
+                        minHeight: 'min-content',
+                    },
+                }}
             >
                 <MenuItem onClick={handleClose}>Animations</MenuItem>
                 <MenuItem onClick={handleThemeItem}>
-                    Theme: {theme.theme}
+                    Theme: {palette.mode}
                 </MenuItem>
                 <MenuItem onClick={handleTemperatureItem}>
-                    Temperature Unit: {tempPref}
+                    Temperature Unit: {userPrefs.temperatureUnit}
                 </MenuItem>
                 <MenuItem onClick={handleWindSpeedItem}>
-                    Wind Speed Unit: {windPref}
+                    Wind Speed Unit: {userPrefs.windUnit}
                 </MenuItem>
                 <MenuItem onClick={handlePrecipitationItem}>
-                    Precipitation Unit: {precipPref}
+                    Precipitation Unit: {userPrefs.precipitationUnit}
                 </MenuItem>
             </Menu>
         </div>
