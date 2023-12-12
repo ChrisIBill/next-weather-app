@@ -4,10 +4,11 @@ import styles from './celestialIcons.module.scss'
 import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
 import { GCProps, PosCoordinates } from '@/lib/interfaces'
 import { bezierCurve } from '@/lib/lib'
-import { TimeObjectType } from '@/lib/time'
+import { TimeClassType } from '@/lib/obj/time'
+import { useTheme } from '@mui/material'
 
 export interface CelestialIconsProps extends GCProps {
-    timeObj: TimeObjectType
+    timeObj?: TimeClassType
     parentRef?: React.RefObject<HTMLDivElement>
     isCard?: boolean
     eclipse?: boolean
@@ -21,12 +22,15 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
     isCard,
 }: CelestialIconsProps) => {
     const ref = React.useRef<HTMLDivElement>(null)
+
+    const palette = useTheme().palette
     //TODO: Should probably handle client scaling higher up the tree
     const width = parentRef?.current?.clientWidth || window.innerWidth
     const height = parentRef?.current?.clientHeight || window.innerHeight
     //const { innerWidth: width, innerHeight: height } = window
-    const isDay = timeObj.isDay
-    const timePercent = timeObj.timePercent
+    const isDay =
+        timeObj?.getIsDay?.() ?? palette.mode === 'light' ? true : false
+    const timePercent = timeObj?.getTimePercent?.() ?? 0.66
 
     const xScale = width / 300
     const yScale = height / 300
@@ -60,7 +64,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
         >
-            {/*<path d={`M${p0.x} ${p0.y} ${bezierPath}`} stroke="#111" /> */}
+            <path d={`M${p0.x} ${p0.y} ${bezierPath}`} stroke="#111" />
             <foreignObject
                 className={styles.svgIconObject}
                 x={bezierPos.x}

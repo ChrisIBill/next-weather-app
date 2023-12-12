@@ -3,6 +3,7 @@
 import { useTheme } from '@mui/material/styles'
 import styles from './dayNightColorLayer.module.scss'
 import { TimeObjectType } from '@/lib/time'
+import { TimeClassType } from '@/lib/obj/time'
 
 export const useBackgroundColors = () => {
     const palette = useTheme().palette
@@ -46,20 +47,21 @@ export const useBackgroundColors = () => {
 }
 
 export interface ColorLayerProps {
-    timeObj: TimeObjectType
+    timeObj?: TimeClassType
 }
 
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     timeObj,
 }: ColorLayerProps) => {
+    const palette = useTheme().palette
     const backgroundColors = useBackgroundColors()
 
-    const timePercent = timeObj.timePercent!
-    const isDay = timeObj.isDay!
+    const timePercent = timeObj?.getTimePercent?.() ?? 0.66
+    const timeOfDay =
+        timeObj?.getTimeOfDay?.() ?? palette.mode === 'dark' ? 'night' : 'day'
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
 
-    const bgColor = backgroundColors[timeObj.timeOfDay!]
-    console.log('Background time of day: ', timeObj.timeOfDay)
+    const bgColor = backgroundColors[timeOfDay]
     const gradientString = `linear-gradient(${angle}deg, ${bgColor.horizon} 0%, ${bgColor.sky} 100%)`
     if (!bgColor) console.log('bgColor undefined', timeObj)
 
@@ -70,7 +72,7 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
                 background: gradientString,
             }}
         >
-            {isDay ? <></> : <StarryNightBackground />}
+            {/*isDay ? <></> : <StarryNightBackground />*/}
         </div>
     )
 }
