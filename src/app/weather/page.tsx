@@ -10,21 +10,14 @@ import {
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { Background } from '../components/background/background'
-import { WeatherPageHeader } from './header'
-import { CurrentWeatherReport } from '../components/weatherReports/dailyWeatherReport'
 import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 import { getTimeObj } from '@/lib/time'
-import { useUser } from '@/lib/context'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
 import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
 import DayTimeClass from '@/lib/obj/time'
 import { SelectedForecastReadout } from '../components/weatherReports/selectedForecastReadout'
-import {
-    TemperatureUnitStringsType,
-    DayTemperatureClass,
-} from '@/lib/obj/temperature'
-import { UserPreferencesInterface, useUserPrefsStore } from '@/lib/stores'
+import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
 
 function handleWeatherSearch(searchParams: {
@@ -261,7 +254,6 @@ export default function Page({
                 <Background
                     weatherForecast={getSelectedForecast()}
                     forecastObj={getSelectedForecastObj()}
-                    timeObj={timeObj}
                 />
                 <div className={styles.gradientLayer} />
             </div>

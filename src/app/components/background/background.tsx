@@ -17,11 +17,11 @@ import { CloudsGenerator } from './clouds'
 import PrecipitationClass, {
     DEFAULT_PRECIPITATION_CLASS,
 } from '@/lib/obj/precipitation'
+import { TimeClassType } from '@/lib/obj/time'
 
 export interface BackgroundProps {
     weatherForecast?: DetailedWeatherDataType
     forecastObj?: ForecastObjectType
-    timeObj?: TimeObjectType
     isCard?: boolean
 }
 
@@ -36,7 +36,6 @@ export const Background: React.FC<BackgroundProps> = (
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
 
-    const palette = useTheme().palette
     const precipObj =
         props.forecastObj?.precipitationObj || DEFAULT_PRECIPITATION_CLASS
 
@@ -110,7 +109,7 @@ export const Background: React.FC<BackgroundProps> = (
             />
             <ClockworkBackgroundComponents
                 isCard={props.isCard}
-                timeObj={props.timeObj}
+                timeObj={props.forecastObj?.timeObj}
             />
         </div>
     )
@@ -118,29 +117,29 @@ export const Background: React.FC<BackgroundProps> = (
 
 interface ClockworkProps {
     isCard?: boolean
-    timeObj?: TimeObjectType
+    timeObj?: TimeClassType
 }
 const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
     const ref = React.useRef<HTMLDivElement>(null)
-    const palette = useTheme().palette
-    const timeObj = props.timeObj
-        ? props.timeObj
-        : {
-              isDay: palette.mode === 'dark' ? false : true,
-              timePercent: 0.5,
-              timeOfDay: palette.mode === 'dark' ? 'night' : 'day',
-          }
+    //TODO: Should probably generate and pass minimum viable objs from background root
+    //const timeObj = props.timeObj
+    //    ? props.timeObj
+    //    : {
+    //          isDay: palette.mode === 'dark' ? false : true,
+    //          timePercent: 0.5,
+    //          timeOfDay: palette.mode === 'dark' ? 'night' : 'day',
+    //      }
 
     return (
         <div className={styles.clockworkWrapper} ref={ref}>
-            {/* <CelestialIconsHandler */}
-            {/*     timeObj={timeObj} */}
-            {/*     parentRef={ref} */}
-            {/*     isCard={props.isCard} */}
-            {/* /> */}
-            <DayNightColorLayer timeObj={timeObj} />
+            <CelestialIconsHandler
+                timeObj={props.timeObj}
+                parentRef={ref}
+                isCard={props.isCard}
+            />
+            <DayNightColorLayer timeObj={props.timeObj} />
         </div>
     )
 }

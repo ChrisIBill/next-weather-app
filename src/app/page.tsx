@@ -24,10 +24,27 @@ export default function Home() {
     const temperatureObj = new HourTemperatureClass(temperature, temperature)
     const precipitationObj = new PrecipitationClass(rainVolume, snowVolume)
     const windObj = new WindClass([windSpeed, windSpeed], 0)
+    const timeHourObj = timeObj.hours[time]
 
-    const handleSliderChange = (event: any, newValue: number | number[]) => {
-        console.log(newValue)
+    const handleTimeChange = (event: any, newValue: number) => {
+        setTime(newValue as number)
     }
+    const handleTemperatureChange = (event: any, newValue: number) => {
+        setTemperature(newValue as number)
+    }
+    const handleRainVolumeChange = (event: any, newValue: number) => {
+        setRainVolume(newValue as number)
+    }
+    const handleSnowVolumeChange = (event: any, newValue: number) => {
+        setSnowVolume(newValue as number)
+    }
+    const handleWindSpeedChange = (event: any, newValue: number) => {
+        setWindSpeed(newValue as number)
+    }
+    const handleCloudCoverChange = (event: any, newValue: number) => {
+        setCloudCover(newValue as number)
+    }
+
     return (
         <div className={styles.landingPage} style={{}}>
             <PlaygroundSliders
@@ -39,11 +56,18 @@ export default function Home() {
                     windSpeed,
                     cloudCover,
                 }}
-                handleSliderChange={handleSliderChange}
+                changeHandlers={{
+                    handleTimeChange,
+                    handleTemperatureChange,
+                    handleRainVolumeChange,
+                    handleSnowVolumeChange,
+                    handleWindSpeedChange,
+                    handleCloudCoverChange,
+                }}
             />
             <Background
                 forecastObj={{
-                    timeObj,
+                    timeObj: timeHourObj,
                     temperatureObj,
                     precipitationObj,
                     windObj,
