@@ -20,10 +20,12 @@ import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
 import DayTimeClass from '@/lib/obj/time'
 import { SelectedForecastReadout } from '../components/weatherReports/selectedForecastReadout'
-import DayTemperatureClass, {
+import {
     TemperatureUnitStringsType,
+    DayTemperatureClass,
 } from '@/lib/obj/temperature'
 import { UserPreferencesInterface, useUserPrefsStore } from '@/lib/stores'
+import WindClass from '@/lib/obj/wind'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -64,6 +66,10 @@ function handleWeatherForecast(
                 day.snowfall_sum!
             ),
             temperatureObj: tempObj,
+            windObj: new WindClass(
+                [day.windspeed_10m_max, day.windgusts_10m_max],
+                day.winddirection_10m_dominant
+            ),
             hourly_weather: day.hourly_weather?.map((hour, index) => {
                 return {
                     timeObj: timeObj.hours[index],
@@ -75,6 +81,10 @@ function handleWeatherForecast(
                     temperatureObj: tempObj.getSetHour(
                         hour.temperature_2m,
                         hour.apparent_temperature
+                    ),
+                    windObj: new WindClass(
+                        [hour.windspeed_10m, hour.windgusts_10m],
+                        hour.winddirection_10m
                     ),
                 }
             }),
@@ -91,6 +101,13 @@ function handleWeatherForecast(
                       temperatureObj: tempObj.getSetCurrent(
                           day.current_weather.temperature_2m,
                           day.current_weather.apparent_temperature
+                      ),
+                      windObj: new WindClass(
+                          [
+                              day.current_weather.windspeed_10m,
+                              day.current_weather.windgusts_10m,
+                          ],
+                          day.current_weather.winddirection_10m
                       ),
                   }
                 : undefined,
@@ -112,13 +129,11 @@ export default function Page({
     const [forecastObj, setForecastObj] = useState<
         DailyWeatherForecastObjectType[]
     >(Array(8).fill(undefined))
-    const [reload, setReload] = useState<boolean>(false)
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
 
     //get user coordinates from search params
     const location = handleWeatherSearch(searchParams)
-
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
     //Handles users time selection, which controls which weather data is displayed in detail
@@ -189,58 +204,67 @@ export default function Page({
 
     const { width, height } = useWindowDimensions()
     return (
-        <div className={styles.weatherPage}>
-            <div className={styles.contentWrapper}>
-                <div className={styles.landingPage}>
-                    <SelectedForecastReadout
-                        forecastObj={getSelectedForecastObj()}
-                    />
-                    <div className={styles.chartWrapper} ref={chartWrapperRef}>
-                        {chartWrapperRef.current !== null ? (
-                            <WeatherChart
-                                forecast={weatherForecast}
-                                metadata={weatherMetadata}
-                                selectedDay={selectedDay}
-                                handleChartSelect={handleTimeSelect}
-                                timeObj={timeObj}
+        <div
+            className={styles.weatherPageWrapper}
+            style={{
+                width: '100vw',
+                height: '100vh',
+                overflowY: 'scroll',
+                overflowX: 'hidden',
+            }}
+        >
+            <div className={styles.weatherPage}>
+                <div className={styles.contentWrapper}>
+                    <div className={styles.landingPage}>
+                        <SelectedForecastReadout
+                            forecastObj={getSelectedForecastObj()}
+                        />
+                        <div
+                            className={styles.chartWrapper}
+                            ref={chartWrapperRef}
+                        >
+                            {chartWrapperRef.current !== null ? (
+                                <WeatherChart
+                                    forecast={weatherForecast}
+                                    metadata={weatherMetadata}
+                                    selectedDay={selectedDay}
+                                    handleChartSelect={handleTimeSelect}
+                                    timeObj={timeObj}
+                                    forecastObj={forecastObj}
+                                    parentRef={chartWrapperRef}
+                                />
+                            ) : (
+                                <div></div>
+                            )}
+                        </div>
+                        <div className={styles.cardsWrapper}>
+                            <WeatherCards
+                                weatherForecast={weatherForecast}
                                 forecastObj={forecastObj}
-                                parentRef={chartWrapperRef}
+                                metadata={weatherMetadata?.units.daily}
+                                handleCardSelect={handleTimeSelect}
+                                selectedDay={
+                                    selectedHour == -1 ? undefined : selectedDay
+                                }
                             />
-                        ) : (
-                            <div></div>
-                        )}
+                        </div>
                     </div>
-                    <div className={styles.cardsWrapper}>
-                        <WeatherCards
-                            weatherForecast={weatherForecast}
-                            forecastObj={forecastObj}
-                            metadata={weatherMetadata?.units.daily}
-                            handleCardSelect={handleTimeSelect}
-                            selectedDay={
-                                selectedHour == -1 ? undefined : selectedDay
-                            }
+
+                    <div className={styles.reportsPage}>
+                        <HourlyWeatherReport
+                            forecast={getSelectedForecastDay()}
+                            metadata={weatherMetadata}
+                            handleTimeSelect={handleTimeSelect}
                         />
                     </div>
                 </div>
-
-                <div className={styles.reportsPage}>
-                    <HourlyWeatherReport
-                        forecast={getSelectedForecastDay()}
-                        metadata={weatherMetadata}
-                        handleTimeSelect={handleTimeSelect}
-                    />
-                </div>
-            </div>
-            {getSelectedForecastObj() ? (
                 <Background
                     weatherForecast={getSelectedForecast()}
                     forecastObj={getSelectedForecastObj()}
                     timeObj={timeObj}
                 />
-            ) : (
-                <></>
-            )}
-            <div className={styles.gradientLayer} />
+                <div className={styles.gradientLayer} />
+            </div>
         </div>
     )
 }
