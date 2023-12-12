@@ -15,6 +15,7 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
     const height = props.height
     const weight = props.precipObj.getMagnitude()
     const numDrops = props.isCard ? 10 * weight : 50 * weight
+
     const dropKeyframe = keyframes`
         0% {
         transform: translateY(0);
@@ -47,7 +48,7 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
                 <div
                     className="stem"
                     style={{
-                        width: `3px`,
+                        width: `${Math.ceil((weight * 3) / 5)}px`,
                         animationDelay: `0.${randoHundo}s`,
                         animationDuration: `0.5${randoHundo}s`,
                     }}
