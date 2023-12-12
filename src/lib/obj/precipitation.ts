@@ -1,8 +1,7 @@
 import { cloneElement } from 'react'
-import { useUserPrefsStore } from '../stores'
+import { PRECIPIATION_UNIT_STRINGS, useUserPrefsStore } from '../stores'
 import { ForecastObjectType } from './forecastClass'
 
-export const PRECIPIATION_UNIT_STRINGS = ['inch', 'mm'] as const
 export const PRECIPITATION_TYPES = ['rain', 'snow', 'hail'] as const
 export type PrecipitationUnitStringsType =
     (typeof PRECIPIATION_UNIT_STRINGS)[number]
@@ -47,7 +46,7 @@ export const DEFAULT_PRECIPITATION_CLASS: PrecipitationClassType = {
 
 export interface PrecipitationClassType {
     _mm: number
-    chance: number
+    chance?: number
     _inch: number | (() => number)
     type: PrecipitationType
     _magnitude: (() => number) | number
@@ -60,7 +59,7 @@ export interface PrecipitationClassType {
 
 export default class PrecipitationClass implements PrecipitationClassType {
     _mm: number
-    chance: number
+    chance?: number
     _inch: number | (() => number)
     type: PrecipitationType
     _magnitude: (() => number) | number
@@ -68,7 +67,7 @@ export default class PrecipitationClass implements PrecipitationClassType {
 
     //Since api returns rain, showers and snow amounts, as well as total precip,
     //we only need to check if snow is present to determine if it's snowing or raining
-    constructor(chance: number, precip: number, snow: number) {
+    constructor(precip: number, snow: number, chance?: number) {
         this._mm = precip
         this.chance = chance
         this._inch = () => this.convertToInch()
@@ -115,6 +114,7 @@ export default class PrecipitationClass implements PrecipitationClassType {
             : 5 //torrential rain
     }
     private getChanceMagnitude(): number {
+        if (!this.chance) return 0
         return this.chance <= 0
             ? 0
             : this.chance < 25
@@ -128,9 +128,10 @@ export default class PrecipitationClass implements PrecipitationClassType {
             : 5
     }
     private generateMagnitude(): number {
+        if (!this.chance) return this.getValueMagnitude()
         return this._mm > 0
             ? this.getValueMagnitude()
-            : this._mm > 0
+            : this.chance > 0
             ? this.getChanceMagnitude()
             : 0
     }
@@ -144,6 +145,7 @@ export default class PrecipitationClass implements PrecipitationClassType {
     }
 
     private calcDisplayString(): string {
+        if (!this.chance) return this.getValueString()
         return this._mm > 0
             ? `${this.getChanceString()} ${this.getValueString()}`
             : this.chance > 0

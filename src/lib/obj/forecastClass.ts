@@ -1,4 +1,8 @@
-import { StringLiteralType, StringLiteralUnion } from '../interfaces'
+import {
+    HourlyForecastObjectType,
+    StringLiteralType,
+    StringLiteralUnion,
+} from '../interfaces'
 
 export interface ForecastObjectType<T> {
     value: number

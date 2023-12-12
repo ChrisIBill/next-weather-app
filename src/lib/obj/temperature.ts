@@ -1,12 +1,11 @@
 import { cloneElement } from 'react'
-import { useUserPrefsStore } from '../stores'
+import { TEMPERATURE_UNIT_STRINGS, useUserPrefsStore } from '../stores'
 
 const LOWEST_TEMPERATURE = -40
 const MEDIAN_TEMPERATURE = 21
 const HIGHEST_TEMPERATURE = 50
 const COLD_TEMPERATURE_RANGE = MEDIAN_TEMPERATURE - LOWEST_TEMPERATURE
 const HOT_TEMPERATURE_RANGE = HIGHEST_TEMPERATURE - MEDIAN_TEMPERATURE
-export const TEMPERATURE_UNIT_STRINGS = ['°F', '°C'] as const
 export type TemperatureUnitStringsType =
     (typeof TEMPERATURE_UNIT_STRINGS)[number]
 type NumUnionType = number | number[]
@@ -34,6 +33,7 @@ export interface TemperatureClassType {
     getAppMagnitude: () => number
     getTempDisplayString: () => string
     getAppTempDisplayString: () => string
+    getAvgTemp: () => number
     getUserTempRange?: () => number[]
     getUserAppTempRange?: () => number[]
     getUserTemp?: () => number
@@ -48,11 +48,32 @@ export interface DayTemperatureClassType extends TemperatureClassType {
     _appMagnitude: (() => number) | number
     hours: HourTemperatureClassType[]
     current?: HourTemperatureClassType
-    _convertToFahrenheit: (vals: NumUnionType) => NumUnionType
-    _calcTemperatureMagnitude: (vals: NumUnionType) => NumUnionType
 }
 
-export default class DayTemperatureClass implements TemperatureClassType {
+function convertToFahrenheit(vals: NumUnionType): NumUnionType {
+    return vals instanceof Array
+        ? vals.map((temp) => (temp * 9) / 5 + 32)
+        : (vals * 9) / 5 + 32
+}
+
+export function calcTemperatureMagnitude(vals: NumUnionType): NumUnionType {
+    try {
+        const avgTemp =
+            typeof vals === 'number' ? vals : vals.reduce((a, b) => a + b)
+        if (avgTemp < LOWEST_TEMPERATURE) return -1
+        else if (avgTemp > HIGHEST_TEMPERATURE) return 1
+        else if (avgTemp <= MEDIAN_TEMPERATURE)
+            return (avgTemp - LOWEST_TEMPERATURE) / COLD_TEMPERATURE_RANGE - 1
+        else if (avgTemp > MEDIAN_TEMPERATURE)
+            return (avgTemp - MEDIAN_TEMPERATURE) / HOT_TEMPERATURE_RANGE
+        else throw new Error('Temperature magnitude error')
+    } catch (err) {
+        console.error(err)
+        return 0
+    }
+}
+
+export class DayTemperatureClass implements TemperatureClassType {
     _celsiusRange: number[]
     _appCelsiusRange: number[]
     _fahrenheitRange: (() => number[]) | number[]
@@ -67,8 +88,8 @@ export default class DayTemperatureClass implements TemperatureClassType {
         celsiusRange: [number?, number?],
         appCelsiusRange: [number?, number?]
     ) {
-        this._celsiusRange = celsiusRange.map((temp) => temp || NaN)
-        this._appCelsiusRange = appCelsiusRange.map((temp) => temp || NaN)
+        this._celsiusRange = celsiusRange.map((temp) => temp ?? NaN)
+        this._appCelsiusRange = appCelsiusRange.map((temp) => temp ?? NaN)
         this._magnitude = () => this.generateMagnitude()
         this._appMagnitude = () => this.generateAppMagnitude()
         this.hours = []
@@ -94,6 +115,12 @@ export default class DayTemperatureClass implements TemperatureClassType {
                 : this._appFahrenheitRange
             : this._appCelsiusRange
     }
+    getAvgTemp(): number {
+        return (
+            this._celsiusRange.reduce((a, b) => a + b) /
+            this._celsiusRange.length
+        )
+    }
     getMagnitude(): number {
         return typeof this._magnitude === 'function'
             ? this._magnitude()
@@ -108,12 +135,12 @@ export default class DayTemperatureClass implements TemperatureClassType {
         celsius?: number,
         appCelsius?: number
     ): HourTemperatureClassType {
-        this.hours.push(new HourTemperatureClass(this, celsius, appCelsius))
+        this.hours.push(new HourTemperatureClass(celsius, appCelsius, this))
         return this.hours[this.hours.length - 1]
     }
     getSetCurrent(celsius?: number, appCelsius?: number) {
         console.log('getSetCurrent', celsius, appCelsius)
-        this.current = new HourTemperatureClass(this, celsius, appCelsius)
+        this.current = new HourTemperatureClass(celsius, appCelsius, this)
         return this.current
     }
     getTempDisplayString(): string {
@@ -133,11 +160,6 @@ export default class DayTemperatureClass implements TemperatureClassType {
                 : this.getUserAppTempRange().map((temp) => temp.toFixed(1))
         return `${tempRange[0]}${userUnit} / ${tempRange[1]}${userUnit}`
     }
-    _convertToFahrenheit = (vals: NumUnionType): NumUnionType => {
-        return vals instanceof Array
-            ? vals.map((temp) => (temp * 9) / 5 + 32)
-            : (vals * 9) / 5 + 32
-    }
 
     //private generateTempDisplayString(): string {
     //    const tempRange = this.getUserTempRange()
@@ -153,43 +175,24 @@ export default class DayTemperatureClass implements TemperatureClassType {
     //    return this._appTempDisplayString
     //}
     private generateFahrenheitRange(): number[] {
-        this._fahrenheitRange = this._convertToFahrenheit(
+        this._fahrenheitRange = convertToFahrenheit(
             this._celsiusRange
         ) as number[]
         return this._fahrenheitRange
     }
     private generateAppFahrenheitRange(): number[] {
-        this._appFahrenheitRange = this._convertToFahrenheit(
+        this._appFahrenheitRange = convertToFahrenheit(
             this._appCelsiusRange
         ) as number[]
         return this._appFahrenheitRange
     }
-    _calcTemperatureMagnitude(vals: NumUnionType): NumUnionType {
-        try {
-            const avgTemp =
-                typeof vals === 'number' ? vals : vals.reduce((a, b) => a + b)
-            if (avgTemp < LOWEST_TEMPERATURE) return -1
-            else if (avgTemp > HIGHEST_TEMPERATURE) return 1
-            else if (avgTemp <= MEDIAN_TEMPERATURE)
-                return (
-                    (avgTemp - LOWEST_TEMPERATURE) / COLD_TEMPERATURE_RANGE - 1
-                )
-            else if (avgTemp > MEDIAN_TEMPERATURE)
-                return (avgTemp - MEDIAN_TEMPERATURE) / HOT_TEMPERATURE_RANGE
-            else throw new Error('Temperature magnitude error')
-        } catch (err) {
-            console.error(err)
-            return 0
-        }
-    }
+
     private generateMagnitude(): number {
-        this._magnitude = this._calcTemperatureMagnitude(
-            this._celsiusRange
-        ) as number
+        this._magnitude = calcTemperatureMagnitude(this._celsiusRange) as number
         return this._magnitude
     }
     private generateAppMagnitude(): number {
-        this._appMagnitude = this._calcTemperatureMagnitude(
+        this._appMagnitude = calcTemperatureMagnitude(
             this._appCelsiusRange
         ) as number
         return this._appMagnitude
@@ -203,7 +206,7 @@ export interface HourTemperatureClassType extends TemperatureClassType {
     _appFahrenheit: number | (() => number)
     _magnitude: number | (() => number)
     _appMagnitude: number | (() => number)
-    day: DayTemperatureClassType
+    day?: DayTemperatureClassType
     getUserTemp: () => number
     getUserAppTemp: () => number
     getMagnitude: () => number
@@ -218,25 +221,24 @@ export class HourTemperatureClass implements HourTemperatureClassType {
     _appMagnitude: number | (() => number)
     //_tempDisplayString: () => string
     //_appTempDisplayString: () => string
-    day: DayTemperatureClassType
+    day?: DayTemperatureClassType
     constructor(
-        day: DayTemperatureClassType,
         celsius?: number,
-        appCelsius?: number
+        appCelsius?: number,
+        day?: DayTemperatureClassType
     ) {
-        this._celsius = celsius || NaN
-        this._appCelsius = appCelsius || NaN
+        this._celsius = celsius ?? NaN
+        this._appCelsius = appCelsius ?? NaN
         this._fahrenheit = () => this.generateFahrenheit()
         this._appFahrenheit = () => this.generateAppFahrenheit()
         this._magnitude = () => this.generateMagnitude()
         this._appMagnitude = () => this.generateAppMagnitude()
         //this._tempDisplayString = () => this.generateTempDisplayString()
         //this._appTempDisplayString = () => this.generateAppTempDisplayString()
-        this.day = day
+        this.day = day ?? undefined
     }
     getUserTemp = (): number => {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        console.log('userUnit: ', userUnit, this._celsius)
         return userUnit === TEMPERATURE_UNIT_STRINGS[0]
             ? typeof this._fahrenheit === 'function'
                 ? this._fahrenheit()
@@ -251,6 +253,9 @@ export class HourTemperatureClass implements HourTemperatureClassType {
                 ? this._appFahrenheit()
                 : this._appFahrenheit
             : this._appCelsius
+    }
+    getAvgTemp(): number {
+        return this._celsius
     }
     getMagnitude(): number {
         return typeof this._magnitude === 'function'
@@ -280,25 +285,19 @@ export class HourTemperatureClass implements HourTemperatureClassType {
         return `${temp}${userUnit}`
     }
     private generateFahrenheit(): number {
-        this._fahrenheit = this.day._convertToFahrenheit(
-            this._celsius
-        ) as number
+        this._fahrenheit = convertToFahrenheit(this._celsius) as number
         return this._fahrenheit
     }
     private generateAppFahrenheit(): number {
-        this._appFahrenheit = this.day._convertToFahrenheit(
-            this._appCelsius
-        ) as number
+        this._appFahrenheit = convertToFahrenheit(this._appCelsius) as number
         return this._appFahrenheit
     }
     private generateMagnitude(): number {
-        this._magnitude = this.day._calcTemperatureMagnitude(
-            this._celsius
-        ) as number
+        this._magnitude = calcTemperatureMagnitude(this._celsius) as number
         return this._magnitude
     }
     private generateAppMagnitude(): number {
-        this._appMagnitude = this.day._calcTemperatureMagnitude(
+        this._appMagnitude = calcTemperatureMagnitude(
             this._appCelsius
         ) as number
         return this._appMagnitude

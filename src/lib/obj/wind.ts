@@ -1,8 +1,26 @@
-import { MemoizedFunction, memoize } from 'lodash'
+import { memoize } from 'lodash'
 
 export const WIND_UNIT_STRINGS = ['ms', 'kph', 'mph', 'kn'] as const
 export type WindUnitStringsType = (typeof WIND_UNIT_STRINGS)[number]
 
+const CARDINAL_DIRECTIONS = [
+    'N',
+    'NNE',
+    'NE',
+    'ENE',
+    'E',
+    'ESE',
+    'SE',
+    'SSE',
+    'S',
+    'SSW',
+    'SW',
+    'WSW',
+    'W',
+    'WNW',
+    'NW',
+    'NNW',
+] as const
 const BEAUFORT_SPEEDS = [
     2,
     5,
@@ -80,13 +98,13 @@ export interface WindClassType {
     _mph: () => number[]
     _ms: () => number[]
     _kn: () => number[]
-    _direction: number
-    _magnitude: () => number
+    _degrees: number
+    _beaufort: () => number[]
     getSpeed: () => number
     getGustSpeed: () => number
-    getDirection: () => number
-    getMagnitude: () => number
+    getCardinalDirection: () => string
     getDescription: () => string
+    getGustDescription: () => string
 }
 
 export interface WindUnitConversionFns {
@@ -110,14 +128,16 @@ export const kphToBeaufort = (speed: number) => {
 export const memoizedKphToMph = memoize(kphToMph)
 export const memoizedKphToMs = memoize(kphToMs)
 export const memoizedKphToKn = memoize(kphToKn)
+export const memoizedKphToBeaufort = memoize(kphToBeaufort)
 
-export class Wind implements WindClassType {
+export default class WindClass implements WindClassType {
     _kph: number[]
     _mph: () => number[]
     _ms: () => number[]
     _kn: () => number[]
-    _direction: number
-    constructor(speeds: [number | undefined], direction: number | undefined) {
+    _degrees: number
+    _beaufort: () => number[]
+    constructor(speeds: [number?, number?], direction: number | undefined) {
         this._kph = speeds.map((val, i) => {
             if (val === undefined) {
                 console.error(
@@ -128,13 +148,12 @@ export class Wind implements WindClassType {
             }
             return val
         })
-        this._mph = () =>
-            this._kph.map((val, index) => memoizedKphToMph(this._kph[index]))
-        this._ms = () =>
-            this._kph.map((val, index) => memoizedKphToMs(this._kph[index]))
-        this._kn = () =>
-            this._kph.map((val, index) => memoizedKphToKn(this._kph[index]))
-        this._direction = direction ?? NaN
+        this._mph = () => this._kph.map((val) => memoizedKphToMph(val))
+        this._ms = () => this._kph.map((val) => memoizedKphToMs(val))
+        this._kn = () => this._kph.map((val) => memoizedKphToKn(val))
+        this._degrees = direction ?? NaN
+        this._beaufort = () =>
+            this._kph.map((val) => memoizedKphToBeaufort(val))
     }
     getSpeed = (): number => {
         const userUnit = localStorage.getItem('windUnit')
@@ -166,17 +185,15 @@ export class Wind implements WindClassType {
                 return this._kph[1]
         }
     }
-    getDirection = (): number => this._direction
-    getMagnitude = (): number => {
-        const index = BEAUFORT_SPEEDS.findIndex((val) => {
-            return this._kph[0] < val
-        })
-        return Math.floor(index / 12)
+    getCardinalDirection = (): string => {
+        const val = Math.floor(this._degrees / 22.5 + 0.5)
+        return CARDINAL_DIRECTIONS[val % 16] ?? 'N/A'
     }
+
     getDescription = (): string => {
-        const index = BEAUFORT_SPEEDS.findIndex((val) => {
-            return this._kph[0] < val
-        })
-        return BEAUFORT_SCALE[index].description
+        return BEAUFORT_SCALE[this._beaufort()[0]].description
+    }
+    getGustDescription = (): string => {
+        return BEAUFORT_SCALE[this._beaufort()[1]].description
     }
 }
