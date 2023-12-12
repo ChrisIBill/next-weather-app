@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { DayNightColorLayer } from './dayNightColorLayer'
@@ -42,11 +43,16 @@ export const Background: React.FC<BackgroundProps> = (
     //TODO: Should probably handle client scaling higher up the tree
     const containerWidth = ref?.current?.clientWidth || window.innerWidth
     const containerHeight = ref?.current?.clientHeight || window.innerHeight
+    const windowHeight = props.isCard ? containerHeight : window.innerHeight
+    const windowWidth = props.isCard ? containerWidth : window.innerWidth
 
     const width = containerWidth
     const height = containerHeight
-    const xScale = containerWidth / 100
-    const yScale = containerHeight / 100
+    const yScale = windowHeight / 100
+    const xScale = windowWidth / 100
+
+    const avgTemp = props.forecastObj?.temperatureObj.getAvgTemp() ?? 20
+    const frozenImageOpacity = avgTemp < 0 ? 0.5 : 0
 
     const forecast = props.weatherForecast
     const cloudCover = forecast
@@ -63,8 +69,25 @@ export const Background: React.FC<BackgroundProps> = (
             ref={ref}
             style={{
                 top: props.isCard ? '0' : '-4rem',
+                overflow: 'hidden',
             }}
         >
+            <Image
+                src="/frozen-corner-1.png"
+                objectFit="scale-down"
+                //fill={true}
+                width={841} //841px
+                height={687} //687px
+                alt="frozen-border"
+                style={{
+                    position: 'absolute',
+                    top: props.isCard ? '0' : '3rem',
+                    zIndex: 50,
+                    opacity: frozenImageOpacity,
+                    //WebkitMaskImage:
+                    //    'radial-gradient(rgba(0,0,0,0), rgba(0,0,0,0), rgba(0,0,0,0), rgba(0,0,0,0.1), rgba(0,0,0,1))',
+                }}
+            />
             <RainBackground
                 isCard={props.isCard ? true : false}
                 precipObj={precipObj as PrecipitationClass}
