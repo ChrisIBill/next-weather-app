@@ -1,13 +1,25 @@
 import { create } from 'zustand'
-import {
-    PRECIPIATION_UNIT_STRINGS,
+import PrecipitationClass, {
+    PrecipitationClassType,
     PrecipitationUnitStringsType,
 } from './obj/precipitation'
 import {
-    TEMPERATURE_UNIT_STRINGS,
+    DayTemperatureClass,
+    DayTemperatureClassType,
+    HourTemperatureClass,
+    HourTemperatureClassType,
     TemperatureUnitStringsType,
 } from './obj/temperature'
-import { WIND_UNIT_STRINGS, WindUnitStringsType } from './obj/wind'
+import WindClass, {
+    WIND_UNIT_STRINGS,
+    WindClassType,
+    WindUnitStringsType,
+} from './obj/wind'
+import { setToRange } from './lib'
+import { TimeOfDayType } from './time'
+import DayTimeClass, { DayTimeClassType, HourTimeClassType } from './obj/time'
+import { CloudClass, CloudClassType, hslType } from './obj/cloudClass'
+import { hsl } from './lib'
 
 export interface UserPreferencesInterface {
     temperatureUnit: TemperatureUnitStringsType
@@ -19,6 +31,9 @@ export const DEFAULT_USER_PREFS: UserPreferencesInterface = {
     windUnit: 'mph',
     precipitationUnit: 'inch',
 }
+export const TEMPERATURE_UNIT_STRINGS = ['°F', '°C'] as const
+export const PRECIPIATION_UNIT_STRINGS = ['inch', 'mm'] as const
+
 export const USER_PREFS_STRINGS = {
     temperatureStrings: TEMPERATURE_UNIT_STRINGS,
     windStrings: WIND_UNIT_STRINGS,
@@ -29,7 +44,13 @@ export type UserPrefsStringsType =
     | (typeof WIND_UNIT_STRINGS)[number]
     | (typeof PRECIPIATION_UNIT_STRINGS)[number]
 export function getFromLocalStorage(key: string) {
-    if (!localStorage || localStorage.getItem(key) === null) return
+    try {
+        return localStorage.getItem(key)
+    } catch (err) {
+        console.error('Couldnt get from local storage, context: ', this)
+        console.error(err)
+        return undefined
+    }
     return localStorage.getItem(key)
 }
 export function setToLocalStorage(key: string, value: string) {
@@ -78,12 +99,7 @@ const getInitialUserPrefs = () => {
     }
     return DEFAULT_USER_PREFS
 }
-function getNextTempUnit(str: TemperatureUnitStringsType) {
-    console.log('initiating string literal generator: ', str)
-    const generator = temperatureUnitStringGenerator(str)
-    const val = generator.next().value
-    return generator
-}
+
 export interface UserPrefsState extends UserPreferencesInterface {
     nextTempUnit: () => void
     nextWindUnit: () => void
@@ -120,8 +136,110 @@ export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
                 ],
         })),
 }))
-export const test = () => {
-    const arrayTest = ['a', 'b', 'c', 'd', 'e'] as const
-    const elem = arrayTest.values()
-    elem.next().value
+
+export interface ForecastObjectStateType {
+    //timeObj: HourTimeClassType | DayTimeClassType
+    //temperatureObj: HourTemperatureClassType | DayTemperatureClassType
+    //precipitationObj: PrecipitationClassType
+    //windObj: WindClassType
+    cloudCover: {
+        state: number
+        setState: (cloudCover: number) => void
+    }
+    cloudLightness: {
+        state: number
+        setState: (cloudLightness: number) => void
+    }
+    [key: string]: {
+        state: number
+        setState: (value: number) => void
+    }
 }
+export const useForecastObjStore = create<ForecastObjectStateType>(
+    (set, get) => ({
+        time: {
+            state: 12,
+            setState: (time: number) => {
+                set((state) => ({
+                    ...state,
+                    time: {
+                        ...state.time,
+                        state: setToRange(time, 0, 23),
+                    },
+                }))
+            },
+        },
+        rainMagnitude: {
+            state: 0,
+            setState: (rainMagnitude: number) => {
+                set((state) => ({
+                    ...state,
+                    rainMagnitude: {
+                        ...state.rainMagnitude,
+                        state: setToRange(rainMagnitude, 0, 5),
+                    },
+                }))
+            },
+        },
+        snowMagnitude: {
+            state: 0,
+            setState: (snowMagnitude: number) => {
+                set((state) => ({
+                    ...state,
+                    snowMagnitude: {
+                        ...state.snowMagnitude,
+                        state: setToRange(snowMagnitude, 0, 5),
+                    },
+                }))
+            },
+        },
+        windSpeed: {
+            state: 0,
+            setState: (windSpeed: number) => {
+                set((state) => ({
+                    ...state,
+                    windSpeed: {
+                        ...state.cloudCover,
+                        state: setToRange(windSpeed, 0, 100),
+                    },
+                }))
+            },
+        },
+        cloudCover: {
+            state: 10,
+            setState: (cloudCover: number) => {
+                set((state) => ({
+                    ...state,
+                    cloudCover: {
+                        ...state.cloudCover,
+                        state: setToRange(cloudCover, 0, 100),
+                    },
+                }))
+            },
+        },
+        cloudLightness: {
+            state: 99,
+            setState: (cloudLightness: number) => {
+                set((state) => ({
+                    ...state,
+                    cloudLightness: {
+                        ...state.cloudLightness,
+                        state: setToRange(cloudLightness, 30, 99),
+                    },
+                }))
+            },
+        },
+        temperature: {
+            state: 20,
+            setState: (temperature: number) => {
+                set((state) => ({
+                    ...state,
+                    temperature: {
+                        ...state.temperature,
+                        state: setToRange(temperature, -40, 50),
+                    },
+                }))
+            },
+        },
+    })
+)

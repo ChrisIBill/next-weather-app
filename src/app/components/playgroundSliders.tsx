@@ -1,29 +1,12 @@
 import { Paper, Slider, Typography, useTheme } from '@mui/material'
 import styles from './playgroundSliders.module.scss'
-import { HourlyForecastObjectType } from '@/lib/interfaces'
+import { useForecastObjStore } from '@/lib/stores'
+import React from 'react'
 
-export interface PlaygroundSlidersProps {
-    forecastVars: {
-        time: number
-        temperature: number
-        rainVolume: number
-        snowVolume: number
-        windSpeed: number
-        cloudCover: number
-    }
-    changeHandlers: {
-        handleTimeChange: (event: any, newValue: number) => void
-        handleTemperatureChange: (event: any, newValue: number) => void
-        handleRainVolumeChange: (event: any, newValue: number) => void
-        handleSnowVolumeChange: (event: any, newValue: number) => void
-        handleWindSpeedChange: (event: any, newValue: number) => void
-        handleCloudCoverChange: (event: any, newValue: number) => void
-    }
-}
+export interface PlaygroundSlidersProps {}
 export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
     props: PlaygroundSlidersProps
 ) => {
-    const palette = useTheme().palette
     return (
         <Paper
             className={styles.sliderWrapper}
@@ -31,70 +14,87 @@ export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
                 padding: '1rem',
                 position: 'relative',
                 zIndex: 100,
-                backgroundColor: palette.primary.main,
             }}
         >
-            <Typography id="continuous-slider">Time</Typography>
-            <Slider
-                size="small"
+            <GenericPlaygroundSlider
+                disabled
+                label="Time"
+                min={0}
                 max={23}
-                marks
-                step={1}
-                value={props.forecastVars.time}
-                onChange={(event, newValue) =>
-                    props.changeHandlers.handleTimeChange(
-                        event,
-                        newValue as number
-                    )
-                }
-                aria-label="Time Slider"
-                valueLabelDisplay="auto"
-                sx={{
-                    width: '10rem',
-                }}
+                storeKey="time"
             />
-            <Typography id="continuous-slider">Temperature</Typography>
-            <Slider
-                size="small"
-                value={props.forecastVars.temperature}
+            <GenericPlaygroundSlider
+                disabled
+                label="Temperature"
                 min={-40}
                 max={50}
-                onChange={(event, newValue) =>
-                    props.changeHandlers.handleTemperatureChange(
-                        event,
-                        newValue as number
-                    )
-                }
-                aria-label="Temperature Slider"
-                valueLabelDisplay="auto"
+                storeKey="temperature"
             />
-            <Typography>Rain Volume</Typography>
-            <Slider
-                size="small"
-                value={props.forecastVars.rainVolume}
+            <GenericPlaygroundSlider
+                label="Rain Volume"
                 min={0}
-                max={50}
-                onChange={(event, newValue) =>
-                    props.changeHandlers.handleRainVolumeChange(
-                        event,
-                        newValue as number
-                    )
-                }
-                aria-label="Rain Volume Slider"
-                valueLabelDisplay="auto"
+                max={5}
+                storeKey="rainMagnitude"
             />
-            <Typography>Wind Speed</Typography>
-            <Slider
-                size="small"
-                value={props.forecastVars.windSpeed}
-                onChange={(event, newValue) =>
-                    props.changeHandlers.handleWindSpeedChange(
-                        event,
-                        newValue as number
-                    )
-                }
-                aria-label="Wind Slider"
+            <GenericPlaygroundSlider
+                disabled
+                label="Snow Volume"
+                min={0}
+                max={5}
+                storeKey="snowMagnitude"
+            />
+            <GenericPlaygroundSlider
+                disabled
+                label="Wind Speed"
+                min={0}
+                max={100}
+                storeKey="windSpeed"
+            />
+            <GenericPlaygroundSlider
+                label="Cloud Cover"
+                min={0}
+                max={100}
+                storeKey="cloudCover"
+            />
+            <GenericPlaygroundSlider
+                label="Cloud Color"
+                min={30}
+                max={99}
+                storeKey="cloudLightness"
             />
         </Paper>
+    )
+}
+
+interface GenericPlaygroundSliderProps {
+    disabled?: boolean
+    label: string
+    min: number
+    max: number
+    storeKey: string
+}
+
+const GenericPlaygroundSlider: React.FC<GenericPlaygroundSliderProps> = (
+    props: GenericPlaygroundSliderProps
+) => {
+    console.log('GenericPlaygroundSlider: ', props)
+    const state = useForecastObjStore((state) => state[props.storeKey]['state'])
+    const setState = useForecastObjStore(
+        (state) => state[props.storeKey]['setState']
+    )
+    console.log('GenericPlaygroundSlider2: ', state, setState)
+    return (
+        <div className={styles.sliderWrapper}>
+            <Typography>{props.label}</Typography>
+            <Slider
+                size="small"
+                min={props.min}
+                max={props.max}
+                disabled={props.disabled}
+                value={state}
+                onChange={(event, newValue) => setState(newValue as number)}
+                aria-label={`${props.label} Slider`}
+            />
+        </div>
     )
 }
