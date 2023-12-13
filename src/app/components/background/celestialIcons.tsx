@@ -2,12 +2,11 @@
 import React, { useEffect } from 'react'
 import styles from './celestialIcons.module.scss'
 import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
-import { GCProps, PosCoordinates } from '@/lib/interfaces'
 import { bezierCurve } from '@/lib/lib'
 import { TimeClassType } from '@/lib/obj/time'
 import { useTheme } from '@mui/material'
 
-export interface CelestialIconsProps extends GCProps {
+export interface CelestialIconsProps {
     timeObj?: TimeClassType
     parentRef?: React.RefObject<HTMLDivElement>
     isCard?: boolean
@@ -21,6 +20,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsProps> = ({
     parentRef,
     isCard,
 }: CelestialIconsProps) => {
+    //TODO: Need a static and dynamic version of this, static for cards, dynamic for main, for better handling of state
     const ref = React.useRef<HTMLDivElement>(null)
 
     const palette = useTheme().palette

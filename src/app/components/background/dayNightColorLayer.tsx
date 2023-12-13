@@ -57,8 +57,8 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
     const backgroundColors = useBackgroundColors()
 
     const timePercent = timeObj?.getTimePercent?.() ?? 0.66
-    const timeOfDay =
-        timeObj?.getTimeOfDay?.() ?? palette.mode === 'dark' ? 'night' : 'day'
+    const timeOfDay = timeObj?.getTimeOfDay?.() ?? 'morning'
+    console.log('DayNightColorLayer: ', timeObj, timePercent, timeOfDay)
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
 
     const bgColor = backgroundColors[timeOfDay]

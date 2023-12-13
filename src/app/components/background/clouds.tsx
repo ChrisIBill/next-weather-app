@@ -1,19 +1,20 @@
 /** @jsxImportSource @emotion/react */
 import React, { useEffect } from 'react'
 import styles from './clouds.module.scss'
-import { bezierCurve } from '@/lib/lib'
+import { bezierCurve, hsl } from '@/lib/lib'
 import { TimeObjectType } from '@/lib/time'
 import { jsx, css, Global, keyframes } from '@emotion/react'
 import { useTheme } from '@mui/material'
 import { useWindowDimensions } from '@/lib/hooks'
 import { BackgroundComponentsProps } from './background'
+import { useForecastObjStore } from '@/lib/stores'
+import { CLOUD_COLOR_MAP, getCloudColor, hslType } from '@/lib/obj/cloudClass'
 
 export interface CloudsProps {
     index: number
     width: number
     height: number
     baseHeight: number
-    color: string
     zIndex?: number
     scale?: number
     arch: number
@@ -24,13 +25,12 @@ export const Clouds: React.FC<CloudsProps> = ({
     width,
     height,
     baseHeight,
-    color,
     zIndex = 0,
     scale = 1,
     arch,
     startPos,
 }: CloudsProps) => {
-    const speed = 8 + index * 3 + Math.random() * 2
+    const speed = 20 + index * 5 + Math.random() * 2
     const cloudsKeyframe = keyframes`
         from {
             transform: translateX(${0}px);
@@ -65,27 +65,50 @@ export const Clouds: React.FC<CloudsProps> = ({
                 left: `${-startPos}px`,
             }}
         >
-            <svg
-                className={styles.cloud}
-                width={width * 4}
+            <Cloud
+                testPath={testPath}
+                index={index}
+                width={width}
                 height={height}
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <path d={testPath} fill={color} style={{}} />
-            </svg>
+            />
         </div>
     )
 }
 
-export interface CloudsGeneratorProps extends BackgroundComponentsProps {
-    cloudCover: number
+export interface CloudProps {
+    testPath: string
+    index: number
+    width: number
+    height: number
 }
 
-export const CloudsGenerator: React.FC<Clouds2GeneratorProps> = (props) => {
+export const Cloud: React.FC<CloudProps> = (props) => {
     const palette = useTheme().palette
+    const cloudLightness = useForecastObjStore(
+        (state) => state.cloudLightness.state
+    )
+    const cloudColor = `hsl(0, 0%, ${
+        cloudLightness - props.index * 5 - (palette.mode === 'dark' ? 15 : 0)
+    }%)`
+
+    return (
+        <svg
+            className={styles.cloud}
+            width={props.width * 4}
+            height={props.height}
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path d={props.testPath} fill={cloudColor} style={{}} />
+        </svg>
+    )
+}
+
+export const CloudsGenerator: React.FC<BackgroundComponentsProps> = (props) => {
     const windowDimensions = useWindowDimensions()
-    const numClouds = Math.round(props.cloudCover / 25)
+    const cloudCover = useForecastObjStore((state) => state.cloudCover.state)
+    const numClouds = Math.round(cloudCover / 25)
+    console.log('clouds: ', cloudCover, numClouds)
     const [xScale, yScale] = [props.xScale, props.yScale]
     const width = xScale * 100
 
@@ -103,7 +126,6 @@ export const CloudsGenerator: React.FC<Clouds2GeneratorProps> = (props) => {
                 width={width}
                 height={height}
                 baseHeight={baseHeight}
-                color={palette.grey[(i + 1) * 100]}
                 zIndex={5 - i}
                 startPos={startPos}
                 scale={xScale}

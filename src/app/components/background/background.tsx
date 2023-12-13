@@ -54,13 +54,6 @@ export const Background: React.FC<BackgroundProps> = (
     const frozenImageOpacity = avgTemp < 0 ? 0.5 : 0
 
     const forecast = props.weatherForecast
-    const cloudCover = forecast
-        ? forecast.cloudcover !== undefined
-            ? forecast.cloudcover
-            : forecast.avg_cloudcover !== undefined
-            ? forecast.avg_cloudcover
-            : 50
-        : 50
 
     return (
         <div
@@ -105,19 +98,14 @@ export const Background: React.FC<BackgroundProps> = (
                 yScale={props.isCard ? yScale : window.innerHeight / 100}
                 width={width}
                 height={props.isCard ? height : window.innerHeight}
-                cloudCover={cloudCover as number}
             />
-            <ClockworkBackgroundComponents
-                isCard={props.isCard}
-                timeObj={props.forecastObj?.timeObj}
-            />
+            <ClockworkBackgroundComponents isCard={props.isCard} />
         </div>
     )
 }
 
 interface ClockworkProps {
     isCard?: boolean
-    timeObj?: TimeClassType
 }
 const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
@@ -134,12 +122,8 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
 
     return (
         <div className={styles.clockworkWrapper} ref={ref}>
-            <CelestialIconsHandler
-                timeObj={props.timeObj}
-                parentRef={ref}
-                isCard={props.isCard}
-            />
-            <DayNightColorLayer timeObj={props.timeObj} />
+            <CelestialIconsHandler parentRef={ref} isCard={props.isCard} />
+            <DayNightColorLayer />
         </div>
     )
 }
