@@ -185,8 +185,8 @@ export default class DayTimeClass implements DayTimeClassType {
     constructor(value: number, sunrise?: number, sunset?: number) {
         this.value = value //Start of day so 12:00 AM
         this.dateObj = dayjs.unix(value)
-        this.sunrise = sunrise || value + 21600 //6:00 AM
-        this.sunset = sunset || value + 64800 //6:00 PM
+        this.sunrise = sunrise ?? value + 21600 //6:00 AM
+        this.sunset = sunset ?? value + 64800 //6:00 PM
         this.hours = this.constructHours()
     }
     constructHours = () => {
@@ -276,15 +276,11 @@ export default class DayTimeClass implements DayTimeClassType {
             })
             return false
         }
-        toString()
     }
 }
 
 export interface HourTimeClassType extends TimeClassType {
     day: DayTimeClass
-    //clockString: (() => string) | string
-    //timePercent: (() => number) | number
-    //timeOfDay: (() => TimeOfDayType) | TimeOfDayType
     getIsDay: () => boolean
     getTimePercent: () => number
     getTimeOfDay: () => TimeOfDayType
@@ -347,9 +343,9 @@ export class HourTimeClass implements HourTimeClassType {
                     else return 'evening'
                 }
                 case false: {
-                    if (timePercent < 0.2) return 'night'
+                    if (timePercent < 0.2) return 'evening'
                     else if (timePercent < 0.8) return 'night'
-                    else return 'night'
+                    else return 'morning'
                 }
                 default: {
                     return 'night'

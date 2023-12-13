@@ -2,94 +2,11 @@ import { memoize } from 'lodash'
 
 export const WIND_UNIT_STRINGS = ['ms', 'kph', 'mph', 'kn'] as const
 export type WindUnitStringsType = (typeof WIND_UNIT_STRINGS)[number]
-
-const CARDINAL_DIRECTIONS = [
-    'N',
-    'NNE',
-    'NE',
-    'ENE',
-    'E',
-    'ESE',
-    'SE',
-    'SSE',
-    'S',
-    'SSW',
-    'SW',
-    'WSW',
-    'W',
-    'WNW',
-    'NW',
-    'NNW',
-] as const
-const BEAUFORT_SPEEDS = [
-    2,
-    5,
-    11,
-    19,
-    28,
-    38,
-    49,
-    61,
-    74,
-    88,
-    102,
-    117,
-    Infinity,
-] as const
-const BEAUFORT_SCALE = [
-    {
-        speed: 2,
-        description: 'calm',
-    },
-    {
-        speed: 5,
-        description: 'light air',
-    },
-    {
-        speed: 11,
-        description: 'light breeze',
-    },
-    {
-        speed: 19,
-        description: 'gentle breeze',
-    },
-    {
-        speed: 28,
-        description: 'moderate breeze',
-    },
-    {
-        speed: 38,
-        description: 'fresh breeze',
-    },
-    {
-        speed: 49,
-        description: 'strong breeze',
-    },
-    {
-        speed: 61,
-        description: 'high wind',
-    },
-    {
-        speed: 74,
-        description: 'gale',
-    },
-    {
-        speed: 88,
-        description: 'strong gale',
-    },
-    {
-        speed: 102,
-        description: 'storm',
-    },
-    {
-        speed: 117,
-        description: 'violent storm',
-    },
-    {
-        speed: Infinity,
-        description: 'hurricane',
-    },
-] as const
+import {
+    BEAUFORT_SCALE,
+    CARDINAL_DIRECTIONS,
+    BEAUFORT_SPEEDS,
+} from './constants'
 
 export type BeaufortScaleType = (typeof BEAUFORT_SCALE)[number]
 
@@ -105,12 +22,6 @@ export interface WindClassType {
     getCardinalDirection: () => string
     getDescription: () => string
     getGustDescription: () => string
-}
-
-export interface WindUnitConversionFns {
-    kphToMph: (speed: number) => number
-    kphToMs: (speed: number) => number
-    kphToKn: (speed: number) => number
 }
 
 export const kphToMph = (speed: number) => {
