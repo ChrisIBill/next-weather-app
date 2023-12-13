@@ -108,15 +108,12 @@ export function bezierCurve(
  * @param {string} s - a string in the array
  * @param {string[]} strs - an array of string
  */
-export const stringLiteralGenerator = function* (
-    s: string,
-    strs: readonly string[]
-) {
-    let i = strs.indexOf(s)
-    while (i < strs.length) {
-        i += 1
-        if (i === strs.length) i = 0
+export const stringLiteralGenerator = function* (s: string, strs: readonly []) {
+    let i = 0
+    if (strs.includes(s)) i = strs.indexOf(s)
+    while (true) {
         yield strs[i]
+        i = (i + 1) % strs.length
     }
 }
 
@@ -156,4 +153,56 @@ export const flattenObject = (obj: any) => {
     })
 
     return flattened
+}
+
+//class LazyPromise<T> extends Promise<T> {
+//    private _executor: (resolve: (value: unknown) => void, reject: (reason?: any) => void) => void
+//    /** @param {ConstructorParameters<PromiseConstructor>[0]} executor */
+//    constructor(executor: ConstructorParameters<PromiseConstructor>[0]) {
+//        super(executor)
+//        if (typeof executor !== 'function') {
+//            throw new TypeError(`LazyPromise executor is not a function`)
+//        }
+//        this._executor = executor
+//    }
+//    then() {
+//        this.promise = this.promise || new Promise(this._executor)
+//        return this.promise.then.apply(this.promise, arguments)
+//    }
+//}
+export function memoize<R, T extends (...args: any[]) => R>(f: T): T {
+    const memory = new Map<string, R>()
+
+    const g = (...args: any[]) => {
+        if (!memory.get(args.join())) {
+            memory.set(args.join(), f(...args))
+        }
+
+        return memory.get(args.join())
+    }
+
+    return g as T
+}
+
+export interface hslType {
+    hue: number
+    saturation: number
+    lightness: number
+}
+export class hsl implements hslType {
+    hue: number
+    saturation: number
+    lightness: number
+    constructor(hue: number, saturation: number, lightness: number) {
+        this.hue = hue
+        this.saturation = saturation
+        this.lightness = lightness
+    }
+    toString() {
+        return `hsl(${this.hue}, ${this.saturation}%, ${this.lightness}%)`
+    }
+}
+
+export function setToRange(val: number, min: number, max: number): number {
+    return Math.min(Math.max(val, min), max)
 }
