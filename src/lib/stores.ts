@@ -16,21 +16,36 @@ import WindClass, {
     WindUnitStringsType,
 } from './obj/wind'
 import { setToRange } from './lib'
-import { TimeOfDayType } from './time'
+import { TimeOfDayType } from './obj/time'
 import DayTimeClass, { DayTimeClassType, HourTimeClassType } from './obj/time'
 import { CloudClass, CloudClassType, hslType } from './obj/cloudClass'
 import { hsl } from './lib'
 
 export interface UserPreferencesInterface {
+    animationLevel: number
     temperatureUnit: TemperatureUnitStringsType
     windUnit: WindUnitStringsType
     precipitationUnit: PrecipitationUnitStringsType
 }
 export const DEFAULT_USER_PREFS: UserPreferencesInterface = {
+    animationLevel: 3,
     temperatureUnit: '°F',
     windUnit: 'mph',
     precipitationUnit: 'inch',
 }
+export const enum AnimationLevelsEnum {
+    None,
+    Low,
+    Medium,
+    High,
+}
+export const ANIMATION_LEVELS = [
+    AnimationLevelsEnum.None,
+    AnimationLevelsEnum.Low,
+    AnimationLevelsEnum.Medium,
+    AnimationLevelsEnum.High,
+] as const
+export const ANIMATION_PREF_STRINGS = ['None', 'Low', 'Medium', 'High'] as const
 export const TEMPERATURE_UNIT_STRINGS = ['°F', '°C'] as const
 export const PRECIPIATION_UNIT_STRINGS = ['inch', 'mm'] as const
 
@@ -40,14 +55,16 @@ export const USER_PREFS_STRINGS = {
     precipitationStrings: PRECIPIATION_UNIT_STRINGS,
 } as const
 export type UserPrefsStringsType =
+    | (typeof ANIMATION_PREF_STRINGS)[number]
     | (typeof TEMPERATURE_UNIT_STRINGS)[number]
     | (typeof WIND_UNIT_STRINGS)[number]
     | (typeof PRECIPIATION_UNIT_STRINGS)[number]
 export function getFromLocalStorage(key: string) {
     try {
+        //TODO: this catches if ran on server, but dont think this should be running on server in first place
+        if (typeof window === 'undefined') return undefined
         return localStorage.getItem(key)
     } catch (err) {
-        console.error('Couldnt get from local storage, context: ', this)
         console.error(err)
         return undefined
     }
@@ -55,7 +72,8 @@ export function getFromLocalStorage(key: string) {
 }
 export function setToLocalStorage(key: string, value: string) {
     try {
-        setToLocalStorage(key, value)
+        if (typeof window === 'undefined') return
+        localStorage.setItem(key, JSON.stringify(value))
     } catch (err) {
         console.log(err)
         throw new Error('Error setting to local storage')
@@ -64,7 +82,7 @@ export function setToLocalStorage(key: string, value: string) {
 
 function setInitialUserPref<T>(localKey: string, keys: ReadonlyArray<T>) {
     const pref = getFromLocalStorage(localKey)
-    console.log('initial pref from local: ', pref)
+    console.log(`initial pref ${localKey} from local: `, pref)
     if (pref && keys.includes(pref as any)) {
         console.log('pref is valid')
         return pref as T
@@ -83,6 +101,9 @@ const temperatureUnitStringGenerator = function* (
 }
 
 const getInitialUserPrefs = () => {
+    const animationLevel = parseInt(
+        getFromLocalStorage('animationLevel') ?? '3'
+    )
     const temperatureUnit =
         setInitialUserPref('tempUnit', TEMPERATURE_UNIT_STRINGS) || '°C'
     const windUnit =
@@ -90,32 +111,42 @@ const getInitialUserPrefs = () => {
     const precipitationUnit =
         setInitialUserPref('precipitationUnit', PRECIPIATION_UNIT_STRINGS) ||
         'mm'
-    if (temperatureUnit && windUnit && precipitationUnit) {
-        return {
-            temperatureUnit,
-            windUnit,
-            precipitationUnit,
-        }
+    return {
+        animationLevel,
+        temperatureUnit,
+        windUnit,
+        precipitationUnit,
     }
     return DEFAULT_USER_PREFS
 }
 
 export interface UserPrefsState extends UserPreferencesInterface {
+    nextAnimationLevel: () => void
     nextTempUnit: () => void
     nextWindUnit: () => void
     nextPrecipitationUnit: () => void
 }
 export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
     ...getInitialUserPrefs(),
-    nextTempUnit: () =>
+    nextAnimationLevel: () =>
         set((state) => ({
-            temperatureUnit:
+            animationLevel: (state.animationLevel + 1) % 4,
+        })),
+
+    nextTempUnit: () => {
+        set((state) => {
+            const nextUnit =
                 TEMPERATURE_UNIT_STRINGS[
                     (TEMPERATURE_UNIT_STRINGS.indexOf(state.temperatureUnit) +
                         1) %
                         TEMPERATURE_UNIT_STRINGS.length
-                ],
-        })),
+                ]
+            setToLocalStorage('tempUnit', nextUnit)
+            return {
+                temperatureUnit: nextUnit,
+            }
+        })
+    },
     nextWindUnit: () =>
         set((state) => ({
             windUnit:
@@ -142,6 +173,38 @@ export interface ForecastObjectStateType {
     //temperatureObj: HourTemperatureClassType | DayTemperatureClassType
     //precipitationObj: PrecipitationClassType
     //windObj: WindClassType
+    time: {
+        state: 'current' | [number, number | undefined] //[day, hour]
+        setState: (time: 'current' | [number, number]) => void
+    }
+    timePercent: {
+        state: number
+        setState: (timePercent: number) => void
+    }
+    isDay: {
+        state: boolean
+        setState: (isDay: boolean) => void
+    }
+    timeOfDay: {
+        state: TimeOfDayType
+        setState: (timeOfDay: TimeOfDayType) => void
+    }
+    rainMagnitude: {
+        state: number
+        setState: (rainMagnitude: number) => void
+    }
+    snowMagnitude: {
+        state: number
+        setState: (snowMagnitude: number) => void
+    }
+    windSpeed: {
+        state: number
+        setState: (windSpeed: number) => void
+    }
+    temperature: {
+        state: number
+        setState: (temperature: number) => void
+    }
     cloudCover: {
         state: number
         setState: (cloudCover: number) => void
@@ -150,21 +213,63 @@ export interface ForecastObjectStateType {
         state: number
         setState: (cloudLightness: number) => void
     }
-    [key: string]: {
-        state: number
-        setState: (value: number) => void
-    }
 }
 export const useForecastObjStore = create<ForecastObjectStateType>(
     (set, get) => ({
         time: {
-            state: 12,
-            setState: (time: number) => {
+            state: [0, 12],
+            setState: (
+                time: 'current' | [number, number | undefined] = 'current'
+            ) => {
                 set((state) => ({
                     ...state,
                     time: {
                         ...state.time,
-                        state: setToRange(time, 0, 23),
+                        state:
+                            time === 'current'
+                                ? 'current'
+                                : [
+                                      setToRange(time[0], 0, 7),
+                                      time[1]
+                                          ? setToRange(time[1], 0, 23)
+                                          : undefined,
+                                  ],
+                    },
+                }))
+            },
+        },
+        timePercent: {
+            state: 0.66,
+            setState: (timePercent: number) => {
+                set((state) => ({
+                    ...state,
+                    timePercent: {
+                        ...state.timePercent,
+                        state: setToRange(timePercent, 0, 100),
+                    },
+                }))
+            },
+        },
+        isDay: {
+            state: true,
+            setState: (isDay: boolean) => {
+                set((state) => ({
+                    ...state,
+                    isDay: {
+                        ...state.isDay,
+                        state: isDay,
+                    },
+                }))
+            },
+        },
+        timeOfDay: {
+            state: 'day',
+            setState: (timeOfDay: TimeOfDayType) => {
+                set((state) => ({
+                    ...state,
+                    timeOfDay: {
+                        ...state.timeOfDay,
+                        state: timeOfDay,
                     },
                 }))
             },

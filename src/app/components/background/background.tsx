@@ -1,14 +1,19 @@
+'use client'
 import Image from 'next/image'
 import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { DayNightColorLayer } from './dayNightColorLayer'
-import { CelestialIconsHandler } from './celestialIcons'
+import {
+    CelestialIconsHandler,
+    CelestialIconsHandlerProps,
+    CelestialIconsProps,
+} from './celestialIcons'
 import {
     TimeObjectType,
     clockTimeToMinutes,
     dayLengthCalculator,
 } from '@/lib/time'
-import { RainBackground } from '@/app/rain'
+import { RainBackground, RainBackgroundStateWrapper } from '@/app/rain'
 import { DetailedWeatherDataType, ForecastObjectType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { useTheme } from '@mui/material/styles'
@@ -17,12 +22,14 @@ import { CloudsGenerator } from './clouds'
 import PrecipitationClass, {
     DEFAULT_PRECIPITATION_CLASS,
 } from '@/lib/obj/precipitation'
-import { TimeClassType } from '@/lib/obj/time'
+import { DayTimeClassType, TimeClassType } from '@/lib/obj/time'
+import frozenImageOverlay from '/public/frozen-corner-1.png'
+import dynamic from 'next/dynamic'
 
 export interface BackgroundProps {
-    weatherForecast?: DetailedWeatherDataType
     forecastObj?: ForecastObjectType
     isCard?: boolean
+    //timeObj: DayTimeClassType[]
 }
 
 export interface BackgroundComponentsProps {
@@ -34,26 +41,51 @@ export interface BackgroundComponentsProps {
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
+    const [containerDimensions, setContainerDimensions] = React.useState({
+        width: 0,
+        height: 0,
+    })
+
     const ref = React.useRef<HTMLDivElement>(null)
 
     const precipObj =
         props.forecastObj?.precipitationObj || DEFAULT_PRECIPITATION_CLASS
 
     //TODO: Should probably handle client scaling higher up the tree
-    const containerWidth = ref?.current?.clientWidth || window.innerWidth
-    const containerHeight = ref?.current?.clientHeight || window.innerHeight
-    const windowHeight = props.isCard ? containerHeight : window.innerHeight
-    const windowWidth = props.isCard ? containerWidth : window.innerWidth
+    const windowDimensions = useWindowDimensions()
 
-    const width = containerWidth
-    const height = containerHeight
-    const yScale = windowHeight / 100
-    const xScale = windowWidth / 100
+    const width = containerDimensions.width
+    const height = containerDimensions.height
+    const yScale = height / 100
+    const xScale = width / 100
 
     const avgTemp = props.forecastObj?.temperatureObj.getAvgTemp() ?? 20
     const frozenImageOpacity = avgTemp < 0 ? 0.5 : 0
 
-    const forecast = props.weatherForecast
+    useEffect(() => {
+        //if card then need container dimensions, otherwise use window dimensions
+        const handleContainerDimensions = () => {
+            console.log('handleContainerDimensions')
+            if (props.isCard && ref.current)
+                return {
+                    width: ref.current.clientWidth,
+                    height: ref.current.clientHeight,
+                }
+            else if (typeof window !== 'undefined')
+                return {
+                    width: window.innerWidth,
+                    height: window.innerHeight,
+                }
+            else
+                return {
+                    width: 0,
+                    height: 0,
+                }
+        }
+        const { width, height } = handleContainerDimensions()
+        console.log('width, height', width, height)
+        setContainerDimensions(handleContainerDimensions())
+    }, [props.isCard, windowDimensions])
 
     return (
         <div
@@ -65,11 +97,11 @@ export const Background: React.FC<BackgroundProps> = (
             }}
         >
             <Image
-                src="/frozen-corner-1.png"
-                objectFit="scale-down"
+                src={frozenImageOverlay}
+                //objectFit="scale-down"
                 //fill={true}
-                width={841} //841px
-                height={687} //687px
+                //width={841} //841px
+                //height={687} //687px
                 alt="frozen-border"
                 style={{
                     position: 'absolute',
@@ -80,50 +112,62 @@ export const Background: React.FC<BackgroundProps> = (
                     //    'radial-gradient(rgba(0,0,0,0), rgba(0,0,0,0), rgba(0,0,0,0), rgba(0,0,0,0.1), rgba(0,0,0,1))',
                 }}
             />
-            <RainBackground
+            <RainBackgroundStateWrapper
                 isCard={props.isCard ? true : false}
                 precipObj={precipObj as PrecipitationClass}
                 xScale={xScale}
                 yScale={yScale}
                 width={width}
                 height={height}
-                precipitation_probability={
-                    forecast?.precipitation_probability as number
-                }
-                precipitation={forecast?.precipitation as number}
-                precipitation_type={forecast?.precipitation_type as string}
             />
             <CloudsGenerator
                 xScale={xScale}
-                yScale={props.isCard ? yScale : window.innerHeight / 100}
+                //yScale={props.isCard ? yScale : window.innerHeight / 100}
+                yScale={yScale}
                 width={width}
-                height={props.isCard ? height : window.innerHeight}
+                //height={props.isCard ? height : window.innerHeight}
+                height={height}
             />
-            <ClockworkBackgroundComponents isCard={props.isCard} />
+            <ClockworkBackgroundComponents
+                isCard={props.isCard}
+                wrapperHeight={height}
+                wrapperWidth={width}
+            />
         </div>
     )
 }
 
 interface ClockworkProps {
     isCard?: boolean
+    //timeObj: DayTimeClassType[]
+    wrapperWidth: number
+    wrapperHeight: number
 }
+
+const CelestialIconsHandler2 = dynamic<CelestialIconsHandlerProps>(
+    () => import('./celestialIcons').then((mod) => mod.CelestialIconsHandler),
+    { ssr: false }
+)
+
 const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
+    const [isClient, setIsClient] = React.useState(false)
     const ref = React.useRef<HTMLDivElement>(null)
-    //TODO: Should probably generate and pass minimum viable objs from background root
-    //const timeObj = props.timeObj
-    //    ? props.timeObj
-    //    : {
-    //          isDay: palette.mode === 'dark' ? false : true,
-    //          timePercent: 0.5,
-    //          timeOfDay: palette.mode === 'dark' ? 'night' : 'day',
-    //      }
 
+    useEffect(() => {
+        setIsClient(true)
+    }, [])
     return (
         <div className={styles.clockworkWrapper} ref={ref}>
-            <CelestialIconsHandler parentRef={ref} isCard={props.isCard} />
-            <DayNightColorLayer />
+            <CelestialIconsHandler2
+                //timeObj={props.timeObj}
+                parentRef={ref}
+                isCard={props.isCard}
+                wrapperWidth={props.wrapperWidth}
+                wrapperHeight={props.wrapperHeight}
+            />
+            <DayNightColorLayer timeObj={props.timeObj} />
         </div>
     )
 }

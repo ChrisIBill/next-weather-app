@@ -3,17 +3,44 @@ import { css, keyframes } from '@emotion/react'
 import { BackgroundComponentsProps } from './components/background/background'
 import './rain.scss'
 import PrecipitationClass from '@/lib/obj/precipitation'
+import { useForecastObjStore } from '@/lib/stores'
 
-export interface RainBackgroundProps extends BackgroundComponentsProps {
+export interface RainBackgroundWrapperProps extends BackgroundComponentsProps {
     isCard: boolean
-    precipitation_probability: number
-    precipitation: number
-    precipitation_type: string
     precipObj: PrecipitationClass
+}
+
+export const RainBackgroundCardStateWrapper: React.FC<
+    RainBackgroundWrapperProps
+> = (props: RainBackgroundWrapperProps) => {
+    const weight = props.precipObj.getMagnitude()
+    return <RainBackground {...props} isCard={true} weight={weight} />
+}
+
+export const RainBackgroundPageStateWrapper: React.FC<
+    RainBackgroundWrapperProps
+> = (props: RainBackgroundWrapperProps) => {
+    const weight = useForecastObjStore((state) => state.rainMagnitude.state)
+    return <RainBackground {...props} isCard={false} weight={weight} />
+}
+
+export const RainBackgroundStateWrapper: React.FC<
+    RainBackgroundWrapperProps
+> = (props: RainBackgroundWrapperProps) => {
+    return props.isCard ? (
+        <RainBackgroundCardStateWrapper {...props} />
+    ) : (
+        <RainBackgroundPageStateWrapper {...props} />
+    )
+}
+
+export interface RainBackgroundProps extends RainBackgroundWrapperProps {
+    weight: number
 }
 export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
     const height = props.height
-    const weight = props.precipObj.getMagnitude()
+    const weight = props.weight
+    console.log('RainBackground: ', props, height, weight)
     const numDrops = props.isCard ? 10 * weight : 50 * weight
 
     const dropKeyframe = keyframes`
