@@ -1,6 +1,12 @@
-import PrecipitationClass from './obj/precipitation'
-import { TimeObjectType } from './time'
-import { TemperatureUnitType } from './user'
+import PrecipitationClass, { PrecipitationClassType } from './obj/precipitation'
+import WindClass, { WindClassType } from './obj/wind'
+import {
+    DayTemperatureClassType,
+    HourTemperatureClassType,
+    TemperatureClassType,
+} from './obj/temperature'
+import DayTimeClass, { HourTimeClass, TimeClassType } from './obj/time'
+import { CloudClassType } from './obj/cloudClass'
 
 export interface WeatherReportDataType {
     time: string
@@ -86,6 +92,7 @@ export interface WeatherMetadata {
 }
 export interface CurrentWeatherDataType {
     time?: string
+    time2?: number
     interval?: number
     temperature_2m?: number
     relativehumidity_2m?: number
@@ -107,6 +114,7 @@ export interface CurrentWeatherDataType {
 }
 export interface HourlyWeatherDataType {
     time?: string
+    time2?: number
     temperature_2m?: number
     relativehumidity_2m?: number
     dewpoint_2m?: number
@@ -130,13 +138,17 @@ export interface HourlyWeatherDataType {
 }
 export interface DailyWeatherDataType {
     time?: string
+    time2?: number
     weathercode?: number
+    avg_cloudcover?: number
     temperature_2m_max?: number
     temperature_2m_min?: number
     apparent_temperature_max?: number
     apparent_temperature_min?: number
     sunrise?: number
+    sunrise2?: number
     sunset?: number
+    sunset2?: number
     uv_index_max?: number
     precipitation_sum?: number
     rain_sum?: number
@@ -150,14 +162,31 @@ export interface DailyWeatherDataType {
     [index: string]: {} | number | string | undefined
 }
 export interface ForecastObjectType {
-    timeObj: TimeObjectType
-    precipitation: PrecipitationClass
-    clouds: CloudsClass
-    cloud_cover: number
+    timeObj: TimeClassType
+    precipitationObj: PrecipitationClassType
+    windObj: WindClassType
+    temperatureObj: TemperatureClassType
+    cloudObj: CloudClassType
+    hourly_weather?: ForecastObjectType[]
+    current_weather?: ForecastObjectType
+    //clouds: CloudsClass
+    //cloud_cover: number
 }
 export interface DailyWeatherForecastObjectType extends ForecastObjectType {
-    hourly_weather: ForecastObjectType[]
+    timeObj: DayTimeClass
+    precipitationObj: PrecipitationClassType
+    temperatureObj: DayTemperatureClassType
+    hourly_weather: HourlyForecastObjectType[]
     current_weather?: ForecastObjectType
+    cloudObj: CloudClassType
+}
+export interface HourlyForecastObjectType extends ForecastObjectType {
+    timeObj: HourTimeClass
+    precipitationObj: PrecipitationClassType
+    temperatureObj: HourTemperatureClassType
+    cloudObj: CloudClassType
+    hourly_weather?: undefined
+    current_weather?: undefined
 }
 
 export type DetailedWeatherDataType = CurrentWeatherDataType &
