@@ -52,7 +52,7 @@ export interface PrecipitationClassType {
     _magnitude: (() => number) | number
     _displayString: (() => string) | string
     convertToInch: () => number
-    getUserValue: () => number
+    getUserValue: () => string
     getMagnitude: () => number
     getDisplayString: () => string
 }
@@ -85,9 +85,9 @@ export default class PrecipitationClass implements PrecipitationClassType {
         const userUnit = useUserPrefsStore.getState().precipitationUnit
         return userUnit === 'inch'
             ? typeof this._inch === 'function'
-                ? this._inch()
-                : this._inch
-            : this._mm
+                ? this._inch() + ' in'
+                : this._inch + ' in'
+            : this._mm + ' mm'
     }
     getDisplayString(): string {
         return typeof this._displayString === 'function'

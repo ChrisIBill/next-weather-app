@@ -173,6 +173,7 @@ export interface TimeClassType {
 
 export interface DayTimeClassType extends TimeClassType {
     hours: HourTimeClass[]
+    current?: HourTimeClass
 }
 
 export default class DayTimeClass implements DayTimeClassType {

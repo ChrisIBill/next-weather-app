@@ -1,4 +1,8 @@
-import { DailyWeatherForecastType } from '@/lib/interfaces'
+import {
+    DailyWeatherForecastObjectType,
+    DailyWeatherForecastType,
+    HourlyForecastObjectType,
+} from '@/lib/interfaces'
 import '../../_styles.scss'
 import styles from './hourlyWeatherReport.module.css'
 import {
@@ -21,11 +25,15 @@ import paletteHandler from '@/lib/paletteHandler'
 import { precipitationHandler } from '@/lib/weather'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 
-export interface HourlyWeatherReportProps {
-    forecast?: DailyWeatherForecastType
-    metadata?: any
-    selectedHour?: number
-    handleTimeSelect?: (day?: number, hour?: number) => void
+interface StringMappedObject {
+    [key: string]: string
+}
+const TableKeysToString: StringMappedObject = {
+    timeObj: 'Time',
+    temperatureObj: 'Temperature',
+    precipitationObj: 'Precipitation',
+    windObj: 'Wind',
+    cloudObj: 'Cloud Cover',
 }
 
 export interface CellProps {
@@ -37,6 +45,7 @@ export interface CellProps {
 }
 
 export function GenericTableCell(props: CellProps) {
+    console.log('GenericTableCell props: ', props)
     return (
         <TableCell
             size="medium"
@@ -57,45 +66,56 @@ export function GenericTableCell(props: CellProps) {
 
 export const bodyTableCellHandler = (
     key: string,
-    hour: any,
+    hour: HourlyForecastObjectType,
     width: number,
     palette: any
 ) => {
     //TODO: Need a better key for these cells
     switch (key) {
-        case 'time':
+        case 'timeObj':
             return GenericTableCell({
                 key: key,
                 title: 'Time',
-                string: getDatetimeObject(hour[key]!).format('hh:00 A'),
+                string: hour.timeObj.dateObj.format('hh:00 A'),
                 columnWidth: width,
                 palette: palette,
             })
-        case 'precipitation':
-            const precipObj = precipitationHandler(hour)
+        case 'precipitationObj':
+            const precipObj = hour.precipitationObj
             return GenericTableCell({
                 key: key,
-                title: precipObj.alt,
-                string: precipObj.string,
+                title: `${
+                    precipObj.chance
+                }% chance of ${precipObj.getUserValue()}`,
+                string: precipObj.getDisplayString(),
                 columnWidth: width,
                 palette: palette,
             })
-        case 'visibility':
+        case 'temperatureObj':
+            const tempObj = hour.temperatureObj
             return GenericTableCell({
                 key: key,
-                string: (hour[key] + '').split('.')[0],
+                title: `${tempObj.getAppTempDisplayString()}`,
+                string: tempObj.getTempDisplayString(),
                 columnWidth: width,
                 palette: palette,
             })
-        case 'weathercode':
-            const codeObj = WeatherCodesMap[hour[key]]
-            return GenericTableCell({
-                key: key,
-                title: codeObj.long !== codeObj.short ? codeObj.long : '',
-                string: codeObj.short,
-                columnWidth: width,
-                palette: palette,
-            })
+        //case 'visibility':
+        //    return GenericTableCell({
+        //        key: key,
+        //        string: (hour[key] + '').split('.')[0],
+        //        columnWidth: width,
+        //        palette: palette,
+        //    })
+        //case 'weathercode':
+        //    const codeObj = WeatherCodesMap[hour[key]]
+        //    return GenericTableCell({
+        //        key: key,
+        //        title: codeObj.long !== codeObj.short ? codeObj.long : '',
+        //        string: codeObj.short,
+        //        columnWidth: width,
+        //        palette: palette,
+        //    })
         case 'windspeed_10m':
             return GenericTableCell({
                 key: key,
@@ -105,43 +125,58 @@ export const bodyTableCellHandler = (
             })
         default:
             return GenericTableCell({
-                key: key,
-                string: hour[key],
+                key: 'undefinedCell',
+                string: '',
                 columnWidth: width,
                 palette: palette,
             })
     }
 }
 
+export interface HourlyWeatherReportProps {
+    //forecast?: DailyWeatherForecastType
+    forecastObj?: HourlyForecastObjectType[]
+    metadata?: any
+    selectedHour?: number
+    handleTimeSelect?: (day?: number, hour?: number) => void
+}
+
 export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
+    console.log('HourlyWeatherReport props: ', props)
 
     //const theme = useTheme()
     //const palette = paletteHandler(theme.theme)
     const palette = useMuiTheme().palette
 
     const el = React.useRef<HTMLTableRowElement>(null)
-    const hourlyForecast = props.forecast?.hourly_weather
-        ? props.forecast.hourly_weather
-        : []
+    //const hourlyForecast = props.forecast?.hourly_weather
+    //    ? props.forecast.hourly_weather
+    //    : []
+    const hourlyForecast =
+        typeof props.forecastObj !== 'undefined'
+            ? props.forecastObj
+            : new Array(24).fill(0).map((_, i) => {})
     const handleTimeSelect = props.handleTimeSelect
-    const defaultTime = props.forecast?.current_weather?.time
-        ? dayjs(props.forecast.current_weather.time).hour()
-        : 11
+    //const defaultTime = props.forecast?.current_weather?.time
+    //    ? dayjs(props.forecast.current_weather.time).hour()
+    //    : 11
     const scrollToElement = (element: any) => {
         element.current.scrollIntoView(true)
     }
 
     const denseKeys = [
-        'time',
-        'temperature_2m',
-        'precipitation',
-        'windspeed_10m',
-        'weathercode',
+        'timeObj',
+        'temperatureObj',
+        'precipitationObj',
+        //'windspeed_10m',
+        //'weathercode',
     ]
-    const propKeys = isExpanded ? Object.keys(hourlyForecast[0]) : denseKeys
+    //TODO:
+    //const propKeys = isExpanded ? Object.keys(hourlyForecast[0]) : denseKeys
+    const propKeys = denseKeys
 
     const numColumns = propKeys.length
     const columnWidth = 100 / numColumns
@@ -156,23 +191,22 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                 }}
             >
                 {props.keys.map((key) => {
-                    if (WeatherDataKeysMap[key] === undefined) return null
-                    const titleObj = WeatherDataKeysMap[key]
+                    const titleObj = TableKeysToString[key]
                     return (
                         <TableCell
                             key={key}
-                            title={titleObj.long ? titleObj.long : ''}
+                            title={titleObj}
                             padding="checkbox"
                             size="small"
                             sx={{
                                 background: palette.primary.main,
-                                color: palette.textPrimary,
+                                color: palette.primary.contrastText,
                                 height: '1rem',
                                 width: columnWidth + '%',
                                 textAlign: 'center',
                             }}
                         >
-                            {titleObj.short}
+                            {titleObj}
                         </TableCell>
                     )
                 })}
@@ -180,32 +214,35 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         )
     }
     const TableContent: React.FC<TableProps> = (props: TableProps) => {
+        //useEffect(() => {
+        //    let firstRender = true
+        //    if (firstRender && el.current) {
+        //        console.log('scrolling to element: ', el.current)
+        //        //TODO:
+        //        //scrollToElement(el)
+        //        firstRender = false
+        //    }
+        //}, [])
         useEffect(() => {
-            let firstRender = true
-            if (firstRender && el.current) {
-                //TODO:
-                //scrollToElement(el)
-                firstRender = false
-            }
+            console.log('Loading TableContent')
         }, [])
         return (
             <>
                 {hourlyForecast.map((hour, index) => (
                     <tr
-                        key={hour.time}
-                        ref={index === defaultTime ? el : null}
+                        key={`weatherReportTR${index}`}
+                        //ref={index === defaultTime ? el : null}
                         onClick={() => {
                             handleTimeSelect?.(undefined, index)
                         }}
                         style={{
-                            color: palette.textPrimary,
+                            color: palette.primary.contrastText,
                             backgroundColor: palette.secondary.main,
-                            //borderRight: `1px solid ${palette.textPrimary}`,
-                            //borderLeft: `1px solid ${palette.textPrimary}`,
                         }}
                     >
                         {props.keys.map((key) => {
-                            if (hour[key] === undefined) return null
+                            if (typeof hour?.[key] === 'undefined') return null
+                            console.log('hour: ', hour)
                             return bodyTableCellHandler(
                                 key,
                                 hour,
@@ -228,7 +265,8 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                     margin: '1rem',
                     width: 'fit-content',
                     background: 'transparent',
-                    borderBottom: `1px solid ${palette.textPrimary}`,
+                    borderBottom: `1px solid ${palette.primary.contrastText}`,
+                    scrollPaddingTop: '2rem',
                 }}
             >
                 <Table

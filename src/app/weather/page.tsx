@@ -19,6 +19,8 @@ import DayTimeClass from '@/lib/obj/time'
 import { SelectedForecastReadout } from '../components/weatherReports/selectedForecastReadout'
 import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
+import { CloudClass } from '@/lib/obj/cloudClass'
+import { useForecastObjStore } from '@/lib/stores'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -63,6 +65,10 @@ function handleWeatherForecast(
                 [day.windspeed_10m_max, day.windgusts_10m_max],
                 day.winddirection_10m_dominant
             ),
+            cloudObj: new CloudClass(
+                day.avg_cloudcover ?? 0,
+                day.weathercode ?? 0
+            ),
             hourly_weather: day.hourly_weather?.map((hour, index) => {
                 return {
                     timeObj: timeObj.hours[index],
@@ -78,6 +84,10 @@ function handleWeatherForecast(
                     windObj: new WindClass(
                         [hour.windspeed_10m, hour.windgusts_10m],
                         hour.winddirection_10m
+                    ),
+                    cloudObj: new CloudClass(
+                        hour.cloudcover ?? 0,
+                        hour.weathercode ?? 0
                     ),
                 }
             }),
@@ -102,6 +112,10 @@ function handleWeatherForecast(
                           ],
                           day.current_weather.winddirection_10m
                       ),
+                      cloudObj: new CloudClass(
+                          day.current_weather.cloudcover ?? 0,
+                          day.current_weather.weathercode ?? 0
+                      ),
                   }
                 : undefined,
         }
@@ -119,15 +133,21 @@ export default function Page({
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
     )
+    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
     const [forecastObj, setForecastObj] = useState<
         DailyWeatherForecastObjectType[]
     >(Array(8).fill(undefined))
     const [selectedHour, setSelectedHour] = useState<number | undefined>(-1)
     const [selectedDay, setSelectedDay] = useState<number>(0)
 
-    //get user coordinates from search params
-    const location = handleWeatherSearch(searchParams)
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
+
+    const setForecastStore = useForecastObjStore((state) => ({
+        setCloudCover: state.cloudCover.setState,
+        setTimePercent: state.timePercent.setState,
+        setIsDay: state.isDay.setState,
+        setTimeOfDay: state.timeOfDay.setState,
+    }))
 
     //Handles users time selection, which controls which weather data is displayed in detail
     const handleTimeSelect = (day?: number, hour?: number) => {
@@ -175,27 +195,59 @@ export default function Page({
         return forecastObj[selectedDay]
     }
 
-    const timeObj = getTimeObj(getSelectedForecast())
-
-    const fetchWeather = () => {
+    useEffect(() => {
+        const location = handleWeatherSearch(searchParams)
         getWeather(location)
             .then((response) => {
                 return JSON.parse(response)
             })
             .then((value) => {
-                console.log(value)
+                console.log('Server Forecast Response: ', value)
                 setWeatherMetadata(value.metadata)
                 setWeatherForecast(value.forecast)
                 setForecastObj(
                     handleWeatherForecast(value.forecast, value.metadata)
                 )
             })
-    }
-    if (!weatherMetadata) {
-        fetchWeather()
-    }
+    }, [searchParams])
 
-    const { width, height } = useWindowDimensions()
+    useEffect(() => {
+        const handleInitialWeather = () => {
+            try {
+                const oldCloudCover =
+                    useForecastObjStore.getState().cloudCover.state
+                const newCloudCover =
+                    forecastObj[0].current_weather!.cloudObj.cloudCover
+
+                if (oldCloudCover !== newCloudCover) {
+                    setForecastStore.setCloudCover
+                }
+            } catch (error) {
+                console.log(error)
+            }
+            try {
+                const { getTimePercent, getIsDay, getTimeOfDay } =
+                    forecastObj[0].current_weather!.timeObj
+                console.log(
+                    'Initial Time Values: ',
+                    getTimePercent!(),
+                    getIsDay!(),
+                    getTimeOfDay!()
+                )
+                setForecastStore.setTimePercent(getTimePercent!())
+                setForecastStore.setIsDay(getIsDay!())
+                setForecastStore.setTimeOfDay(getTimeOfDay!())
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        if (forecastObj[0] !== undefined && isFirstRender) {
+            setIsFirstRender(false)
+            handleInitialWeather()
+        }
+    }, [forecastObj, setForecastStore, isFirstRender])
+
+    const { width, height } = useWindowDimensions() ?? { width: 0, height: 0 }
     return (
         <div
             className={styles.weatherPageWrapper}
@@ -222,7 +274,6 @@ export default function Page({
                                     metadata={weatherMetadata}
                                     selectedDay={selectedDay}
                                     handleChartSelect={handleTimeSelect}
-                                    timeObj={timeObj}
                                     forecastObj={forecastObj}
                                     parentRef={chartWrapperRef}
                                 />
@@ -245,7 +296,11 @@ export default function Page({
 
                     <div className={styles.reportsPage}>
                         <HourlyWeatherReport
-                            forecast={getSelectedForecastDay()}
+                            //forecast={getSelectedForecastDay()}
+                            forecastObj={
+                                getSelectedForecastDayObj()?.hourly_weather ??
+                                []
+                            }
                             metadata={weatherMetadata}
                             handleTimeSelect={handleTimeSelect}
                         />
