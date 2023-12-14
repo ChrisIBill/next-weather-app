@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import {
     DailyWeatherForecastType,
     HourlyWeatherDataType,
@@ -33,7 +34,10 @@ function getApiMetadata(weatherApiData: any) {
 export function forecastFormater(weatherApiData: any): string {
     //TODO: add error handling
     const metadata = getApiMetadata(weatherApiData)
-    const current_weather = weatherApiData.current
+    const current_weather = {
+        ...weatherApiData.current,
+        time2: dayjs(weatherApiData.current.time).unix(),
+    }
     //NOTE: are we certain that the first index of each array is the current weather?
     current_weather.sunrise = weatherApiData.daily.sunrise[0]
     current_weather.sunset = weatherApiData.daily.sunset[0]
@@ -45,7 +49,7 @@ export function forecastFormater(weatherApiData: any): string {
 
     const hdf_keys = Object.keys(weatherApiData.hourly)
     function getHourlyWeather(
-        date: string,
+        date: number,
         index: number
     ): HourlyWeatherDataType[] {
         //Should be faster to search by index, but cant be sure hours match up so will need some form of check
@@ -87,13 +91,16 @@ export function forecastFormater(weatherApiData: any): string {
             const dsum = getAvgCloudCover(index)
             return {
                 time: adf.time[index],
+                time2: dayjs(adf.time[index]).unix(),
                 weathercode: adf.weathercode[index],
                 temperature_2m_max: adf.temperature_2m_max[index],
                 temperature_2m_min: adf.temperature_2m_min[index],
                 apparent_temperature_max: adf.apparent_temperature_max[index],
                 apparent_temperature_min: adf.apparent_temperature_min[index],
                 sunrise: adf.sunrise[index],
+                sunrise2: dayjs(adf.sunrise[index]).unix(),
                 sunset: adf.sunset[index],
+                sunset2: dayjs(adf.sunset[index]).unix(),
                 uv_index_max: adf.uv_index_max[index],
                 precipitation_sum: adf.precipitation_sum[index],
                 rain_sum: adf.rain_sum[index],
