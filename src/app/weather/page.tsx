@@ -122,6 +122,21 @@ function handleWeatherForecast(
     })
 }
 
+export function useForecastSetStore() {
+    const setForecastStore = useForecastObjStore((state) => ({
+        setTimePercent: state.timePercent.setState,
+        setIsDay: state.isDay.setState,
+        setTimeOfDay: state.timeOfDay.setState,
+        setRainMagnitude: state.rainMagnitude.setState,
+        setSnowMagnitude: state.snowMagnitude.setState,
+        setWindMagnitude: state.windMagnitude.setState,
+        setTemperatureMagnitude: state.temperatureMagnitude.setState,
+        setCloudMagnitude: state.cloudMagnitude.setState,
+        setCloudLightness: state.cloudLightness.setState,
+    }))
+    return setForecastStore
+}
+
 export default function Page({
     params,
     searchParams,
@@ -142,12 +157,7 @@ export default function Page({
 
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
-    const setForecastStore = useForecastObjStore((state) => ({
-        setCloudCover: state.cloudCover.setState,
-        setTimePercent: state.timePercent.setState,
-        setIsDay: state.isDay.setState,
-        setTimeOfDay: state.timeOfDay.setState,
-    }))
+    const setForecastStore = useForecastSetStore()
 
     //Handles users time selection, which controls which weather data is displayed in detail
     const handleTimeSelect = (day?: number, hour?: number) => {
@@ -214,29 +224,34 @@ export default function Page({
     useEffect(() => {
         const handleInitialWeather = () => {
             try {
-                const oldCloudCover =
-                    useForecastObjStore.getState().cloudCover.state
-                const newCloudCover =
-                    forecastObj[0].current_weather!.cloudObj.cloudCover
-
-                if (oldCloudCover !== newCloudCover) {
-                    setForecastStore.setCloudCover
-                }
+                setForecastStore.setCloudMagnitude(
+                    forecastObj[0].cloudObj.cloudCover
+                )
+                setForecastStore.setCloudLightness(
+                    forecastObj[0].cloudObj.getCloudLightness()
+                )
             } catch (error) {
                 console.log(error)
             }
             try {
                 const { getTimePercent, getIsDay, getTimeOfDay } =
                     forecastObj[0].current_weather!.timeObj
-                console.log(
-                    'Initial Time Values: ',
-                    getTimePercent!(),
-                    getIsDay!(),
-                    getTimeOfDay!()
-                )
                 setForecastStore.setTimePercent(getTimePercent!())
                 setForecastStore.setIsDay(getIsDay!())
                 setForecastStore.setTimeOfDay(getTimeOfDay!())
+            } catch (error) {
+                console.log(error)
+            }
+            try {
+                setForecastStore.setRainMagnitude(
+                    forecastObj[0].current_weather!.precipitationObj.getMagnitude()
+                )
+                setForecastStore.setWindMagnitude(
+                    forecastObj[0].current_weather!.windObj._kph[0]
+                )
+                setForecastStore.setTemperatureMagnitude(
+                    forecastObj[0].current_weather!.temperatureObj.getAvgTemp()
+                )
             } catch (error) {
                 console.log(error)
             }
@@ -306,10 +321,7 @@ export default function Page({
                         />
                     </div>
                 </div>
-                <Background
-                    weatherForecast={getSelectedForecast()}
-                    forecastObj={getSelectedForecastObj()}
-                />
+                <Background forecastObj={getSelectedForecastObj()} />
                 <div className={styles.gradientLayer} />
             </div>
         </div>
