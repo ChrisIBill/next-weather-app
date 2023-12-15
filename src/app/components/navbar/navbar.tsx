@@ -6,6 +6,7 @@ import { Settings } from './settings'
 import React from 'react'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
+import dynamic from 'next/dynamic'
 
 const TitleWrapper = styled('div')(({ theme }) => ({
     [theme.breakpoints.down('sm')]: {
@@ -38,7 +39,7 @@ const NavBar: React.FC<NavBarProps> = () => {
                     },
                 }}
             >
-                {windowDimensions.width > 900 ? (
+                {(windowDimensions?.width ?? 0) > 900 ? (
                     <div className={styles.fillerElement}></div>
                 ) : null}
                 <TitleWrapper className={styles.titleWrapper}>
