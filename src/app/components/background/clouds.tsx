@@ -157,9 +157,9 @@ export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
     useEffect(() => {}, [windowDimensions])
     const clouds = new Array(numClouds).fill(0).map((e, i) => {
         const startPos = (i / numClouds) * 100 * xScale
-        const baseHeight = (5 + 10 * i + Math.random() * 5) * yScale
-        const height = yScale * 20 * (i + 1) + baseHeight
-        const arch = 10 * Math.random() + yScale * 10 + baseHeight
+        const baseHeight = (5 + 10 * i) * yScale
+        const height = yScale * 10 * (i + 1) + baseHeight
+        const arch = 150 + yScale * 10 + baseHeight
 
         return (
             <Clouds
