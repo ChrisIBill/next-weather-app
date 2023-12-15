@@ -75,18 +75,23 @@ export function setToLocalStorage(key: string, value: string) {
         if (typeof window === 'undefined') return
         localStorage.setItem(key, JSON.stringify(value))
     } catch (err) {
-        console.log(err)
+        console.error(err)
         throw new Error('Error setting to local storage')
     }
 }
 
 function setInitialUserPref<T>(localKey: string, keys: ReadonlyArray<T>) {
     const pref = getFromLocalStorage(localKey)
-    console.log(`initial pref ${localKey} from local: `, pref)
     if (pref && keys.includes(pref as any)) {
-        console.log('pref is valid')
+        console.log(
+            "Found local user's preference for " + localKey + ': ' + pref
+        )
         return pref as T
-    } else return undefined
+    } else if (pref) {
+        console.error(
+            "User's preference: " + pref + ' for ' + localKey + ' invalid'
+        )
+    }
 }
 const temperatureUnitStringGenerator = function* (
     s: TemperatureUnitStringsType

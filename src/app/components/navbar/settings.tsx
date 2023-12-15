@@ -6,7 +6,7 @@ import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
 import { useColorMode } from '@/lib/context'
 import { useTheme } from '@mui/material/styles'
-import { useUserPrefsStore } from '@/lib/stores'
+import { ANIMATION_PREF_STRINGS, useUserPrefsStore } from '@/lib/stores'
 
 export interface SettingsProps {}
 
@@ -27,6 +27,9 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
         setAnchorEl(null)
     }
 
+    const handleAnimationsItem = () => {
+        userPrefs.nextAnimationLevel()
+    }
     const handleTemperatureItem = () => {
         userPrefs.nextTempUnit()
     }
@@ -79,7 +82,10 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
                     },
                 }}
             >
-                <MenuItem onClick={handleClose}>Animations</MenuItem>
+                <MenuItem onClick={handleAnimationsItem}>
+                    Animations:{' '}
+                    {ANIMATION_PREF_STRINGS[userPrefs.animationLevel]}
+                </MenuItem>
                 <MenuItem onClick={handleThemeItem}>
                     Theme: {palette.mode}
                 </MenuItem>
