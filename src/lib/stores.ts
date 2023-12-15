@@ -21,6 +21,13 @@ import DayTimeClass, { DayTimeClassType, HourTimeClassType } from './obj/time'
 import { CloudClass, CloudClassType, hslType } from './obj/cloudClass'
 import { hsl } from './lib'
 
+export const USER_PREFERENCES_KEYS = [
+    'animationLevel',
+    'temperatureUnit',
+    'windUnit',
+    'precipitationUnit',
+] as const
+export type UserPreferencesKeysType = (typeof USER_PREFERENCES_KEYS)[number]
 export interface UserPreferencesInterface {
     animationLevel: number
     temperatureUnit: TemperatureUnitStringsType
@@ -73,7 +80,7 @@ export function getFromLocalStorage(key: string) {
 export function setToLocalStorage(key: string, value: string) {
     try {
         if (typeof window === 'undefined') return
-        localStorage.setItem(key, JSON.stringify(value))
+        localStorage.setItem(key, value)
     } catch (err) {
         console.error(err)
         throw new Error('Error setting to local storage')
@@ -89,7 +96,7 @@ function setInitialUserPref<T>(localKey: string, keys: ReadonlyArray<T>) {
         return pref as T
     } else if (pref) {
         console.error(
-            "User's preference: " + pref + ' for ' + localKey + ' invalid'
+            "User's preference: " + pref + ' for ' + keys + ' invalid'
         )
     }
 }
@@ -110,7 +117,7 @@ const getInitialUserPrefs = () => {
         getFromLocalStorage('animationLevel') ?? '3'
     )
     const temperatureUnit =
-        setInitialUserPref('tempUnit', TEMPERATURE_UNIT_STRINGS) || '°C'
+        setInitialUserPref('temperatureUnit', TEMPERATURE_UNIT_STRINGS) || '°C'
     const windUnit =
         setInitialUserPref('windSpeedUnit', WIND_UNIT_STRINGS) || 'kph'
     const precipitationUnit =
@@ -133,10 +140,15 @@ export interface UserPrefsState extends UserPreferencesInterface {
 }
 export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
     ...getInitialUserPrefs(),
-    nextAnimationLevel: () =>
-        set((state) => ({
-            animationLevel: (state.animationLevel + 1) % 4,
-        })),
+    nextAnimationLevel: () => {
+        set((state) => {
+            const nextUnit = (state.animationLevel + 1) % 4
+            setToLocalStorage('animationLevel', nextUnit)
+            return {
+                animationLevel: nextUnit,
+            }
+        })
+    },
 
     nextTempUnit: () => {
         set((state) => {
@@ -146,40 +158,63 @@ export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
                         1) %
                         TEMPERATURE_UNIT_STRINGS.length
                 ]
-            setToLocalStorage('tempUnit', nextUnit)
+            setToLocalStorage('temperatureUnit', nextUnit)
             return {
                 temperatureUnit: nextUnit,
             }
         })
     },
     nextWindUnit: () =>
-        set((state) => ({
-            windUnit:
+        set((state) => {
+            const nextUnit =
                 WIND_UNIT_STRINGS[
                     (WIND_UNIT_STRINGS.indexOf(state.windUnit) + 1) %
                         WIND_UNIT_STRINGS.length
-                ],
-        })),
+                ]
+            setToLocalStorage('windSpeedUnit', nextUnit)
+            return {
+                windUnit: nextUnit,
+            }
+        }),
     nextPrecipitationUnit: () =>
-        set((state) => ({
-            precipitationUnit:
+        set((state) => {
+            const nextUnit =
                 PRECIPIATION_UNIT_STRINGS[
                     (PRECIPIATION_UNIT_STRINGS.indexOf(
                         state.precipitationUnit
                     ) +
                         1) %
                         PRECIPIATION_UNIT_STRINGS.length
-                ],
-        })),
+                ]
+            setToLocalStorage('precipitationUnit', nextUnit)
+            return {
+                precipitationUnit: nextUnit,
+            }
+        }),
 }))
 
+export type TimeStateType = 'current' | [number, number | undefined]
+
+export const enum ForecastStateKeysEnum {
+    time = 'time',
+    timePercent = 'timePercent',
+    isDay = 'isDay',
+    timeOfDay = 'timeOfDay',
+    rainMagnitude = 'rainMagnitude',
+    snowMagnitude = 'snowMagnitude',
+    windMagnitude = 'windMagnitude',
+    temperatureMagnitude = 'temperatureMagnitude',
+    cloudMagnitude = 'cloudMagnitude',
+    cloudLightness = 'cloudLightness',
+}
+export type ForecastStateKeysType = keyof typeof ForecastStateKeysEnum
 export interface ForecastObjectStateType {
     //timeObj: HourTimeClassType | DayTimeClassType
     //temperatureObj: HourTemperatureClassType | DayTemperatureClassType
     //precipitationObj: PrecipitationClassType
     //windObj: WindClassType
     time: {
-        state: 'current' | [number, number | undefined] //[day, hour]
+        state: TimeStateType //[day, hour]
         setState: (time: 'current' | [number, number]) => void
     }
     timePercent: {
@@ -202,15 +237,15 @@ export interface ForecastObjectStateType {
         state: number
         setState: (snowMagnitude: number) => void
     }
-    windSpeed: {
+    windMagnitude: {
         state: number
         setState: (windSpeed: number) => void
     }
-    temperature: {
+    temperatureMagnitude: {
         state: number
         setState: (temperature: number) => void
     }
-    cloudCover: {
+    cloudMagnitude: {
         state: number
         setState: (cloudCover: number) => void
     }
@@ -218,11 +253,17 @@ export interface ForecastObjectStateType {
         state: number
         setState: (cloudLightness: number) => void
     }
+    [key: ForecastStateKeysType]: {
+        state: number | TimeOfDayType | TimeStateType | boolean
+        setState: (
+            value: number | TimeOfDayType | TimeStateType | boolean
+        ) => void
+    }
 }
 export const useForecastObjStore = create<ForecastObjectStateType>(
     (set, get) => ({
         time: {
-            state: [0, 12],
+            state: [0, 12], //[ day, hour ]
             setState: (
                 time: 'current' | [number, number | undefined] = 'current'
             ) => {
@@ -303,52 +344,75 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
                 }))
             },
         },
-        windSpeed: {
+        windMagnitude: {
             state: 0,
             setState: (windSpeed: number) => {
                 set((state) => ({
                     ...state,
                     windSpeed: {
-                        ...state.cloudCover,
+                        ...state.windSpeed,
                         state: setToRange(windSpeed, 0, 100),
                     },
                 }))
             },
         },
-        cloudCover: {
+        cloudMagnitude: {
             state: 10,
-            setState: (cloudCover: number) => {
-                set((state) => ({
-                    ...state,
-                    cloudCover: {
-                        ...state.cloudCover,
-                        state: setToRange(cloudCover, 0, 100),
-                    },
-                }))
+            setState: (cloudMagnitude: number) => {
+                set((state) => {
+                    console.log('Setting cloud cover to ' + cloudMagnitude)
+                    if (state.cloudMagnitude === cloudMagnitude) {
+                        console.log(
+                            'Cloud cover already set to ' + cloudMagnitude
+                        )
+                        return state
+                    }
+                    return {
+                        ...state,
+                        cloudMagnitude: {
+                            ...state.cloudMagnitude,
+                            state: setToRange(cloudMagnitude, 0, 100),
+                        },
+                    }
+                })
             },
         },
         cloudLightness: {
             state: 99,
             setState: (cloudLightness: number) => {
-                set((state) => ({
-                    ...state,
-                    cloudLightness: {
-                        ...state.cloudLightness,
-                        state: setToRange(cloudLightness, 30, 99),
-                    },
-                }))
+                set((state) => {
+                    console.log('Setting cloud lightness to ' + cloudLightness)
+                    if (state.cloudLightness === cloudLightness) {
+                        console.log(
+                            'Cloud lightness already set to ' + cloudLightness
+                        )
+                        return state
+                    }
+                    return {
+                        ...state,
+                        cloudLightness: {
+                            ...state.cloudLightness,
+                            state: setToRange(cloudLightness, 30, 99),
+                        },
+                    }
+                })
             },
         },
-        temperature: {
+        temperatureMagnitude: {
             state: 20,
             setState: (temperature: number) => {
-                set((state) => ({
-                    ...state,
-                    temperature: {
-                        ...state.temperature,
-                        state: setToRange(temperature, -40, 50),
-                    },
-                }))
+                set((state) => {
+                    if (state.temperature === temperature) {
+                        return state
+                    }
+                    return {
+                        ...state,
+                        temperature: {
+                            ...state.temperature,
+                            state: setToRange(temperature, -40, 50),
+                        },
+                    }
+                })
             },
         },
     })
