@@ -40,7 +40,6 @@ export interface RainBackgroundProps extends RainBackgroundWrapperProps {
 export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
     const height = props.height
     const weight = props.weight
-    console.log('RainBackground: ', props, height, weight)
     const numDrops = props.isCard ? 10 * weight : 50 * weight
 
     const dropKeyframe = keyframes`

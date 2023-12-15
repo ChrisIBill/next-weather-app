@@ -139,7 +139,6 @@ export class DayTemperatureClass implements TemperatureClassType {
         return this.hours[this.hours.length - 1]
     }
     getSetCurrent(celsius?: number, appCelsius?: number) {
-        console.log('getSetCurrent', celsius, appCelsius)
         this.current = new HourTemperatureClass(celsius, appCelsius, this)
         return this.current
     }
@@ -247,7 +246,6 @@ export class HourTemperatureClass implements HourTemperatureClassType {
     }
     getUserAppTemp = (): number => {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        console.log('userUnit: ', userUnit)
         return userUnit === '°F'
             ? typeof this._appFahrenheit === 'function'
                 ? this._appFahrenheit()
@@ -273,7 +271,6 @@ export class HourTemperatureClass implements HourTemperatureClassType {
             userUnit === '°F'
                 ? this.getUserTemp().toFixed(0)
                 : this.getUserTemp().toFixed(1)
-        console.log('temp: ', temp, userUnit)
         return `${temp}${userUnit}`
     }
     getAppTempDisplayString(): string {

@@ -10,7 +10,6 @@ export function precipitationHandler(forecast: DetailedWeatherDataType) {
         func(forecast.showers),
         func(forecast.snowfall),
     ]
-    console.log('precipHandler: ', rain, showers, snow, precip)
     const strAmount = () => {
         if (precip === 0) return 'No'
         if (precip < RAIN_THRESHOLD[0]) return 'Light'

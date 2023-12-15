@@ -38,6 +38,7 @@ export interface ThemeProviderProps {
 
 const getInitialTheme = () => {
     let theme = 'light'
+    if (typeof window === 'undefined') return theme
     if (localStorage !== undefined && localStorage.getItem('theme')) {
         const local = localStorage.getItem('theme')
         const parsed = local ? JSON.parse(local) : 'light'
