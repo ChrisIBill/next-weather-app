@@ -4,5 +4,7 @@
     flex-direction: row;
     justify-content: center;
     width: 100%;
-    min-height: 10rem;
+    min-height: 5rem;
+    max-height: calc(100vh - 4rem);
+    height: auto;
 }
