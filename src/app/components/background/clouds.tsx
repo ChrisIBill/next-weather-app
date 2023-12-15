@@ -39,7 +39,7 @@ export const Clouds: React.FC<CloudsProps> = ({
     startPos,
     isCard,
 }: CloudsProps) => {
-    const speed = 20 + index * 5 + Math.random() * 2
+    const speed = 15 + index * 7 + Math.random() * 2
     const cloudsKeyframe = keyframes`
         from {
             transform: translateX(${0}px);
@@ -127,7 +127,7 @@ export const Cloud: React.FC<CloudProps> = (props) => {
     const cloudColor = `hsl(0, 0%, ${
         //Sets luminance value of cloud color based on cloud index and weather code
         (props.cloudLightness ?? 99) -
-        props.index * 5 -
+        props.index * 7 -
         (palette.mode === 'dark' ? 15 : 0)
     }%)`
 
@@ -157,8 +157,8 @@ export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
     useEffect(() => {}, [windowDimensions])
     const clouds = new Array(numClouds).fill(0).map((e, i) => {
         const startPos = (i / numClouds) * 100 * xScale
-        const baseHeight = (5 + 10 * (i + 1) + Math.random() * 5) * yScale
-        const height = yScale * 20 + baseHeight
+        const baseHeight = (5 + 10 * i + Math.random() * 5) * yScale
+        const height = yScale * 20 * (i + 1) + baseHeight
         const arch = 10 * Math.random() + yScale * 10 + baseHeight
 
         return (
@@ -205,7 +205,9 @@ export const CloudsGeneratorCardStateWrapper: React.FC<CloudsStateWrapper> = (
 export const CloudsGeneratorPageStateWrapper: React.FC<
     BackgroundComponentsProps
 > = (props) => {
-    const cloudCover = useForecastObjStore((state) => state.cloudCover.state)
+    const cloudCover = useForecastObjStore(
+        (state) => state.cloudMagnitude.state
+    )
     return (
         <div className={'clouds'}>
             <CloudsGenerator {...props} cloudCover={cloudCover} />
