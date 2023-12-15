@@ -8,17 +8,25 @@ import { useTheme } from '@mui/material'
 import { useWindowDimensions } from '@/lib/hooks'
 import { BackgroundComponentsProps } from './background'
 import { useForecastObjStore } from '@/lib/stores'
-import { CLOUD_COLOR_MAP, getCloudColor, hslType } from '@/lib/obj/cloudClass'
+import {
+    CLOUD_COLOR_MAP,
+    CloudClassType,
+    getCloudColor,
+    hslType,
+} from '@/lib/obj/cloudClass'
+import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
 
 export interface CloudsProps {
     index: number
     width: number
     height: number
     baseHeight: number
+    isCard?: boolean
     zIndex?: number
     scale?: number
     arch: number
     startPos: number
+    cloudCover?: number
 }
 export const Clouds: React.FC<CloudsProps> = ({
     index,
@@ -29,6 +37,7 @@ export const Clouds: React.FC<CloudsProps> = ({
     scale = 1,
     arch,
     startPos,
+    isCard,
 }: CloudsProps) => {
     const speed = 20 + index * 5 + Math.random() * 2
     const cloudsKeyframe = keyframes`
@@ -65,14 +74,43 @@ export const Clouds: React.FC<CloudsProps> = ({
                 left: `${-startPos}px`,
             }}
         >
-            <Cloud
+            <CloudStateWrapper
                 testPath={testPath}
                 index={index}
                 width={width}
                 height={height}
+                isCard={isCard}
             />
         </div>
     )
+}
+
+export interface CloudWrapperProps {
+    testPath: string
+    index: number
+    width: number
+    height: number
+    isCard?: boolean
+    forecastObj?: DailyWeatherForecastObjectType
+    cloudLightness?: number
+}
+
+const CloudStateWrapper: React.FC<CloudProps> = (props) => {
+    return props.isCard ? (
+        <CloudCardStateWrapper {...props} />
+    ) : (
+        <CloudPageStateWrapper {...props} />
+    )
+}
+const CloudCardStateWrapper: React.FC<CloudProps> = (props) => {
+    const state = props.forecastObj?.cloudObj.getCloudLightness()
+    return <Cloud {...props} cloudLightness={state} />
+}
+const CloudPageStateWrapper: React.FC<CloudProps> = (props) => {
+    const cloudColor = useForecastObjStore(
+        (state) => state.cloudLightness.state
+    )
+    return <Cloud {...props} cloudLightness={cloudColor} />
 }
 
 export interface CloudProps {
@@ -80,15 +118,17 @@ export interface CloudProps {
     index: number
     width: number
     height: number
+    isCard?: boolean
+    forecastObj?: DailyWeatherForecastObjectType
+    cloudLightness?: number
 }
-
 export const Cloud: React.FC<CloudProps> = (props) => {
     const palette = useTheme().palette
-    const cloudLightness = useForecastObjStore(
-        (state) => state.cloudLightness.state
-    )
     const cloudColor = `hsl(0, 0%, ${
-        cloudLightness - props.index * 5 - (palette.mode === 'dark' ? 15 : 0)
+        //Sets luminance value of cloud color based on cloud index and weather code
+        (props.cloudLightness ?? 99) -
+        props.index * 5 -
+        (palette.mode === 'dark' ? 15 : 0)
     }%)`
 
     return (
@@ -104,11 +144,13 @@ export const Cloud: React.FC<CloudProps> = (props) => {
     )
 }
 
-export const CloudsGenerator: React.FC<BackgroundComponentsProps> = (props) => {
+export interface CloudsGeneratorProps extends BackgroundComponentsProps {
+    cloudCover?: number
+}
+
+export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
     const windowDimensions = useWindowDimensions()
-    const cloudCover = useForecastObjStore((state) => state.cloudCover.state)
-    const numClouds = Math.round(cloudCover / 25)
-    console.log('clouds: ', cloudCover, numClouds)
+    const numClouds = Math.round((props.cloudCover ?? 0) / 25)
     const [xScale, yScale] = [props.xScale, props.yScale]
     const width = xScale * 100
 
@@ -134,4 +176,39 @@ export const CloudsGenerator: React.FC<BackgroundComponentsProps> = (props) => {
         )
     })
     return <div className={'clouds'}>{clouds}</div>
+}
+
+export interface CloudsStateWrapper extends BackgroundComponentsProps {
+    forecastObj?: DailyWeatherForecastObjectType
+}
+
+export const CloudsGeneratorStateWrapper: React.FC<CloudsStateWrapper> = (
+    props
+) => {
+    return props.isCard ? (
+        <CloudsGeneratorCardStateWrapper {...props} />
+    ) : (
+        <CloudsGeneratorPageStateWrapper {...props} />
+    )
+}
+
+export const CloudsGeneratorCardStateWrapper: React.FC<CloudsStateWrapper> = (
+    props
+) => {
+    const state = props.forecastObj?.cloudObj
+    return (
+        <div className={'clouds'}>
+            <CloudsGenerator {...props} cloudCover={state?.cloudCover} />
+        </div>
+    )
+}
+export const CloudsGeneratorPageStateWrapper: React.FC<
+    BackgroundComponentsProps
+> = (props) => {
+    const cloudCover = useForecastObjStore((state) => state.cloudCover.state)
+    return (
+        <div className={'clouds'}>
+            <CloudsGenerator {...props} cloudCover={cloudCover} />
+        </div>
+    )
 }

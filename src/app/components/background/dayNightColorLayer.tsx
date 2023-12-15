@@ -3,7 +3,31 @@
 import { useTheme } from '@mui/material/styles'
 import styles from './dayNightColorLayer.module.scss'
 import { TimeObjectType } from '@/lib/time'
-import { TimeClassType } from '@/lib/obj/time'
+import { DayTimeClassType, TimeClassType } from '@/lib/obj/time'
+import { useForecastObjStore } from '@/lib/stores'
+
+interface BackgroundColorsType {
+    morning: {
+        sky: string
+        horizon: string
+    }
+    day: {
+        sky: string
+        horizon: string
+    }
+    evening: {
+        sky: string
+        horizon: string
+    }
+    night: {
+        sky: string
+        horizon: string
+    }
+    [key: string]: {
+        sky: string
+        horizon: string
+    }
+}
 
 export const useBackgroundColors = () => {
     const palette = useTheme().palette
@@ -47,7 +71,7 @@ export const useBackgroundColors = () => {
 }
 
 export interface ColorLayerProps {
-    timeObj?: TimeClassType
+    timeObj?: DayTimeClassType[]
 }
 
 export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
@@ -55,10 +79,10 @@ export const DayNightColorLayer: React.FC<ColorLayerProps> = ({
 }: ColorLayerProps) => {
     const palette = useTheme().palette
     const backgroundColors = useBackgroundColors()
+    const timePercent = useForecastObjStore((state) => state.timePercent.state)
+    const isDay = useForecastObjStore((state) => state.isDay.state)
+    const timeOfDay = useForecastObjStore((state) => state.timeOfDay.state)
 
-    const timePercent = timeObj?.getTimePercent?.() ?? 0.66
-    const timeOfDay = timeObj?.getTimeOfDay?.() ?? 'morning'
-    console.log('DayNightColorLayer: ', timeObj, timePercent, timeOfDay)
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
 
     const bgColor = backgroundColors[timeOfDay]

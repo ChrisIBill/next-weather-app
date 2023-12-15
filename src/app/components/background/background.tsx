@@ -18,7 +18,7 @@ import { DetailedWeatherDataType, ForecastObjectType } from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
-import { CloudsGenerator } from './clouds'
+import { CloudsGeneratorStateWrapper } from './clouds'
 import PrecipitationClass, {
     DEFAULT_PRECIPITATION_CLASS,
 } from '@/lib/obj/precipitation'
@@ -32,12 +32,26 @@ export interface BackgroundProps {
     //timeObj: DayTimeClassType[]
 }
 
+/** @interface BackgroundComponentsProps
+ * @param {number} xScale - The xScale of the background, used to scale the background to the size of the container.
+ * @param {number} yScale - The yScale of the background, used to scale the background to the size of the container.
+ * @param {number} width - The width of the container.
+ * @param {number} height - The height of the container.
+ **/
 export interface BackgroundComponentsProps {
     xScale: number
     yScale: number
     width: number
     height: number
+    isCard?: boolean
 }
+
+//Background occurs in 3 contexts, main landing page, weather page, and weather card.
+//After initial load, the weather cards are pretty much static, so we don't need to worry about updating them, just generating them.
+//as such they can be generated directly from the passed forecastObj.
+//The main landing page and weather page are dynamic, so we need to update them.
+//These updates are expensive, so if any specific data hasn't changed, we don't need to update that part of the background.
+//as such these components use the forecastObjStore to hook into their respective states. which ideally are only updated when the data changes.
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
@@ -50,6 +64,9 @@ export const Background: React.FC<BackgroundProps> = (
 
     const precipObj =
         props.forecastObj?.precipitationObj || DEFAULT_PRECIPITATION_CLASS
+    const cloudObj = props.forecastObj?.cloudObj
+    const timeObj = props.forecastObj?.timeObj
+    const tempObj = props.forecastObj?.temperatureObj
 
     //TODO: Should probably handle client scaling higher up the tree
     const windowDimensions = useWindowDimensions()
@@ -120,8 +137,10 @@ export const Background: React.FC<BackgroundProps> = (
                 width={width}
                 height={height}
             />
-            <CloudsGenerator
+            <CloudsGeneratorStateWrapper
                 xScale={xScale}
+                forecastObj={props.forecastObj}
+                isCard={props.isCard}
                 //yScale={props.isCard ? yScale : window.innerHeight / 100}
                 yScale={yScale}
                 width={width}
