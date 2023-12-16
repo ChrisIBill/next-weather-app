@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
-import { DayNightColorLayer } from './dayNightColorLayer'
+import { ColorLayerWrapper, DayNightColorLayer } from './dayNightColorLayer'
 import {
     CelestialIconsHandler,
     CelestialIconsHandlerProps,
@@ -14,7 +14,11 @@ import {
     dayLengthCalculator,
 } from '@/lib/time'
 import { RainBackground, RainBackgroundStateWrapper } from '@/app/rain'
-import { DetailedWeatherDataType, ForecastObjectType } from '@/lib/interfaces'
+import {
+    DailyWeatherForecastObjectType,
+    DetailedWeatherDataType,
+    ForecastObjectType,
+} from '@/lib/interfaces'
 import { calcPercentOfDayNight } from '@/lib/time'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
@@ -27,7 +31,7 @@ import frozenImageOverlay from '/public/frozen-corner-1.png'
 import dynamic from 'next/dynamic'
 
 export interface BackgroundProps {
-    forecastObj?: ForecastObjectType
+    forecastObj?: DailyWeatherForecastObjectType
     isCard?: boolean
     //timeObj: DayTimeClassType[]
 }
@@ -64,6 +68,7 @@ export const Background: React.FC<BackgroundProps> = (
 
     const precipObj =
         props.forecastObj?.precipitationObj || DEFAULT_PRECIPITATION_CLASS
+    const windObj = props.forecastObj?.windObj
     const cloudObj = props.forecastObj?.cloudObj
     const timeObj = props.forecastObj?.timeObj
     const tempObj = props.forecastObj?.temperatureObj
@@ -132,6 +137,7 @@ export const Background: React.FC<BackgroundProps> = (
             <RainBackgroundStateWrapper
                 isCard={props.isCard ? true : false}
                 precipObj={precipObj as PrecipitationClass}
+                windObj={windObj}
                 xScale={xScale}
                 yScale={yScale}
                 width={width}
@@ -158,7 +164,6 @@ export const Background: React.FC<BackgroundProps> = (
 
 interface ClockworkProps {
     isCard?: boolean
-    //timeObj: DayTimeClassType[]
     wrapperWidth: number
     wrapperHeight: number
 }
@@ -186,7 +191,7 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
                 wrapperWidth={props.wrapperWidth}
                 wrapperHeight={props.wrapperHeight}
             />
-            <DayNightColorLayer timeObj={props.timeObj} />
+            <ColorLayerWrapper isCard={props.isCard} />
         </div>
     )
 }
