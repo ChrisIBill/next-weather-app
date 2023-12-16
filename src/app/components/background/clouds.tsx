@@ -101,18 +101,18 @@ export interface CloudWrapperProps {
     cloudLightness?: number
 }
 
-const CloudStateWrapper: React.FC<CloudProps> = (props) => {
+const CloudStateWrapper: React.FC<CloudWrapperProps> = (props) => {
     return props.isCard ? (
         <CloudCardStateWrapper {...props} />
     ) : (
         <CloudPageStateWrapper {...props} />
     )
 }
-const CloudCardStateWrapper: React.FC<CloudProps> = (props) => {
+const CloudCardStateWrapper: React.FC<CloudWrapperProps> = (props) => {
     const state = props.forecastObj?.cloudObj.getCloudLightness()
     return <Cloud {...props} cloudLightness={state} />
 }
-const CloudPageStateWrapper: React.FC<CloudProps> = (props) => {
+const CloudPageStateWrapper: React.FC<CloudWrapperProps> = (props) => {
     const cloudColor = useForecastObjStore(
         (state) => state.cloudLightness.state
     )
@@ -127,7 +127,6 @@ export interface CloudProps {
     isCard?: boolean
     forecastObj?: DailyWeatherForecastObjectType
     cloudLightness?: number
-    animation: string
 }
 export const Cloud: React.FC<CloudProps> = (props) => {
     const palette = useTheme().palette
