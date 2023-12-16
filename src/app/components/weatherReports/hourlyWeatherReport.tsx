@@ -1,8 +1,4 @@
-import {
-    DailyWeatherForecastObjectType,
-    DailyWeatherForecastType,
-    HourlyForecastObjectType,
-} from '@/lib/interfaces'
+import { HourlyForecastObjectType } from '@/lib/interfaces'
 import '../../_styles.scss'
 import styles from './hourlyWeatherReport.module.css'
 import {
@@ -15,15 +11,8 @@ import {
     TableRow,
 } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { WeatherDataKeysMap } from '@/lib/records'
-import { getDatetimeObject } from '@/lib/time'
 import React from 'react'
-import dayjs from 'dayjs'
-import { useTheme } from '@/lib/context'
-import { useTheme as useMuiTheme } from '@mui/material/styles'
-import paletteHandler from '@/lib/paletteHandler'
-import { precipitationHandler } from '@/lib/weather'
-import { WeatherCodesMap } from '@/lib/weathercodes'
+import { useTheme } from '@mui/material/styles'
 import { UserPreferencesKeysType, useUserPrefsStore } from '@/lib/stores'
 import {
     HourTemperatureClass,
@@ -31,6 +20,8 @@ import {
 } from '@/lib/obj/temperature'
 import { PrecipitationClassType } from '@/lib/obj/precipitation'
 import { WindClassType } from '@/lib/obj/wind'
+import { useForecastSetStore } from '@/lib/stores'
+import { DEFAULT_HOUR_DATA } from '@/lib/obj/time'
 
 interface StringMappedObject {
     [key: string]: string
@@ -53,7 +44,7 @@ export interface CellProps {
 }
 
 export interface GenericCellProps extends CellProps {
-    prefsKey: undefined
+    prefsKey?: undefined
     string?: string
 }
 
@@ -247,7 +238,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     props: HourlyWeatherReportProps
 ) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
-    const palette = useMuiTheme().palette
+    const palette = useTheme().palette
 
     const el = React.useRef<HTMLTableRowElement>(null)
     const hourlyForecast =
@@ -321,27 +312,13 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         return (
             <>
                 {hourlyForecast.map((hour, index) => (
-                    <tr
+                    <TableContentRow
                         key={`weatherReportTR${index}`}
-                        //ref={index === defaultTime ? el : null}
-                        onClick={() => {
-                            handleTimeSelect?.(undefined, index)
-                        }}
-                        style={{
-                            color: palette.primary.contrastText,
-                            backgroundColor: palette.secondary.main,
-                        }}
-                    >
-                        {props.keys.map((key) => {
-                            if (typeof hour?.[key] === 'undefined') return null
-                            return bodyTableCellHandler(
-                                key,
-                                hour,
-                                columnWidth,
-                                palette
-                            )
-                        })}
-                    </tr>
+                        index={index}
+                        forecastObj={hour ?? undefined}
+                        columnWidth={columnWidth}
+                        keys={props.keys}
+                    />
                 ))}
             </>
         )
@@ -390,5 +367,69 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                 </Table>
             </TableContainer>
         </div>
+    )
+}
+
+export interface TableContentRowProps {
+    index: number
+    forecastObj?: HourlyForecastObjectType
+    columnWidth: number
+    keys: string[]
+}
+
+const TableContentRow: React.FC<TableContentRowProps> = (
+    props: TableContentRowProps
+) => {
+    const palette = useTheme().palette
+    const setForecastStoreState = useForecastSetStore()
+    const timeObj = props.forecastObj?.timeObj
+    const handleCardSelect = () => {
+        setForecastStoreState.setHour(props.index)
+        setForecastStoreState.setTemperatureMagnitude(
+            props.forecastObj?.temperatureObj.getMagnitude() ?? 0
+        )
+        setForecastStoreState.setCloudMagnitude(
+            props.forecastObj?.cloudObj.cloudCover ?? 0
+        )
+        setForecastStoreState.setCloudLightness(
+            props.forecastObj?.cloudObj.getCloudLightness() ?? 99
+        )
+        setForecastStoreState.setRainMagnitude(
+            props.forecastObj?.precipitationObj.getMagnitude() ?? 0
+        )
+        //setForecastStoreState.setSnowMagnitude(props.forecastObj?.precipitationObj.getAvgSnow())
+        setForecastStoreState.setWindMagnitude(
+            props.forecastObj?.windObj._beaufort()[0] ?? 0
+        )
+        setForecastStoreState.setTimePercent(timeObj?.getTimePercent() ?? 0.5)
+        setForecastStoreState.setTimeOfDay(
+            timeObj?.getTimeOfDay ?? palette.mode === 'dark' ? 'night' : 'day'
+        )
+        setForecastStoreState.setIsDay(
+            timeObj?.getIsDay() ?? palette.mode === 'dark' ? false : true
+        )
+    }
+
+    return (
+        <tr
+            //ref={index === defaultTime ? el : null}
+            onClick={() => {
+                handleCardSelect()
+            }}
+            style={{
+                color: palette.primary.contrastText,
+                backgroundColor: palette.secondary.main,
+            }}
+        >
+            {props.keys.map((key) => {
+                if (typeof props.forecastObj?.[key] === 'undefined') return null
+                return bodyTableCellHandler(
+                    key,
+                    props.forecastObj,
+                    props.columnWidth,
+                    palette
+                )
+            })}
+        </tr>
     )
 }
