@@ -39,13 +39,16 @@ export const Clouds: React.FC<CloudsProps> = ({
     startPos,
     isCard,
 }: CloudsProps) => {
+    console.log('Clouds')
     const windSpeed = useForecastObjStore((state) => state.windMagnitude.state)
     const speed = 15 - windSpeed + index * 7 + Math.random() * 2
     const cloudsKeyframe = keyframes`
         from {
+            webkitTransform: translateX(${0}px);
             transform: translateX(${0}px);
                     }
         to {
+            webkitTransform: translateX(${width}px);
             transform: translateX(${width}px);
         }
     `
@@ -68,7 +71,9 @@ export const Clouds: React.FC<CloudsProps> = ({
         <div
             className={styles.clouds}
             css={css`
-                animation: ${speed}s linear infinite forwards ${cloudsKeyframe};
+                -webkit-animation: ${speed}s linear infinite forwards
+                    ${cloudsKeyframe};
+                will-change: transform;
             `}
             style={{
                 zIndex: zIndex,
@@ -122,6 +127,7 @@ export interface CloudProps {
     isCard?: boolean
     forecastObj?: DailyWeatherForecastObjectType
     cloudLightness?: number
+    animation: string
 }
 export const Cloud: React.FC<CloudProps> = (props) => {
     const palette = useTheme().palette
@@ -150,6 +156,7 @@ export interface CloudsGeneratorProps extends BackgroundComponentsProps {
 }
 
 export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
+    console.log('Cloud Generator: ', props.cloudCover)
     const windowDimensions = useWindowDimensions()
     const numClouds = Math.round((props.cloudCover ?? 0) / 25)
     const [xScale, yScale] = [props.xScale, props.yScale]

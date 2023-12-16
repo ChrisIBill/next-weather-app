@@ -90,13 +90,6 @@ export const ColorLayerStateWrapper: React.FC<ColorLayerProps> = (props) => {
     const temperature = useForecastObjStore(
         (state) => state.temperatureMagnitude.state
     )
-    console.log(
-        'Color Layer State: ',
-        timeOfDay,
-        isDay,
-        timePercent,
-        temperature
-    )
     return (
         <DayNightColorLayer
             {...props}
@@ -146,42 +139,19 @@ export const DayNightColorLayer: React.FC<DayNightColorLayerProps> = (
     const angle = timePercent > 0.5 ? timePercent * 10 : timePercent * 10 + 350
 
     const bgColors = backgroundColors[timeOfDay]
-    console.log('bgColors: ', bgColors)
     Object.keys(bgColors).forEach((colorKey) => {
-        const color = bgColors[colorKey]
-        console.log('color: ', color)
+        const color = bgColors[colorKey as keyof typeof bgColors]
         const [r, g, b] = color
             .substring(4, color.length - 1)
             .replace(/ /g, '')
             .split(',')
             .map((c: string) => parseInt(c))
         const [h, s, l] = rgbToHsl(r, g, b)
-        console.log('hsl: ', h, s, l)
-        let oldColor = `hsl(${h}, ${s}%, ${l}%)`
         let newColor = `hsl(${h + temperature}, ${s + temperature * 0.5}%, ${
-            l + temperature
+            l + temperature * 0.5
         }%)`
-        //let newColor = `rgb(${r + temperature * 2}, ${g}, ${
-        //    b - temperature * 2
-        //})`
-        console.log('temperature: ', temperature)
-        //if (temperature > 0) newColor = `rgb(${r + temperature}, ${g}, ${b})`
-        //else newColor = `rgb(${r}, ${g}, ${b - temperature})`
-        console.log('newColor: ', newColor)
-        bgColors[colorKey] = newColor
+        bgColors[colorKey as keyof typeof bgColors] = newColor
     })
-    //Object.keys(bgColors).forEach((colorKey) => {
-    //    const color = bgColors[colorKey]
-    //    const [r, g, b] = color
-    //        .substring(4, color.length - 1)
-    //        .replace(/ /g, '')
-    //        .split(',')
-    //        .map((c: string) => parseInt(c))
-    //    const [h, s, l] = rgbToHsl(r, g, b)
-    //    bgColors[colorKey] = `hsl(${h}, ${s}%, ${l}%)`
-    //})
-    console.log('bgColorsEffectsMapped: ', bgColors)
-    //const gradientString = `linear-gradient(${angle}deg, ${bgColors.horizon} 0%, ${bgColors.sky} 100%)`
     const gradientString = `linear-gradient(${angle}deg, ${bgColors.horizon} 0%, ${bgColors.sky} 100%)`
 
     if (!bgColors)
