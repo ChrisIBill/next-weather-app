@@ -3,23 +3,32 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 .weatherCard {
-    z-index: 10;
+    position: relative;
+    z-index: 100;
     width: 100%;
     height: 100%;
     display: flex;
     border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 3px 4px 5px rgba(0, 0, 0, 1);
 
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
 }
 .actionArea {
-    background-color: rgba(0, 0, 0, 0.9);
+    position: relative;
+    z-index: 100;
 }
 .contentWrapper {
+    position: absolute;
+    z-index: 100;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
+    top: 0;
+    padding: 16px;
+    width: 100%;
+    height: 100%;
 }
 .bodyWrapper {
     display: flex;
@@ -43,12 +52,14 @@
 }
 .cardsListWrapper {
     width: 100%;
-    min-height: 15rem;
+    min-height: 16rem;
     max-height: 25rem;
     display: flex;
     position: relative;
-    z-index: 10;
+    z-index: 100;
     overflow: scroll;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 .cardWrapper {
     flex: 1 1 0;

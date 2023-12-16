@@ -1,15 +1,17 @@
 import { CoordinatesType } from '@/app/geolocation/page'
 import { WeatherCard, WeatherCardProps } from './weatherCard'
 import styles from './weatherCards.module.scss'
-import { DailyWeatherForecastType } from '@/lib/interfaces'
+import {
+    DailyWeatherForecastObjectType,
+    DailyWeatherForecastType,
+} from '@/lib/interfaces'
 import { Skeleton } from '@mui/material'
 import dayjs from 'dayjs'
 import React, { ReactHTMLElement, useEffect } from 'react'
 
 export interface WeatherCardsProps {
     weatherForecast: DailyWeatherForecastType[]
-    forecastObj: any
-    metadata: any
+    forecastObj: DailyWeatherForecastObjectType[]
     handleCardSelect: (day: number) => void
     selectedDay?: number
 }
@@ -25,22 +27,19 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
         const time = dayjs(todaysForecast.current_weather.time)
         showTomorrowFirst = !time.isBefore(todaysForecast.sunset)
     }
+    console.log('Forecast Object: ', props.forecastObj)
     const setScrollPosition = (element: any) => {
         element.current.scrollLeft = 1000
     }
 
     //need a generator to create the formatted data for the cards
     const weatherCards = props.forecastObj.map((weather, index) => {
-        console.log('index: ', index)
-        console.log('forecast: ', weather)
-        console.log('weather: ', props.weatherForecast[index])
         return (
             <div key={index} className={styles.cardWrapper}>
                 {weather ? (
                     <WeatherCard
                         weather={props.weatherForecast[index]}
                         forecastObj={props.forecastObj[index]}
-                        metadata={props.metadata}
                         handleCardSelect={props.handleCardSelect}
                         index={index}
                         selectedDay={props.selectedDay}
@@ -53,7 +52,6 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     })
 
     useEffect(() => {
-        console.log('showTomorrowFirst: ', showTomorrowFirst)
         if (showTomorrowFirst) setScrollPosition(listWrapper)
     })
     return (

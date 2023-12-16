@@ -1,17 +1,28 @@
 import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
 import styles from './weatherCards.module.scss'
-import { DailyWeatherForecastType, ForecastObjectType } from '@/lib/interfaces'
-import { getDateObject, getTimeObj } from '@/lib/time'
+import {
+    DailyWeatherForecastObjectType,
+    DailyWeatherForecastType,
+} from '@/lib/interfaces'
 import { WeatherCodesMap } from '@/lib/weathercodes'
 import ErrorBoundary from '@/lib/errorBoundary'
-import RainBackground from '@/app/rain'
 import { useTheme } from '@mui/material/styles'
 import { Background } from '../background/background'
+import { DayTimeClassType } from '@/lib/obj/time'
+import {
+    TemperatureClassType,
+    TemperatureComponentWrapper,
+} from '@/lib/obj/temperature'
+import { PrecipitationClassType } from '@/lib/obj/precipitation'
+import {
+    useForecastSetStore,
+    useForecastObjStore,
+    useUserPrefsStore,
+} from '@/lib/stores'
 
 export interface WeatherCardProps {
     weather: DailyWeatherForecastType
-    forecastObj: ForecastObjectType
-    metadata: any
+    forecastObj: DailyWeatherForecastObjectType
     handleCardSelect: (day: number) => void
     index: number
     selectedDay?: number
@@ -19,20 +30,48 @@ export interface WeatherCardProps {
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
+    const setCloudCover = useForecastObjStore(
+        (state) => state.cloudMagnitude.setState
+    )
     const weather = props.weather
     const palette = useTheme().palette
 
-    const timeObj = getTimeObj(weather, palette.mode)
+    const setForecastStoreState = useForecastSetStore()
+
+    const handleCardSelect = (day: number) => {
+        props.handleCardSelect(day)
+        setForecastStoreState.setTime([props.index])
+        setForecastStoreState.setTemperatureMagnitude(
+            props.forecastObj?.temperatureObj.getAvgTemp()
+        )
+        setForecastStoreState.setCloudMagnitude(
+            props.forecastObj?.cloudObj.cloudCover
+        )
+        setForecastStoreState.setCloudLightness(
+            props.forecastObj?.cloudObj.getCloudLightness()
+        )
+        setForecastStoreState.setRainMagnitude(
+            props.forecastObj?.precipitationObj.getMagnitude()
+        )
+        //setForecastStoreState.setSnowMagnitude(props.forecastObj?.precipitationObj.getAvgSnow())
+        setForecastStoreState.setWindMagnitude(
+            props.forecastObj?.windObj._beaufort()[0]
+        )
+        setForecastStoreState.setTimePercent(0.5)
+        setForecastStoreState.setTimeOfDay(
+            palette.mode === 'dark' ? 'night' : 'day'
+        )
+        setForecastStoreState.setIsDay(palette.mode === 'dark' ? false : true)
+    }
+
+    const newTimeObj = props.forecastObj.timeObj
     return (
         <Card
             className={styles.weatherCard}
             variant="elevation"
             sx={{
-                //backgroundImage:
-                //    'linear-gradient(to bottom, #1E101A, #2a1726, #3d2243, #4a3266, #4a458e, #4954a5, #4263bc, #3173d4, #447fdd, #558be7, #6597f0, #74a3f9, #74a3f9)',
                 position: 'relative',
                 backgroundColor: `${palette.primary.main}`,
-                border: `1px solid ${palette.primary.contrastText}`,
                 color: `${palette.primary.contrastText}`,
                 borderRadius: '16px',
                 boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
@@ -40,17 +79,20 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
         >
             <CardActionArea
                 className={styles.actionArea}
-                onClick={(event) => props.handleCardSelect(props.index)}
+                onClick={(event) => handleCardSelect(props.index)}
                 disabled={props.index == props.selectedDay}
                 sx={{
                     backgroundColor:
                         palette.mode === 'dark'
                             ? `rgba(0, 0, 0, 0.35)`
                             : `rgba(0,0,0, 0.0)`,
-                    zIndex: 20,
                 }}
             >
-                <CardContent>
+                <CardContent
+                    style={{
+                        padding: '0',
+                    }}
+                >
                     <div className={styles.contentWrapper}>
                         <ErrorBoundary
                             fallback={
@@ -63,6 +105,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                         >
                             <WeatherCardHeader
                                 date={weather.time!}
+                                forecastObj={props.forecastObj}
+                                timeObj={newTimeObj}
                                 index={props.index}
                             />
                         </ErrorBoundary>
@@ -70,31 +114,24 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                         <WeatherCardContent
                             weather={weather}
                             forecastObj={props.forecastObj}
-                            units={props.metadata}
                         />
                     </div>
                 </CardContent>
             </CardActionArea>
-            <Background
-                weatherForecast={props.weather}
-                forecastObj={props.forecastObj}
-                cloudcover={props.weather.avg_cloudcover}
-                isCard={true}
-                timeObj={timeObj}
-            />
+            <Background forecastObj={props.forecastObj} isCard={true} />
         </Card>
     )
 }
 
 export interface CardHeaderProps {
     date: string
+    forecastObj?: DailyWeatherForecastObjectType
+    timeObj: DayTimeClassType
     index: number
 }
 
-export const WeatherCardHeader: React.FC<CardHeaderProps> = (
-    props: CardHeaderProps
-) => {
-    const date = getDateObject(props.date)
+const WeatherCardHeader = (props: CardHeaderProps) => {
+    const date = props.timeObj.dateObj
     const weekdayString = () => {
         switch (props.index) {
             case 0:
@@ -102,13 +139,40 @@ export const WeatherCardHeader: React.FC<CardHeaderProps> = (
             case 1:
                 return 'Tomorrow'
             default:
-                return date.format('dddd')
+                return date.format('ddd')
         }
     }
     return (
-        <div className={styles.headerWrapper}>
-            <Typography variant="h5">{weekdayString()}</Typography>
-            <Typography variant="h6">{date.format('MMM D')}</Typography>
+        <div
+            style={{
+                display: 'flex',
+                width: '100%',
+                justifyContent: 'space-between',
+            }}
+        >
+            <div className={styles.headerWrapper} style={{}}>
+                <Typography
+                    variant="h5"
+                    align="left"
+                    style={{
+                        alignSelf: 'flex-start',
+                    }}
+                >
+                    {date.format('ddd')}
+                </Typography>
+                <Typography
+                    variant="h6"
+                    align="left"
+                    style={{
+                        alignSelf: 'flex-start',
+                    }}
+                >
+                    {date.format('MMM D')}
+                </Typography>
+            </div>
+            <TemperatureReadout
+                temperatureObj={props.forecastObj?.temperatureObj}
+            />
         </div>
     )
 }
@@ -120,12 +184,10 @@ export const CardContentKeys = [
 ]
 
 export interface CardContentProps {
-    units: any
-    forecastObj: any
+    forecastObj: DailyWeatherForecastObjectType
     weather: DailyWeatherForecastType
 }
 const WeatherCardContent: React.FC<CardContentProps> = ({
-    units,
     forecastObj,
     weather,
 }: CardContentProps) => {
@@ -136,33 +198,38 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
     }
     //const precipType = weather.rain_sum ?
     return (
-        <div className={styles.bodyWrapper}>
-            <Typography
-                variant="body1"
-                title={'WMO Code: ' + weather.weathercode}
-            >
-                {weather.weathercode !== undefined
-                    ? WeatherCodesMap[weather.weathercode].short
-                    : 'No weather code'}
-            </Typography>
-            <Typography variant="caption">Temp</Typography>
+        <div className={styles.bodyWrapper} style={{}}>
             <Typography variant="body1">
-                {weather.temperature_2m_min} {units.temperature_2m_min} /{' '}
-                {weather.temperature_2m_max} {units.temperature_2m_max}
-            </Typography>
-            <Typography variant="caption">Feels Like</Typography>
-            <Typography variant="body1">
-                {weather.apparent_temperature_min}{' '}
-                {units.apparent_temperature_min} /{' '}
-                {weather.apparent_temperature_max}{' '}
-                {units.apparent_temperature_max}
+                {forecastObj.cloudObj.getDisplayString()}
             </Typography>
             <Typography variant="body1">
-                {forecastObj.precipitation.displayString()}
+                {forecastObj.windObj.getDescription()}
+            </Typography>
+            <Typography variant="body1">
+                {forecastObj.precipitationObj.getDisplayString()}
             </Typography>
         </div>
     )
 }
-const CardBackground: React.FC = (props) => {
-    return <Background />
+
+interface ReadoutProps {
+    temperatureObj?: TemperatureClassType
+    precipitationObj?: PrecipitationClassType
+}
+
+const TemperatureReadout: React.FC<ReadoutProps> = (props: ReadoutProps) => {
+    const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
+    const temperatureStrings = props.temperatureObj
+        ?.getTempDisplayString()
+        .split('/') ?? ['', '']
+    return (
+        <div>
+            <Typography variant="body1" gutterBottom>
+                {temperatureStrings[0]}
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+                {temperatureStrings[1]}
+            </Typography>
+        </div>
+    )
 }
