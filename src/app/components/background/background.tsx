@@ -3,32 +3,16 @@ import Image from 'next/image'
 import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { ColorLayerWrapper, DayNightColorLayer } from './dayNightColorLayer'
-import {
-    CelestialIconsHandler,
-    CelestialIconsHandlerProps,
-    CelestialIconsProps,
-} from './celestialIcons'
-import {
-    TimeObjectType,
-    clockTimeToMinutes,
-    dayLengthCalculator,
-} from '@/lib/time'
 import { RainBackground, RainBackgroundStateWrapper } from '@/app/rain'
-import {
-    DailyWeatherForecastObjectType,
-    DetailedWeatherDataType,
-    ForecastObjectType,
-} from '@/lib/interfaces'
-import { calcPercentOfDayNight } from '@/lib/time'
-import { useTheme } from '@mui/material/styles'
+import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
 import { useWindowDimensions } from '@/lib/hooks'
 import { CloudsGeneratorStateWrapper } from './clouds'
 import PrecipitationClass, {
     DEFAULT_PRECIPITATION_CLASS,
 } from '@/lib/obj/precipitation'
-import { DayTimeClassType, TimeClassType } from '@/lib/obj/time'
 import frozenImageOverlay from '/public/frozen-corner-1.png'
 import dynamic from 'next/dynamic'
+import { CelestialIconsHandlerProps } from './celestialIcons'
 
 export interface BackgroundProps {
     forecastObj?: DailyWeatherForecastObjectType
@@ -168,7 +152,7 @@ interface ClockworkProps {
     wrapperHeight: number
 }
 
-const CelestialIconsHandler2 = dynamic<CelestialIconsHandlerProps>(
+const CelestialIconsHandlerDynamic = dynamic<CelestialIconsHandlerProps>(
     () => import('./celestialIcons').then((mod) => mod.CelestialIconsHandler),
     { ssr: false }
 )
@@ -184,7 +168,7 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     }, [])
     return (
         <div className={styles.clockworkWrapper} ref={ref}>
-            <CelestialIconsHandler2
+            <CelestialIconsHandlerDynamic
                 //timeObj={props.timeObj}
                 parentRef={ref}
                 isCard={props.isCard}

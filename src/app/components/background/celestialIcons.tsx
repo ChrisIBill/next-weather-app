@@ -51,22 +51,38 @@ export const CelestialIconsHandler: React.FC<CelestialIconsHandlerProps> = (
         bezierPath += `L${x} ${y}`
     }
 
-    return animationLevel <= AnimationLevelsEnum.Low ? (
-        <StaticCelestialIcons iconSize={iconSize} />
-    ) : (
-        <CelestialIconsPathGenerator
-            //timeObj={props.timeObj}
-            iconSize={iconSize}
-            xScale={xScale}
-            yScale={yScale}
-            wrapperWidth={width}
-            wrapperHeight={height}
-        />
+    return (
+        <div
+            className="CelestialsContainer"
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'absolute',
+                width: props.isCard ? '100%' : '100vw',
+                height: props.isCard ? '100%' : '100vh',
+            }}
+        >
+            {animationLevel <= AnimationLevelsEnum.Low ? (
+                <StaticCelestialIcons iconSize={iconSize} />
+            ) : (
+                <CelestialIconsPathGenerator
+                    //timeObj={props.timeObj}
+                    isCard={props.isCard}
+                    iconSize={iconSize}
+                    xScale={xScale}
+                    yScale={yScale}
+                    wrapperWidth={width}
+                    wrapperHeight={height}
+                />
+            )}
+        </div>
     )
 }
 
 export interface CelestialIconsProps {
     iconSize: number
+    isCard?: boolean
 }
 
 export interface StaticCelestialIconsProps extends CelestialIconsProps {}
@@ -80,10 +96,11 @@ export const StaticCelestialIcons: React.FC<CelestialIconsProps> = (
         <div
             className={styles.iconWrapper}
             style={{
+                backgroundColor: 'transparent',
                 width: props.iconSize,
                 height: props.iconSize,
-                top: -props.iconSize * 0.5,
-                left: -props.iconSize * 0.5,
+                //top: '50%',
+                //left: '50%',
             }}
         >
             <CelestialIcon isDay={isDay} size={props.iconSize} />
@@ -128,7 +145,6 @@ export const CelestialIconsPathGenerator = memo(
                 className={styles.CelestialsSVG}
                 style={{
                     position: 'absolute',
-                    marginTop: '4rem',
                 }}
                 width={props.wrapperWidth}
                 height={props.wrapperHeight}
@@ -142,6 +158,8 @@ export const CelestialIconsPathGenerator = memo(
                         bezierString={bezierString}
                         iconSize={props.iconSize}
                         timeObj={props.timeObj}
+                        wrapperWidth={props.wrapperWidth}
+                        wrapperHeight={props.wrapperHeight}
                         // xScale={props.xScale}
                         // yScale={props.yScale}
                     />
@@ -187,7 +205,7 @@ export const PageCelestialIcons: React.FC<PageCelestialIconsProps> = (
 
     useEffect(() => {
         if (firstTime) setFirstTime(false)
-    }, [])
+    }, [firstTime])
 
     return (
         <g>
@@ -233,4 +251,58 @@ export const PageCelestialIcons: React.FC<PageCelestialIconsProps> = (
 
 export const CardCelestialIcons: React.FC<DynamicCelestialIconsProps> = (
     props: DynamicCelestialIconsProps
-) => {}
+) => {
+    const prevTimePercent = useRef(0)
+    const [firstTime, setFirstTime] = React.useState(true)
+    const palette = useTheme().palette
+    const time = useForecastObjStore((state) => state.time.state)
+    const timePercent = useForecastObjStore((state) => state.timePercent.state)
+    const isDay = useForecastObjStore((state) => state.isDay.state)
+    const bezierIndex = Math.round(timePercent * 100)
+    const bezierPos = props.bezierPath[bezierIndex]
+
+    useEffect(() => {
+        if (firstTime) setFirstTime(false)
+    }, [firstTime])
+
+    return (
+        <g>
+            {firstTime ? (
+                <animateMotion
+                    dur="10s"
+                    fill="freeze"
+                    repeatCount="1"
+                    path={props.bezierString}
+                    keyPoints={`${0}; ${timePercent}`}
+                    keyTimes="0; 1"
+                    keySplines="0 0 0.58 1; "
+                />
+            ) : (
+                <></>
+            )}
+            <foreignObject
+                className={styles.svgIconObject}
+                x={firstTime ? undefined : bezierPos.x}
+                y={firstTime ? undefined : bezierPos.y}
+                width={props.iconSize}
+                height={props.iconSize}
+                style={{
+                    position: 'absolute',
+                }}
+            >
+                <div
+                    className={styles.iconWrapper}
+                    style={{
+                        overflow: 'visible',
+                        width: props.iconSize,
+                        height: props.iconSize,
+                        top: -props.iconSize * 0.5,
+                        left: -props.iconSize * 0.5,
+                    }}
+                >
+                    <CelestialIcon isDay={isDay} size={props.iconSize} />
+                </div>
+            </foreignObject>
+        </g>
+    )
+}
