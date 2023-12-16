@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
@@ -20,7 +20,7 @@ import { SelectedForecastReadout } from '../components/weatherReports/selectedFo
 import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
 import { CloudClass } from '@/lib/obj/cloudClass'
-import { useForecastObjStore } from '@/lib/stores'
+import { useForecastObjStore, useForecastSetStore } from '@/lib/stores'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -56,9 +56,9 @@ function handleWeatherForecast(
         return {
             timeObj: timeObj,
             precipitationObj: new PrecipitationClass(
-                day.precipitation_probability_max!,
                 day.precipitation_sum!,
-                day.snowfall_sum!
+                day.snowfall_sum!,
+                day.precipitation_probability_max!
             ),
             temperatureObj: tempObj,
             windObj: new WindClass(
@@ -73,9 +73,9 @@ function handleWeatherForecast(
                 return {
                     timeObj: timeObj.hours[index],
                     precipitationObj: new PrecipitationClass(
-                        hour.precipitation_probability!,
                         hour.precipitation!,
-                        hour.snowfall!
+                        hour.snowfall!,
+                        hour.precipitation_probability!
                     ),
                     temperatureObj: tempObj.getSetHour(
                         hour.temperature_2m,
@@ -97,9 +97,9 @@ function handleWeatherForecast(
                           day.current_weather.time2!
                       ),
                       precipitationObj: new PrecipitationClass(
-                          day.current_weather.precipitation ? 100 : 0,
                           day.current_weather.precipitation!,
-                          day.current_weather!.snowfall!
+                          day.current_weather!.snowfall!,
+                          day.current_weather.precipitation ? 100 : 0
                       ),
                       temperatureObj: tempObj.getSetCurrent(
                           day.current_weather.temperature_2m,
@@ -122,21 +122,6 @@ function handleWeatherForecast(
     })
 }
 
-export function useForecastSetStore() {
-    const setForecastStore = useForecastObjStore((state) => ({
-        setTimePercent: state.timePercent.setState,
-        setIsDay: state.isDay.setState,
-        setTimeOfDay: state.timeOfDay.setState,
-        setRainMagnitude: state.rainMagnitude.setState,
-        setSnowMagnitude: state.snowMagnitude.setState,
-        setWindMagnitude: state.windMagnitude.setState,
-        setTemperatureMagnitude: state.temperatureMagnitude.setState,
-        setCloudMagnitude: state.cloudMagnitude.setState,
-        setCloudLightness: state.cloudLightness.setState,
-    }))
-    return setForecastStore
-}
-
 export default function Page({
     params,
     searchParams,
@@ -148,7 +133,7 @@ export default function Page({
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
     )
-    const [isFirstRender, setIsFirstRender] = useState<boolean>(true)
+    const isFirstRender = useRef<boolean>(true)
     const [forecastObj, setForecastObj] = useState<
         DailyWeatherForecastObjectType[]
     >(Array(8).fill(undefined))
@@ -247,17 +232,17 @@ export default function Page({
                     forecastObj[0].current_weather!.precipitationObj.getMagnitude()
                 )
                 setForecastStore.setWindMagnitude(
-                    forecastObj[0].current_weather!.windObj._kph[0]
+                    forecastObj[0].current_weather!.windObj._beaufort()[0]
                 )
                 setForecastStore.setTemperatureMagnitude(
-                    forecastObj[0].current_weather!.temperatureObj.getAvgTemp()
+                    forecastObj[0].current_weather!.temperatureObj.getMagnitude()
                 )
             } catch (error) {
                 console.log(error)
             }
         }
-        if (forecastObj[0] !== undefined && isFirstRender) {
-            setIsFirstRender(false)
+        if (forecastObj[0] !== undefined && isFirstRender.current) {
+            isFirstRender.current = false
             handleInitialWeather()
         }
     }, [forecastObj, setForecastStore, isFirstRender])
@@ -321,7 +306,7 @@ export default function Page({
                         />
                     </div>
                 </div>
-                <Background forecastObj={getSelectedForecastObj()} />
+                <Background />
                 <div className={styles.gradientLayer} />
             </div>
         </div>
