@@ -8,6 +8,7 @@ import {
 import React from 'react'
 import { DayTimeClassType } from '@/lib/obj/time'
 import { DEFAULT_HOUR_DATA } from '@/lib/obj/constants'
+import { calcTemperatureMagnitude } from '@/lib/obj/temperature'
 
 export interface PlaygroundSlidersProps {
     timeObj?: DayTimeClassType[]
@@ -25,13 +26,7 @@ export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
             }}
         >
             <TimeSlider />
-            <GenericPlaygroundSlider
-                disabled
-                label="Temperature"
-                min={-40}
-                max={50}
-                storeKey={ForecastStateKeysEnum.temperatureMagnitude}
-            />
+            <TemperatureSlider />
             <GenericPlaygroundSlider
                 label="Rain Volume"
                 min={0}
@@ -46,10 +41,9 @@ export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
                 storeKey={ForecastStateKeysEnum.snowMagnitude}
             />
             <GenericPlaygroundSlider
-                disabled
                 label="Wind Speed"
                 min={0}
-                max={100}
+                max={12}
                 storeKey={ForecastStateKeysEnum.windMagnitude}
             />
             <GenericPlaygroundSlider
@@ -113,12 +107,16 @@ const TimeSlider: React.FC<{}> = () => {
     const setTimePercent = useForecastObjStore(
         (state) => state.timePercent.setState
     )
+    const setTimeOfDay = useForecastObjStore(
+        (state) => state.timeOfDay.setState
+    )
     const setIsDay = useForecastObjStore((state) => state.isDay.setState)
 
     const handleChange = (event: Event, newValue: number) => {
         setHour(newValue as number)
         const hour = DEFAULT_HOUR_DATA[newValue as number]
         //setState([0, newValue as number])
+        setTimeOfDay(hour._timeOfDay)
         setTimePercent(hour._timePercent)
         setIsDay(hour._isDay)
     }
@@ -131,6 +129,31 @@ const TimeSlider: React.FC<{}> = () => {
                 min={0}
                 max={23}
                 value={hour}
+                onChange={(e, val) => handleChange(e, val as number)}
+            />
+        </div>
+    )
+}
+
+const TemperatureSlider: React.FC<{}> = () => {
+    const [temperature, setTemperature] = React.useState<number>(21)
+    const setTemperatureMagnitude = useForecastObjStore(
+        (state) => state.temperatureMagnitude.setState
+    )
+    const handleChange = (event: Event, newValue: number) => {
+        setTemperature(newValue as number)
+        const transformedValue = calcTemperatureMagnitude(newValue as number)
+        setTemperatureMagnitude(transformedValue as number)
+    }
+
+    return (
+        <div className={styles.sliderWrapper}>
+            <Typography>Temperature</Typography>
+            <Slider
+                size="small"
+                min={-40}
+                max={50}
+                value={temperature}
                 onChange={(e, val) => handleChange(e, val as number)}
             />
         </div>
