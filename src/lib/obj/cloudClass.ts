@@ -1,7 +1,8 @@
 export interface CloudClassType {
     cloudCover: number
     getDisplayString: () => string
-    getCloudColor: () => string
+    //getCloudColor: () => string
+    getCloudLightness: () => number
 }
 
 export const CLOUD_COVER_STRINGS = [
@@ -35,31 +36,31 @@ export interface hslType {
 }
 
 export const CLOUD_COLOR_MAP = [0, 50, 60, 70, 80, 90]
-export function getCloudColor(weatherCode: number): hslType {
+export function getCloudLightness(weatherCode: number): number {
     if (weatherCode < 50 && weatherCode != 3) {
-        return { hue: 0, saturation: 0, lightness: 99 }
+        return 99
     } else if (weatherCode < 60 || weatherCode === 71) {
-        return { hue: 0, saturation: 0, lightness: 85 }
+        return 85
     } else if (weatherCode < 70 || weatherCode === 73) {
-        return { hue: 0, saturation: 0, lightness: 70 }
+        return 70
     } else if (weatherCode < 80) {
-        return { hue: 0, saturation: 0, lightness: 60 }
+        return 60
     } else if (weatherCode < 90) {
-        return { hue: 0, saturation: 0, lightness: 45 }
+        return 45
     } else if (weatherCode < 100) {
-        return { hue: 0, saturation: 0, lightness: 30 }
+        return 30
     } else {
-        return { hue: 0, saturation: 0, lightness: 99 }
+        return 99
     }
 }
 
 export class CloudClass implements CloudClassType {
     cloudCover: number
-    getCloudColor: () => string
+    getCloudLightness: () => number
     getDisplayString: () => string
     constructor(cloudCover: number, weatherCode: number) {
         this.cloudCover = cloudCover
-        this.getCloudColor = () => getCloudColor(weatherCode)
+        this.getCloudLightness = () => getCloudLightness(weatherCode)
         this.getDisplayString = () =>
             CLOUD_COVER_STRINGS[getCloudCoverMagnitude(cloudCover)]
     }

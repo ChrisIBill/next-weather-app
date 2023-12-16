@@ -25,6 +25,19 @@ type NumUnionType = number | number[]
 //        return this[key]
 //    }
 //}
+//
+export function calcTemperatureMagnitude2(vals: NumUnionType): NumUnionType {
+    try {
+        const avgTemp =
+            typeof vals === 'number' ? vals : vals.reduce((a, b) => a + b)
+        switch (true) {
+            case avgTemp < 50:
+        }
+    } catch (err) {
+        console.error(err)
+        return 0
+    }
+}
 
 export interface TemperatureClassType {
     //_tempDisplayString: () => string
@@ -52,20 +65,24 @@ export interface DayTemperatureClassType extends TemperatureClassType {
 
 function convertToFahrenheit(vals: NumUnionType): NumUnionType {
     return vals instanceof Array
-        ? vals.map((temp) => (temp * 9) / 5 + 32)
-        : (vals * 9) / 5 + 32
+        ? vals.map((temp) => Math.round((temp * 9) / 5 + 32))
+        : Math.round((vals * 9) / 5 + 32)
 }
 
-export function calcTemperatureMagnitude(vals: NumUnionType): NumUnionType {
+export function calcTemperatureMagnitude(vals: NumUnionType): number {
+    //newVal = ((oldVal - oldMin) * (newRange)) / (oldRange) + newMin
     try {
         const avgTemp =
             typeof vals === 'number' ? vals : vals.reduce((a, b) => a + b)
         if (avgTemp < LOWEST_TEMPERATURE) return -1
         else if (avgTemp > HIGHEST_TEMPERATURE) return 1
         else if (avgTemp <= MEDIAN_TEMPERATURE)
-            return (avgTemp - LOWEST_TEMPERATURE) / COLD_TEMPERATURE_RANGE - 1
+            return (
+                ((avgTemp - LOWEST_TEMPERATURE) * 10) / COLD_TEMPERATURE_RANGE -
+                10
+            )
         else if (avgTemp > MEDIAN_TEMPERATURE)
-            return (avgTemp - MEDIAN_TEMPERATURE) / HOT_TEMPERATURE_RANGE
+            return ((avgTemp - MEDIAN_TEMPERATURE) * 10) / HOT_TEMPERATURE_RANGE
         else throw new Error('Temperature magnitude error')
     } catch (err) {
         console.error(err)
@@ -148,7 +165,7 @@ export class DayTemperatureClass implements TemperatureClassType {
             userUnit === '°F'
                 ? this.getUserTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserTempRange().map((temp) => temp.toFixed(1))
-        return `${tempRange[0]}${userUnit} / ${tempRange[1]}${userUnit}`
+        return `${tempRange[0]} ${userUnit} / ${tempRange[1]} ${userUnit}`
     }
 
     getAppTempDisplayString(): string {
@@ -157,7 +174,7 @@ export class DayTemperatureClass implements TemperatureClassType {
             userUnit === '°F'
                 ? this.getUserAppTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserAppTempRange().map((temp) => temp.toFixed(1))
-        return `${tempRange[0]}${userUnit} / ${tempRange[1]}${userUnit}`
+        return `${tempRange[0]} ${userUnit} / ${tempRange[1]} ${userUnit}`
     }
 
     //private generateTempDisplayString(): string {
@@ -309,7 +326,8 @@ export const TemperatureComponentWrapper: React.FC<
     TemperatureComponentWrapperProps
 > = (props: TemperatureComponentWrapperProps): JSX.Element => {
     const userUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    return cloneElement(props.children as React.ReactElement, { userUnit })
+    return cloneElement(props.children as React.ReactElement)
+    //return <div>{props.children}</div>
 }
 export const convertToUserTemp = (
     value: number,

@@ -17,8 +17,8 @@ export interface WindClassType {
     _kn: () => number[]
     _degrees: number
     _beaufort: () => number[]
-    getSpeed: () => number
-    getGustSpeed: () => number
+    getSpeed: () => string
+    getGustSpeed: () => string
     getCardinalDirection: () => string
     getDescription: () => string
     getGustDescription: () => string
@@ -66,34 +66,34 @@ export default class WindClass implements WindClassType {
         this._beaufort = () =>
             this._kph.map((val) => memoizedKphToBeaufort(val))
     }
-    getSpeed = (): number => {
+    getSpeed = (): string => {
         const userUnit = localStorage.getItem('windUnit')
         switch (userUnit) {
             case 'kph':
-                return this._kph[0]
+                return this._kph[0] + ' kph'
             case 'mph':
-                return this._mph()[0]
+                return this._mph()[0] + ' mph'
             case 'ms':
-                return this._ms()[0]
+                return this._ms()[0] + ' ms'
             case 'kn':
-                return this._kn()[0]
+                return this._kn()[0] + ' kn'
             default:
-                return this._kph[0]
+                return this._kph[0] + ' kph'
         }
     }
-    getGustSpeed = (): number => {
+    getGustSpeed = (): string => {
         const userUnit = localStorage.getItem('windUnit')
         switch (userUnit) {
             case 'kph':
-                return this._kph[1]
+                return this._kph[1] + ' kph'
             case 'mph':
-                return this._mph()[1]
+                return this._mph()[1] + ' mph'
             case 'ms':
-                return this._ms()[1]
+                return this._ms()[1] + ' ms'
             case 'kn':
-                return this._kn()[1]
+                return this._kn()[1] + ' kn'
             default:
-                return this._kph[1]
+                return this._kph[1] + ' kph'
         }
     }
     getCardinalDirection = (): string => {

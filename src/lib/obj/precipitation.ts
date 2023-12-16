@@ -8,7 +8,7 @@ export type PrecipitationUnitStringsType =
 export type PrecipitationType = (typeof PRECIPITATION_TYPES)[number]
 
 export const RAIN_VOLUME_STRINGS = [
-    'none',
+    '',
     'drizzle',
     'light rain',
     'moderate rain',
@@ -16,14 +16,14 @@ export const RAIN_VOLUME_STRINGS = [
     'torrential rain',
 ] as const
 export const SNOW_VOLUME_STRINGS = [
-    'none',
+    '',
     'light snow',
     'moderate snow',
     'heavy snow',
     'blizzard',
 ] as const
 export const RAIN_CHANCE_STRINGS = [
-    'none',
+    '',
     'slight chance of',
     'chance of',
     'likely',
