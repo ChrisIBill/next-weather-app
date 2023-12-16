@@ -39,7 +39,8 @@ export const Clouds: React.FC<CloudsProps> = ({
     startPos,
     isCard,
 }: CloudsProps) => {
-    const speed = 15 + index * 7 + Math.random() * 2
+    const windSpeed = useForecastObjStore((state) => state.windMagnitude.state)
+    const speed = 15 - windSpeed + index * 7 + Math.random() * 2
     const cloudsKeyframe = keyframes`
         from {
             transform: translateX(${0}px);
@@ -159,7 +160,7 @@ export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
         const startPos = (i / numClouds) * 100 * xScale
         const baseHeight = (5 + 10 * i) * yScale
         const height = yScale * 10 * (i + 1) + baseHeight
-        const arch = 150 + yScale * 10 + baseHeight
+        const arch = yScale * 20 + yScale * 10 + baseHeight
 
         return (
             <Clouds
