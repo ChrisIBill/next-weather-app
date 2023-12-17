@@ -2,24 +2,33 @@ import {
     DailyWeatherForecastObjectType,
     DimensionsType,
 } from '@/lib/interfaces'
+import {
+    setForecastHour,
+    useForecastSetStore,
+    useSelectedForecastDay,
+    useSetForecastHour,
+} from '@/lib/obj/forecastStore'
 import { convertToUserTemp } from '@/lib/obj/temperature'
 import { useUserPrefsStore } from '@/lib/stores'
 import { useTheme } from '@mui/material'
 import { Area, AreaChart, Tooltip, XAxis, YAxis } from 'recharts'
 
 export interface HourlyWeatherChartProps {
-    forecastObj: DailyWeatherForecastObjectType
+    forecastObj: DailyWeatherForecastObjectType[]
     chartKey: string
-    handleChartSelect: (day: number) => void
     textColor?: string
     chartDimensions: DimensionsType
 }
 export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
-    props
+    props: HourlyWeatherChartProps
 ) => {
+    const selectedForecastDay = useSelectedForecastDay(props.forecastObj)
+    const setStateStore = useForecastSetStore()
     const palette = useTheme().palette
+    console.log('Selected Forecast Obj: ', selectedForecastDay)
     console.log('Forecast Obj: ', props.forecastObj)
-    const data = props.forecastObj.hourly_weather.map((hour, index) => {
+    const data = selectedForecastDay?.hourly_weather.map((hour, index) => {
+        console.log('Hour: ', hour)
         const time = hour.timeObj.dateObj.format('HH:mm')
         switch (props.chartKey) {
             case 'Temperature':
@@ -50,6 +59,12 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 }
         }
     })
+    const handleChartClick = (nextState: any, e: any) => {
+        const index = nextState.activeTooltipIndex
+        const hour = selectedForecastDay?.hourly_weather[index]
+        if (hour) setForecastHour(index, hour, setStateStore)
+    }
+    console.log('Data: ', data)
 
     const domainVal =
         props.chartKey == 'Precipitation' ? [0, 100] : ['auto', 'auto']
@@ -58,6 +73,7 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
             width={props.chartDimensions.width}
             height={props.chartDimensions.height - 42}
             data={data}
+            onClick={(nextState, e) => handleChartClick(nextState, e)}
             style={{
                 color: 'white',
             }}
