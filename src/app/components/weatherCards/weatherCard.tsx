@@ -1,4 +1,10 @@
-import { Card, CardActionArea, CardContent, Typography } from '@mui/material'
+import {
+    Card,
+    CardActionArea,
+    CardContent,
+    Typography,
+    styled,
+} from '@mui/material'
 import styles from './weatherCards.module.scss'
 import {
     DailyWeatherForecastObjectType,
@@ -27,9 +33,6 @@ export interface WeatherCardProps {
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
-    const setCloudCover = useForecastObjStore(
-        (state) => state.cloudMagnitude.setState
-    )
     const palette = useTheme().palette
 
     const setForecastStoreState = useForecastSetStore()
@@ -114,6 +117,14 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     )
 }
 
+const HeaderWrapper = styled('div')(({ theme }) => ({
+    [theme.breakpoints.down('lg')]: {
+        div: {
+            flexDirection: 'column',
+        },
+    },
+}))
+
 export interface CardHeaderProps {
     forecastObj?: DailyWeatherForecastObjectType
     timeObj: DayTimeClassType
@@ -122,6 +133,7 @@ export interface CardHeaderProps {
 
 const WeatherCardHeader = (props: CardHeaderProps) => {
     const date = props.timeObj.dateObj
+    const theme = useTheme()
     const weekdayString = () => {
         switch (props.index) {
             case 0:
@@ -133,17 +145,18 @@ const WeatherCardHeader = (props: CardHeaderProps) => {
         }
     }
     return (
-        <div
+        <HeaderWrapper
             style={{
                 display: 'flex',
                 width: '100%',
                 justifyContent: 'space-between',
+                //flexDirection: 'column',
             }}
         >
             <div className={styles.headerWrapper} style={{}}>
                 <Typography
                     variant="h5"
-                    align="left"
+                    //align="left"
                     style={{
                         alignSelf: 'flex-start',
                     }}
@@ -152,7 +165,7 @@ const WeatherCardHeader = (props: CardHeaderProps) => {
                 </Typography>
                 <Typography
                     variant="h6"
-                    align="left"
+                    //align="left"
                     style={{
                         alignSelf: 'flex-start',
                     }}
@@ -163,7 +176,7 @@ const WeatherCardHeader = (props: CardHeaderProps) => {
             <TemperatureReadout
                 temperatureObj={props.forecastObj?.temperatureObj}
             />
-        </div>
+        </HeaderWrapper>
     )
 }
 
@@ -180,6 +193,14 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
     forecastObj,
 }: CardContentProps) => {
     //const precipType = weather.rain_sum ?
+    const precipObj = forecastObj.precipitationObj
+    const chanceOfRain = precipObj.chance
+    const valueString = precipObj.getValueString()
+    const precipString = valueString
+        ? `${valueString}: ${chanceOfRain}%`
+        : chanceOfRain
+        ? `precip: ${chanceOfRain}%`
+        : ''
     return (
         <div className={styles.bodyWrapper} style={{}}>
             <Typography variant="body1">
@@ -188,9 +209,7 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
             <Typography variant="body1">
                 {forecastObj.windObj.getDescription()}
             </Typography>
-            <Typography variant="body1">
-                {forecastObj.precipitationObj.getDisplayString()}
-            </Typography>
+            <Typography variant="body1">{precipString}</Typography>
         </div>
     )
 }
