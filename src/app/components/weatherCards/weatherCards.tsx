@@ -10,23 +10,19 @@ import dayjs from 'dayjs'
 import React, { ReactHTMLElement, useEffect } from 'react'
 
 export interface WeatherCardsProps {
-    weatherForecast: DailyWeatherForecastType[]
     forecastObj: DailyWeatherForecastObjectType[]
-    handleCardSelect: (day: number) => void
-    selectedDay?: number
 }
 export const WeatherCards: React.FC<WeatherCardsProps> = (
     props: WeatherCardsProps
 ) => {
     const listWrapper = React.useRef<HTMLDivElement>(null)
-    const todaysForecast = props.weatherForecast[0]
 
     //If after sunset, show tomorrow's forecast first
     let showTomorrowFirst = false
-    if (todaysForecast?.current_weather?.time) {
-        const time = dayjs(todaysForecast.current_weather.time)
-        showTomorrowFirst = !time.isBefore(todaysForecast.sunset)
-    }
+    //if (todaysForecast?.current_weather?.time) {
+    //    const time = dayjs(todaysForecast.current_weather.time)
+    //    showTomorrowFirst = !time.isBefore(todaysForecast.sunset)
+    //}
     console.log('Forecast Object: ', props.forecastObj)
     const setScrollPosition = (element: any) => {
         element.current.scrollLeft = 1000
@@ -38,11 +34,8 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
             <div key={index} className={styles.cardWrapper}>
                 {weather ? (
                     <WeatherCard
-                        weather={props.weatherForecast[index]}
                         forecastObj={props.forecastObj[index]}
-                        handleCardSelect={props.handleCardSelect}
                         index={index}
-                        selectedDay={props.selectedDay}
                     />
                 ) : (
                     <Skeleton variant="rectangular" width={210} height={118} />
@@ -51,9 +44,9 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
         )
     })
 
-    useEffect(() => {
-        if (showTomorrowFirst) setScrollPosition(listWrapper)
-    })
+    //useEffect(() => {
+    //    if (showTomorrowFirst) setScrollPosition(listWrapper)
+    //}, [])
     return (
         <div className={styles.cardsListWrapper} ref={listWrapper}>
             <ul className={styles.cardsList}>{weatherCards}</ul>

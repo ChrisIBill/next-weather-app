@@ -14,18 +14,15 @@ import {
     TemperatureComponentWrapper,
 } from '@/lib/obj/temperature'
 import { PrecipitationClassType } from '@/lib/obj/precipitation'
+import { useUserPrefsStore } from '@/lib/stores'
 import {
-    useForecastSetStore,
     useForecastObjStore,
-    useUserPrefsStore,
-} from '@/lib/stores'
+    useForecastSetStore,
+} from '@/lib/obj/forecastStore'
 
 export interface WeatherCardProps {
-    weather: DailyWeatherForecastType
     forecastObj: DailyWeatherForecastObjectType
-    handleCardSelect: (day: number) => void
     index: number
-    selectedDay?: number
 }
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
@@ -33,14 +30,12 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     const setCloudCover = useForecastObjStore(
         (state) => state.cloudMagnitude.setState
     )
-    const weather = props.weather
     const palette = useTheme().palette
 
     const setForecastStoreState = useForecastSetStore()
 
     const handleCardSelect = (day: number) => {
-        props.handleCardSelect(day)
-        setForecastStoreState.setTime([props.index])
+        setForecastStoreState.setTime([props.index, undefined])
         setForecastStoreState.setTemperatureMagnitude(
             props.forecastObj?.temperatureObj.getAvgTemp()
         )
@@ -80,7 +75,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             <CardActionArea
                 className={styles.actionArea}
                 onClick={(event) => handleCardSelect(props.index)}
-                disabled={props.index == props.selectedDay}
+                //disabled={props.index == props.selectedDay}
                 sx={{
                     backgroundColor:
                         palette.mode === 'dark'
@@ -104,17 +99,13 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                             }
                         >
                             <WeatherCardHeader
-                                date={weather.time!}
                                 forecastObj={props.forecastObj}
                                 timeObj={newTimeObj}
                                 index={props.index}
                             />
                         </ErrorBoundary>
                         <br />
-                        <WeatherCardContent
-                            weather={weather}
-                            forecastObj={props.forecastObj}
-                        />
+                        <WeatherCardContent forecastObj={props.forecastObj} />
                     </div>
                 </CardContent>
             </CardActionArea>
@@ -124,7 +115,6 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
 }
 
 export interface CardHeaderProps {
-    date: string
     forecastObj?: DailyWeatherForecastObjectType
     timeObj: DayTimeClassType
     index: number
@@ -185,17 +175,10 @@ export const CardContentKeys = [
 
 export interface CardContentProps {
     forecastObj: DailyWeatherForecastObjectType
-    weather: DailyWeatherForecastType
 }
 const WeatherCardContent: React.FC<CardContentProps> = ({
     forecastObj,
-    weather,
 }: CardContentProps) => {
-    for (const key of CardContentKeys) {
-        if (weather[key] === undefined) {
-            weather[key] = 'N/A'
-        }
-    }
     //const precipType = weather.rain_sum ?
     return (
         <div className={styles.bodyWrapper} style={{}}>
