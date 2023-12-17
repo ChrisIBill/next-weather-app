@@ -4,7 +4,7 @@ import {
     ForecastStateKeysEnum,
     ForecastStateKeysType,
     useForecastObjStore,
-} from '@/lib/stores'
+} from '@/lib/obj/forecastStore'
 import React from 'react'
 import { DayTimeClassType } from '@/lib/obj/time'
 import { DEFAULT_HOUR_DATA } from '@/lib/obj/constants'
@@ -103,7 +103,6 @@ export interface TimeSliderProps {
 
 const TimeSlider: React.FC<{}> = () => {
     const [hour, setHour] = React.useState<number>(12)
-    const setState = useForecastObjStore((state) => state.time.setState)
     const setTimePercent = useForecastObjStore(
         (state) => state.timePercent.setState
     )

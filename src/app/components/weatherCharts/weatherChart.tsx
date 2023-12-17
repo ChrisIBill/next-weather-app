@@ -3,8 +3,6 @@ import {
     DailyWeatherForecastObjectType,
     DailyWeatherForecastType,
     DimensionsType,
-    ForecastObjectType,
-    HourlyWeatherDataType,
 } from '@/lib/interfaces'
 import styles from './weatherChart.module.scss'
 import { Box, Paper, useTheme } from '@mui/material'
@@ -12,8 +10,11 @@ import { WeatherChartHeader } from './chartComponents'
 import { HourlyWeatherChart } from './hourlyWeatherCharts'
 import { DailyWeatherChart } from './dailyWeatherChart'
 import { useWindowDimensions } from '@/lib/hooks'
-import { TimeObjectType } from '@/lib/time'
-import { useBackgroundColors } from '../background/dayNightColorLayer'
+import {
+    useForecastObjStore,
+    useForecastSetStore,
+    useSelectedForecastDay,
+} from '@/lib/obj/forecastStore'
 
 export const ChartTimespan = ['Day', 'Week'] as const
 export const ChartKeys = [
@@ -62,12 +63,6 @@ const useChartDimensions = () => {
 }
 
 export interface WeatherChartProps {
-    forecast: DailyWeatherForecastType[]
-    metadata: any
-    handleChartSelect: (day: number) => void
-    selectedDay?: number
-    selectedHour?: number
-    timeObj: TimeObjectType
     forecastObj?: DailyWeatherForecastObjectType[]
     parentRef: React.RefObject<HTMLDivElement>
 }
@@ -85,14 +80,11 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
     console.log('chart dimensions: ', chartDimensions)
     const palette = useTheme().palette
     //For contrast text
-    const bgColor = useBackgroundColors()[props.timeObj.timeOfDay!].sky
-    const contrastColor = palette.getContrastText(bgColor)
+    //const bgColor = useBackgroundColors()[props.forecastObj.timeOfDay!].sky
+    //const contrastColor = palette.getContrastText(bgColor)
 
     //const chartDimensions = useChartDimensions(props)
 
-    const selectedForecast = props.selectedDay
-        ? props.forecast[props.selectedDay]
-        : props.forecast[0]
     const [selectedVar, setSelectedVar] =
         React.useState<ChartDataKeys>('Temperature')
 
@@ -111,7 +103,7 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
         //including the chart dimensions element which handles the chart size
         console.log('Resizing')
     }, [windowDimensions])
-    if (props.forecast[0] === undefined) return <div>Loading...</div>
+    if (props.forecastObj?.[0] === undefined) return <div>Loading...</div>
     return (
         <Box
             className={styles.weatherChart}
@@ -173,7 +165,7 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
                         handleChartSelect={props.handleChartSelect}
                         selectedDay={props.selectedDay}
                         chartDimensions={chartDimensions}
-                        textColor={contrastColor}
+                        textColor={'white'}
                     />
                     {/* {chartType === 'Week' ? ( */}
                     {/*     <DailyWeatherChart */}
@@ -207,7 +199,7 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
 interface ChartComponentProps {
     chartKey: ChartDataKeys
     chartType: ChartTimespanType
-    handleChartSelect: (day: number, hour?: number) => void
+    handleChartSelect: (hour: number) => void
     selectedDay?: number
     chartDimensions: DimensionsType
     forecastObj?: DailyWeatherForecastObjectType[]
@@ -223,7 +215,7 @@ const ChartComponent: React.FC<ChartComponentProps> = (props) => {
             {props.chartType === 'Week' ? (
                 <DailyWeatherChart
                     chartKey={props.chartKey}
-                    handleChartSelect={props.handleChartSelect}
+                    //handleChartSelect={props.handleChartSelect}
                     chartDimensions={props.chartDimensions}
                     forecastObj={props.forecastObj}
                     textColor={props.textColor}
@@ -231,9 +223,9 @@ const ChartComponent: React.FC<ChartComponentProps> = (props) => {
             ) : (
                 <HourlyWeatherChart
                     chartKey={props.chartKey}
-                    handleChartSelect={props.handleChartSelect}
+                    //handleChartSelect={props.handleChartSelect}
                     chartDimensions={props.chartDimensions}
-                    forecastObj={props.forecastObj[props.selectedDay || 0]}
+                    forecastObj={props.forecastObj}
                     textColor={props.textColor}
                 />
             )}
