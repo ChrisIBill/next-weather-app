@@ -34,17 +34,17 @@ body.back-row-toggle .rain.back-row {
     //animation: drop 0.5s linear infinite;
 }
 
-@keyframes drop {
-    0% {
-        transform: translateY(0vh);
-    }
-    75% {
-        transform: translateY(75vh);
-    }
-    100% {
-        transform: translateY(100vh);
-    }
-}
+//@keyframes drop {
+//    0% {
+//        transform: translateY(0vh);
+//    }
+//    75% {
+//        transform: translateY(75vh);
+//    }
+//    100% {
+//        transform: translateY(100vh);
+//    }
+//}
 
 .stem {
     width: 1px;

@@ -3,7 +3,7 @@ import { css, keyframes } from '@emotion/react'
 import { BackgroundComponentsProps } from './components/background/background'
 import './rain.scss'
 import PrecipitationClass from '@/lib/obj/precipitation'
-import { useForecastObjStore } from '@/lib/stores'
+import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { WindClassType } from '@/lib/obj/wind'
 import { JSX } from '@emotion/react/jsx-runtime'
 import {
