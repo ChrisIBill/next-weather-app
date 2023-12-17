@@ -3,7 +3,8 @@
 import { useTheme } from '@mui/material/styles'
 import styles from './dayNightColorLayer.module.scss'
 import { DayTimeClassType, TimeClassType, TimeOfDayType } from '@/lib/obj/time'
-import { useForecastObjStore, useUserPrefsStore } from '@/lib/stores'
+import { useUserPrefsStore } from '@/lib/stores'
+import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
 import { rgbToHsl } from '@/lib/lib'
 

@@ -1,189 +1,10 @@
 /** @jsxImportSource @emotion/react */
-import React, { useEffect } from 'react'
+import React, { useMemo } from 'react'
 import styles from './clouds.module.scss'
-import { bezierCurve, hsl } from '@/lib/lib'
-import { TimeObjectType } from '@/lib/time'
-import { jsx, css, Global, keyframes } from '@emotion/react'
 import { useTheme } from '@mui/material'
-import { useWindowDimensions } from '@/lib/hooks'
 import { BackgroundComponentsProps } from './background'
-import { useForecastObjStore } from '@/lib/stores'
-import {
-    CLOUD_COLOR_MAP,
-    CloudClassType,
-    getCloudColor,
-    hslType,
-} from '@/lib/obj/cloudClass'
+import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
-
-export interface CloudsProps {
-    index: number
-    width: number
-    height: number
-    baseHeight: number
-    isCard?: boolean
-    zIndex?: number
-    scale?: number
-    arch: number
-    startPos: number
-    cloudCover?: number
-}
-export const Clouds: React.FC<CloudsProps> = ({
-    index,
-    width,
-    height,
-    baseHeight,
-    zIndex = 0,
-    scale = 1,
-    arch,
-    startPos,
-    isCard,
-}: CloudsProps) => {
-    console.log('Clouds')
-    const windSpeed = useForecastObjStore((state) => state.windMagnitude.state)
-    const speed = 15 - windSpeed + index * 7 + Math.random() * 2
-    const cloudsKeyframe = keyframes`
-        from {
-            webkitTransform: translateX(${0}px);
-            transform: translateX(${0}px);
-                    }
-        to {
-            webkitTransform: translateX(${width}px);
-            transform: translateX(${width}px);
-        }
-    `
-
-    const points = [
-        `M ${width} 0, ${-width * 2} 0`,
-        `Q ${-width * 1.5} ${arch}`,
-        `${-width} ${baseHeight}`,
-        `Q ${-width * 0.5} ${arch}`,
-        `0 ${baseHeight}`,
-        `Q ${width * 0.5} ${arch}`,
-        `${width} ${baseHeight}`,
-        `Q ${width * 1.5} ${arch}`,
-        `${width * 2} ${baseHeight}`,
-        `L ${width * 2} 0`,
-    ]
-    const testPath = points.join(' ')
-
-    return (
-        <div
-            className={styles.clouds}
-            css={css`
-                -webkit-animation: ${speed}s linear infinite forwards
-                    ${cloudsKeyframe};
-                will-change: transform;
-            `}
-            style={{
-                zIndex: zIndex,
-                left: `${-startPos}px`,
-            }}
-        >
-            <CloudStateWrapper
-                testPath={testPath}
-                index={index}
-                width={width}
-                height={height}
-                isCard={isCard}
-            />
-        </div>
-    )
-}
-
-export interface CloudWrapperProps {
-    testPath: string
-    index: number
-    width: number
-    height: number
-    isCard?: boolean
-    forecastObj?: DailyWeatherForecastObjectType
-    cloudLightness?: number
-}
-
-const CloudStateWrapper: React.FC<CloudWrapperProps> = (props) => {
-    return props.isCard ? (
-        <CloudCardStateWrapper {...props} />
-    ) : (
-        <CloudPageStateWrapper {...props} />
-    )
-}
-const CloudCardStateWrapper: React.FC<CloudWrapperProps> = (props) => {
-    const state = props.forecastObj?.cloudObj.getCloudLightness()
-    return <Cloud {...props} cloudLightness={state} />
-}
-const CloudPageStateWrapper: React.FC<CloudWrapperProps> = (props) => {
-    const cloudColor = useForecastObjStore(
-        (state) => state.cloudLightness.state
-    )
-    return <Cloud {...props} cloudLightness={cloudColor} />
-}
-
-export interface CloudProps {
-    testPath: string
-    index: number
-    width: number
-    height: number
-    isCard?: boolean
-    forecastObj?: DailyWeatherForecastObjectType
-    cloudLightness?: number
-}
-export const Cloud: React.FC<CloudProps> = (props) => {
-    const palette = useTheme().palette
-    const cloudColor = `hsl(0, 0%, ${
-        //Sets luminance value of cloud color based on cloud index and weather code
-        (props.cloudLightness ?? 99) -
-        props.index * 7 -
-        (palette.mode === 'dark' ? 15 : 0)
-    }%)`
-
-    return (
-        <svg
-            className={styles.cloud}
-            width={props.width * 4}
-            height={props.height}
-            version="1.1"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path d={props.testPath} fill={cloudColor} style={{}} />
-        </svg>
-    )
-}
-
-export interface CloudsGeneratorProps extends BackgroundComponentsProps {
-    cloudCover?: number
-}
-
-export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
-    console.log('Cloud Generator: ', props.cloudCover)
-    const windowDimensions = useWindowDimensions()
-    const numClouds = Math.round((props.cloudCover ?? 0) / 25)
-    const [xScale, yScale] = [props.xScale, props.yScale]
-    const width = xScale * 100
-
-    useEffect(() => {}, [windowDimensions])
-    const clouds = new Array(numClouds).fill(0).map((e, i) => {
-        const startPos = (i / numClouds) * 100 * xScale
-        const baseHeight = (5 + 10 * i) * yScale
-        const height = yScale * 10 * (i + 1) + baseHeight
-        const arch = yScale * 20 + yScale * 10 + baseHeight
-
-        return (
-            <Clouds
-                key={i}
-                index={i}
-                width={width}
-                height={height}
-                baseHeight={baseHeight}
-                zIndex={5 - i}
-                startPos={startPos}
-                scale={xScale}
-                arch={arch}
-            />
-        )
-    })
-    return <div className={'clouds'}>{clouds}</div>
-}
 
 export interface CloudsStateWrapper extends BackgroundComponentsProps {
     forecastObj?: DailyWeatherForecastObjectType
@@ -202,10 +23,10 @@ export const CloudsGeneratorStateWrapper: React.FC<CloudsStateWrapper> = (
 export const CloudsGeneratorCardStateWrapper: React.FC<CloudsStateWrapper> = (
     props
 ) => {
-    const state = props.forecastObj?.cloudObj
+    const state = props.forecastObj?.cloudObj.cloudCover ?? 0
     return (
         <div className={'clouds'}>
-            <CloudsGenerator {...props} cloudCover={state?.cloudCover} />
+            <CloudsGenerator {...props} cloudCover={state} />
         </div>
     )
 }
@@ -218,6 +39,197 @@ export const CloudsGeneratorPageStateWrapper: React.FC<
     return (
         <div className={'clouds'}>
             <CloudsGenerator {...props} cloudCover={cloudCover} />
+        </div>
+    )
+}
+
+export interface CloudsGeneratorProps extends BackgroundComponentsProps {
+    forecastObj?: DailyWeatherForecastObjectType
+    cloudCover: number
+    cloudLightness?: number
+    isCard?: boolean
+}
+
+export const CloudsGenerator: React.FC<CloudsGeneratorProps> = (props) => {
+    const numClouds = 4
+    const cloudMagnitude = Math.floor(props.cloudCover / 25)
+
+    const clouds = useMemo(
+        () =>
+            new Array(numClouds).fill(0).map((e, i) => {
+                const baseHeight = 10 + 5 * i
+                const height = 10 * (i + 1) + baseHeight
+                const arch = 30 + i * 2 + baseHeight
+
+                return (
+                    <CloudContainer
+                        forecastObj={props.forecastObj}
+                        key={i}
+                        index={i}
+                        width={props.width}
+                        height={props.height}
+                        cloudHeight={height}
+                        baseHeight={baseHeight}
+                        zIndex={5 - i}
+                        isCard={props.isCard}
+                        arch={arch}
+                    />
+                )
+            }),
+        [props.width, props.height, props.isCard, props.forecastObj]
+    )
+    return (
+        <div
+            className={'clouds'}
+            style={{
+                width: props.width,
+                height: props.height,
+            }}
+        >
+            {clouds.slice(0, cloudMagnitude)}
+        </div>
+    )
+}
+
+export interface CloudsProps {
+    forecastObj?: DailyWeatherForecastObjectType
+    index: number
+    width: number
+    height: number
+    baseHeight: number
+    isCard?: boolean
+    zIndex: number
+    arch: number
+    cloudCover?: number
+    cloudHeight?: number
+}
+const CloudContainer: React.FC<CloudsProps> = React.memo(
+    function CloudContainerMemo(props: CloudsProps) {
+        const points = [
+            `M 100 0 L -100 0`,
+            `-100 ${props.baseHeight}`,
+            `Q -50 ${props.arch}`,
+            `0 ${props.baseHeight}`,
+            `Q 50 ${props.arch}`,
+            `100 ${props.baseHeight}`,
+            `L 100 0`,
+        ]
+        const testPath = points.join(' ')
+        return (
+            <CloudStateWrapper
+                testPath={testPath}
+                index={props.index}
+                width={props.width}
+                height={props.height}
+                isCard={props.isCard}
+                forecastObj={props.forecastObj}
+                zIndex={props.zIndex}
+            />
+        )
+    }
+)
+
+export interface CloudWrapperProps {
+    testPath: string
+    index: number
+    width: number
+    height: number
+    isCard?: boolean
+    forecastObj?: DailyWeatherForecastObjectType
+    cloudLightness?: number
+    zIndex: number
+}
+
+const CloudStateWrapper: React.FC<CloudWrapperProps> = (props) => {
+    return props.isCard ? (
+        <CloudCardStateWrapper {...props} />
+    ) : (
+        <CloudPageStateWrapper {...props} />
+    )
+}
+const CloudCardStateWrapper: React.FC<CloudWrapperProps> = (props) => {
+    const cloudLightness = props.forecastObj?.cloudObj.getCloudLightness() ?? 0
+    const windSpeed = props.forecastObj?.windObj?._beaufort()[0] ?? 0
+    return (
+        <Cloud
+            {...props}
+            cloudLightness={cloudLightness}
+            windMagnitude={windSpeed}
+        />
+    )
+}
+const CloudPageStateWrapper: React.FC<CloudWrapperProps> = (props) => {
+    const cloudColor = useForecastObjStore(
+        (state) => state.cloudLightness.state
+    )
+    const windSpeed = useForecastObjStore((state) => state.windMagnitude.state)
+    return (
+        <Cloud
+            {...props}
+            cloudLightness={cloudColor}
+            windMagnitude={windSpeed}
+        />
+    )
+}
+
+export interface CloudProps {
+    testPath: string
+    index: number
+    width: number
+    height: number
+    isCard?: boolean
+    forecastObj?: DailyWeatherForecastObjectType
+    cloudLightness?: number
+    windMagnitude: number
+    zIndex: number
+}
+export const Cloud: React.FC<CloudProps> = (props) => {
+    const palette = useTheme().palette
+
+    const speed = 15 - props.windMagnitude + props.index * 7 + Math.random() * 2
+    const cloudColor = `hsl(0, 0%, ${
+        //Sets luminance value of cloud color based on cloud index and weather code
+        (props.cloudLightness ?? 99) -
+        props.index * 7 -
+        (palette.mode === 'dark' ? 15 : 0)
+    }%)`
+    //const isVisible = Math.floor((props.cloudCover ?? 0) / 30) >= props.index
+
+    return (
+        <div
+            className={styles.clouds}
+            style={{
+                width: props.width,
+                height: props.height,
+                zIndex: props.zIndex,
+                animationDuration: `${speed}s`,
+                left: '0',
+            }}
+        >
+            <div
+                style={{
+                    width: props.width,
+                    height: props.height,
+                    //visibility: isVisible ? 'visible' : 'hidden',
+                }}
+            >
+                <svg
+                    className={styles.cloud}
+                    version="1.1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox={`0 0 100 100`}
+                    width="100%"
+                    height="100%"
+                    preserveAspectRatio="none"
+                >
+                    <path
+                        d={props.testPath}
+                        fill={cloudColor}
+                        width="100"
+                        height="100"
+                    />
+                </svg>
+            </div>
         </div>
     )
 }

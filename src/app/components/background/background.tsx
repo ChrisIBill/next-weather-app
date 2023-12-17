@@ -58,7 +58,6 @@ export const Background: React.FC<BackgroundProps> = (
     const tempObj = props.forecastObj?.temperatureObj
 
     //TODO: Should probably handle client scaling higher up the tree
-    const windowDimensions = useWindowDimensions()
 
     const width = containerDimensions.width
     const height = containerDimensions.height
@@ -91,7 +90,7 @@ export const Background: React.FC<BackgroundProps> = (
         const { width, height } = handleContainerDimensions()
         console.log('width, height', width, height)
         setContainerDimensions(handleContainerDimensions())
-    }, [props.isCard, windowDimensions])
+    }, [props.isCard])
 
     return (
         <div

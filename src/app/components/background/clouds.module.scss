@@ -3,7 +3,7 @@
         transform: translateX(0%);
     }
     to {
-        transform: translateX(51%);
+        transform: translateX(100%);
     }
 }
 .clouds {
@@ -14,10 +14,13 @@
     left: 0;
     right: 0;
     height: 100%;
+    animation: clouds-loop 60s linear infinite;
+    -webkit-animation: clouds-loop 60s linear infinite;
+    will-change: transform;
 }
 
 .cloud {
     position: absolute;
-    //transition: fill 2s ease;
+    transition: fill 2s ease;
     overflow: visible;
 }

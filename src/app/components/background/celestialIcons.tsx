@@ -5,11 +5,8 @@ import { CelestialIcon, MoonIcon, SunIcon } from '../icons'
 import { bezierCurve } from '@/lib/lib'
 import { DayTimeClassType, TimeClassType } from '@/lib/obj/time'
 import { useTheme } from '@mui/material'
-import {
-    AnimationLevelsEnum,
-    useForecastObjStore,
-    useUserPrefsStore,
-} from '@/lib/stores'
+import { AnimationLevelsEnum, useUserPrefsStore } from '@/lib/stores'
+import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { PosCoordinates } from '@/lib/interfaces'
 
 export interface CelestialIconsHandlerProps {
