@@ -56,6 +56,27 @@ $background: var(--background);
     display: flex;
 }
 
+.weatherPageWrapper {
+    width: 100vw;
+    height: 100vh;
+    scrollbar-width: thin;
+    overflow-y: overlay;
+    overflow-x: hidden;
+    //&::-webkit-scrollbar {
+    //    width: 0;
+    //    position: absolute;
+    //    background: transparent;
+    //}
+    //&::-webkit-scrollbar-track {
+    //    background: transparent;
+    //}
+    //&::-webkit-scrollbar-thumb {
+    //    background: var(--text-primary);
+    //    width: 0.5rem;
+    //}
+    //&::-webkit-scrollbar-track-piece {
+    //}
+}
 .weatherPage {
     width: 100%;
     height: fit-content;
@@ -65,9 +86,8 @@ $background: var(--background);
 }
 .landingPage {
     width: 100%;
-    height: auto;
-    min-height: calc(100vh - 4rem);
-    max-height: max-content;
+    height: calc(100vh - 4rem);
+    //max-height: max-content;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -92,7 +112,7 @@ $background: var(--background);
 }
 .chartWrapper {
     box-sizing: border-box;
-    flex: 3;
+    flex: 1;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -102,15 +122,17 @@ $background: var(--background);
     max-height: 80vh;
 }
 .gradientLayer {
+    $background: var(--background);
+    pointer-events: none;
     position: fixed;
     z-index: 10;
     height: 100%;
     width: 100%;
     top: 0;
     left: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(0, 0, 0, 0.7) 0%,
-        rgba(0, 0, 0, 0) 30%
-    );
+    //background: linear-gradient(
+    //    180deg,
+    //    #{$background} 0%,
+    //    rgba(0, 0, 0, 0) 30%
+    //);
 }

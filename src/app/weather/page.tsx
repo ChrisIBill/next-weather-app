@@ -23,6 +23,8 @@ import {
     CurrentForecastStateHandler,
     useForecastSetStore,
 } from '@/lib/obj/forecastStore'
+import Scrollbars from 'react-custom-scrollbars-2'
+import { styled, useTheme } from '@mui/material'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -124,6 +126,12 @@ function handleWeatherForecast(
     })
 }
 
+const ChartWrapper = styled('div')(({ theme }) => ({
+    [theme.breakpoints.down('md')]: {
+        width: '75%',
+    },
+}))
+
 export default function Page({
     params,
     searchParams,
@@ -131,6 +139,7 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    const [mounted, setMounted] = useState<boolean>(false)
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
@@ -139,32 +148,11 @@ export default function Page({
     const [forecastObj, setForecastObj] = useState<
         DailyWeatherForecastObjectType[]
     >(Array(8).fill(undefined))
+    const theme = useTheme()
 
     console.log('Reloading Weather Page: ', params, searchParams)
 
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
-
-    //const setForecastStore = useForecastSetStore()
-
-    //Handles users time selection, which controls which weather data is displayed in detail
-    //const handleTimeSelect = (day?: number, hour?: number) => {
-    //    if (day) {
-    //        if (day > weatherForecast.length || day < 0)
-    //            throw new Error('Invalid day selection')
-    //        setSelectedDay(day)
-    //    }
-    //    if (hour) {
-    //        if (hour > 23 || hour < -1)
-    //            throw new Error('Invalid hour selection')
-    //        if (hour == -1 && day != 0)
-    //            throw new Error('Invalid hour selection')
-    //        setSelectedHour(hour)
-    //    } else setSelectedHour(undefined)
-    //}
-
-    //const getSelectedForecastDayObj = () => {
-    //    return forecastObj[selectedDay]
-    //}
 
     useEffect(() => {
         const location = handleWeatherSearch(searchParams)
@@ -182,67 +170,31 @@ export default function Page({
             })
     }, [searchParams])
 
-    //useEffect(() => {
-    //const handleInitialWeather = () => {
-    //    try {
-    //        setForecastStore.setTime('current')
-    //        setForecastStore.setCloudMagnitude(
-    //            forecastObj[0].cloudObj.cloudCover
-    //        )
-    //        setForecastStore.setCloudLightness(
-    //            forecastObj[0].cloudObj.getCloudLightness()
-    //        )
-    //    } catch (error) {
-    //        console.log(error)
-    //    }
-    //    try {
-    //        const { getTimePercent, getIsDay, getTimeOfDay } =
-    //            forecastObj[0].current_weather!.timeObj
-    //        setForecastStore.setTimePercent(getTimePercent!())
-    //        setForecastStore.setIsDay(getIsDay!())
-    //        setForecastStore.setTimeOfDay(getTimeOfDay!())
-    //    } catch (error) {
-    //        console.log(error)
-    //    }
-    //    try {
-    //        setForecastStore.setRainMagnitude(
-    //            forecastObj[0].current_weather!.precipitationObj.getMagnitude()
-    //        )
-    //        setForecastStore.setWindMagnitude(
-    //            forecastObj[0].current_weather!.windObj._beaufort()[0]
-    //        )
-    //        setForecastStore.setTemperatureMagnitude(
-    //            forecastObj[0].current_weather!.temperatureObj.getMagnitude()
-    //        )
-    //    } catch (error) {
-    //        console.log(error)
-    //    }
-    //}
-    //if (forecastObj[0] !== undefined && isFirstRender.current) {
-    //    isFirstRender.current = false
-    //    handleInitialWeather()
-    //}
-    //}, [forecastObj, setForecastStore, isFirstRender])
-
-    const { width, height } = useWindowDimensions() ?? { width: 0, height: 0 }
+    const { width, height } = useWindowDimensions() ?? {
+        width: 0,
+        height: 0,
+    }
     return (
         <div
             className={styles.weatherPageWrapper}
-            style={{
-                width: '100vw',
-                height: '100vh',
-                overflowY: 'scroll',
-                overflowX: 'hidden',
-            }}
+            data-theme={theme.palette.mode}
         >
             <CurrentForecastStateHandler forecastObj={forecastObj} />
             <div className={styles.weatherPage}>
                 <div className={styles.contentWrapper}>
                     <div className={styles.landingPage}>
                         <SelectedForecastReadout forecastObj={forecastObj} />
-                        <div
+                        <ChartWrapper
                             className={styles.chartWrapper}
                             ref={chartWrapperRef}
+                            style={{
+                                display: 'flex',
+                                width: '90%',
+                                //paddingLeft: '30px',
+                                paddingRight: '20px',
+                                paddingBottom: '20px',
+                                alignSelf: 'center',
+                            }}
                         >
                             {chartWrapperRef.current !== null ? (
                                 <WeatherChart
@@ -252,22 +204,40 @@ export default function Page({
                             ) : (
                                 <div></div>
                             )}
-                        </div>
+                        </ChartWrapper>
                         <div className={styles.cardsWrapper}>
                             <WeatherCards forecastObj={forecastObj} />
                         </div>
                     </div>
 
                     <div className={styles.reportsPage}>
-                        <HourlyWeatherReport
-                            //forecast={getSelectedForecastDay()}
-                            forecastObj={forecastObj}
-                        />
+                        <HourlyWeatherReport forecastObj={forecastObj} />
                     </div>
                 </div>
                 <Background />
-                <div className={styles.gradientLayer} />
+                <GradientLayer />
             </div>
         </div>
+    )
+}
+
+const GradientLayer: React.FC = () => {
+    const [mounted, setMounted] = useState<boolean>(false)
+    const theme = useTheme()
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+    if (!mounted) return null
+    return (
+        <div
+            className={styles.gradientLayer}
+            style={{
+                backgroundImage: `linear-gradient(180deg, ${
+                    theme.palette.mode === 'dark'
+                        ? 'rgba(0,0,0,1)'
+                        : 'rgba(255,255,255,0.5)'
+                } 0%, rgba(255,255,255,0) 30%)`,
+            }}
+        />
     )
 }

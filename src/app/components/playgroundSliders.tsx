@@ -5,7 +5,7 @@ import {
     ForecastStateKeysType,
     useForecastObjStore,
 } from '@/lib/obj/forecastStore'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { DayTimeClassType } from '@/lib/obj/time'
 import { DEFAULT_HOUR_DATA } from '@/lib/obj/constants'
 import { calcTemperatureMagnitude } from '@/lib/obj/temperature'
@@ -16,6 +16,14 @@ export interface PlaygroundSlidersProps {
 export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
     props: PlaygroundSlidersProps
 ) => {
+    const [mounted, setMounted] = React.useState<boolean>(false)
+    const palette = useTheme().palette
+
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+    if (!mounted) return null
+
     return (
         <Paper
             className={styles.sliderWrapper}
@@ -23,6 +31,7 @@ export const PlaygroundSliders: React.FC<PlaygroundSlidersProps> = (
                 padding: '1rem',
                 position: 'relative',
                 zIndex: 100,
+                backgroundColor: palette.background.default,
             }}
         >
             <TimeSlider />
