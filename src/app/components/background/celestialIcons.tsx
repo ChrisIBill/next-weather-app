@@ -24,30 +24,14 @@ export const CelestialIconsHandler: React.FC<CelestialIconsHandlerProps> = (
     props: CelestialIconsHandlerProps
 ) => {
     const animationLevel = useUserPrefsStore((state) => state.animationLevel)
-    console.log('CelestialIconsHandler props', props)
     //TODO: Need a static and dynamic version of this, static for cards, dynamic for main, for better handling of state
     const ref = React.useRef<HTMLDivElement>(null)
 
-    const palette = useTheme().palette
-    //TODO: Should probably handle client scaling higher up the tree
     const width = props.wrapperWidth ?? 300
     const height = props.wrapperHeight ?? 300
     const yScale = height / 300
     const xScale = width / 300
     const iconSize = xScale > 3 ? 30 * xScale : 80
-    console.log('Scaling calcs: ', { xScale, yScale, iconSize })
-    const [p0, p1, p2, p3] = [
-        { x: 0 * xScale, y: 90 * yScale },
-        { x: 100 * xScale, y: 0 * yScale },
-        { x: 200 * xScale, y: 0 * yScale },
-        { x: 300 * xScale, y: 90 * yScale },
-    ]
-    let bezierPath = ''
-    for (let i = 0; i < 1.01; i += 0.01) {
-        const { x, y } = bezierCurve(i, p0, p1, p2, p3)
-        bezierPath += `L${x} ${y}`
-    }
-
     return (
         <div
             className="CelestialsContainer"
@@ -60,7 +44,7 @@ export const CelestialIconsHandler: React.FC<CelestialIconsHandlerProps> = (
                 height: props.isCard ? '100%' : '100vh',
             }}
         >
-            {animationLevel <= AnimationLevelsEnum.Low ? (
+            {props.isCard || animationLevel <= AnimationLevelsEnum.Low ? (
                 <StaticCelestialIcons iconSize={iconSize} />
             ) : (
                 <CelestialIconsPathGenerator
@@ -96,7 +80,7 @@ export const StaticCelestialIcons: React.FC<CelestialIconsProps> = (
                 backgroundColor: 'transparent',
                 width: props.iconSize,
                 height: props.iconSize,
-                //top: '50%',
+                //top: '-30%',
                 //left: '50%',
             }}
         >
@@ -149,33 +133,26 @@ export const CelestialIconsPathGenerator = memo(
                 xmlns="http://www.w3.org/2000/svg"
             >
                 {/* <path d={bezierString} stroke="#111" /> */}
-                {props.isCard ? (
-                    <CardCelestialIcons
-                        bezierPath={bezierPath}
-                        bezierString={bezierString}
-                        iconSize={props.iconSize}
-                        timeObj={props.timeObj}
-                        wrapperWidth={props.wrapperWidth}
-                        wrapperHeight={props.wrapperHeight}
-                        // xScale={props.xScale}
-                        // yScale={props.yScale}
-                    />
-                ) : (
-                    <PageCelestialIcons
-                        timeObj={props.timeObj}
-                        bezierPath={bezierPath}
-                        bezierString={bezierString}
-                        iconSize={props.iconSize}
-                        wrapperWidth={props.wrapperWidth}
-                        wrapperHeight={props.wrapperHeight}
-                        //xScale={props.xScale}
-                        //yScale={props.yScale}
-                    />
-                )}
+                <PageCelestialIcons
+                    timeObj={props.timeObj}
+                    bezierPath={bezierPath}
+                    bezierString={bezierString}
+                    iconSize={props.iconSize}
+                    wrapperWidth={props.wrapperWidth}
+                    wrapperHeight={props.wrapperHeight}
+                    //xScale={props.xScale}
+                    //yScale={props.yScale}
+                />
             </svg>
         )
     }
 )
+
+export const CelestialIconsStateWrapper: React.FC<any> = (props: any) => {
+    const timePercent = useForecastObjStore((state) => state.timePercent.state)
+    const isDay = useForecastObjStore((state) => state.isDay.state)
+    return <CelestialIcons {...props} timePercent={timePercent} isDay={isDay} />
+}
 
 export interface DynamicCelestialIconsProps extends CelestialIconsProps {
     isCard?: boolean
@@ -191,68 +168,7 @@ export interface PageCelestialIconsProps extends DynamicCelestialIconsProps {}
 export const PageCelestialIcons: React.FC<PageCelestialIconsProps> = (
     props: DynamicCelestialIconsProps
 ) => {
-    const prevTimePercent = useRef(0)
     const [firstTime, setFirstTime] = React.useState(true)
-    const palette = useTheme().palette
-    const time = useForecastObjStore((state) => state.time.state)
-    const timePercent = useForecastObjStore((state) => state.timePercent.state)
-    const isDay = useForecastObjStore((state) => state.isDay.state)
-    const bezierIndex = Math.round(timePercent * 100)
-    const bezierPos = props.bezierPath[bezierIndex]
-
-    useEffect(() => {
-        if (firstTime) setFirstTime(false)
-    }, [firstTime])
-
-    return (
-        <g>
-            {firstTime ? (
-                <animateMotion
-                    dur="10s"
-                    fill="freeze"
-                    repeatCount="1"
-                    path={props.bezierString}
-                    keyPoints={`${0}; ${timePercent}`}
-                    keyTimes="0; 1"
-                    keySplines="0 0 0.58 1; "
-                />
-            ) : (
-                <></>
-            )}
-            <foreignObject
-                className={styles.svgIconObject}
-                x={firstTime ? undefined : bezierPos.x}
-                y={firstTime ? undefined : bezierPos.y}
-                width={props.iconSize}
-                height={props.iconSize}
-                style={{
-                    position: 'absolute',
-                }}
-            >
-                <div
-                    className={styles.iconWrapper}
-                    style={{
-                        overflow: 'visible',
-                        width: props.iconSize,
-                        height: props.iconSize,
-                        top: -props.iconSize * 0.5,
-                        left: -props.iconSize * 0.5,
-                    }}
-                >
-                    <CelestialIcon isDay={isDay} size={props.iconSize} />
-                </div>
-            </foreignObject>
-        </g>
-    )
-}
-
-export const CardCelestialIcons: React.FC<DynamicCelestialIconsProps> = (
-    props: DynamicCelestialIconsProps
-) => {
-    const prevTimePercent = useRef(0)
-    const [firstTime, setFirstTime] = React.useState(true)
-    const palette = useTheme().palette
-    const time = useForecastObjStore((state) => state.time.state)
     const timePercent = useForecastObjStore((state) => state.timePercent.state)
     const isDay = useForecastObjStore((state) => state.isDay.state)
     const bezierIndex = Math.round(timePercent * 100)

@@ -66,13 +66,13 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
     return (
         <Card
             className={styles.weatherCard}
-            variant="elevation"
+            //variant="elevation"
             sx={{
                 position: 'relative',
                 backgroundColor: `${palette.primary.main}`,
                 color: `${palette.primary.contrastText}`,
                 borderRadius: '16px',
-                boxShadow: '0 4px 30px rgba(0, 0, 0, 0.1)',
+                boxShadow: '3px 6px 10px rgba(0, 0, 0, 0.9)',
             }}
         >
             <CardActionArea
@@ -221,9 +221,8 @@ interface ReadoutProps {
 
 const TemperatureReadout: React.FC<ReadoutProps> = (props: ReadoutProps) => {
     const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    const temperatureStrings = props.temperatureObj
-        ?.getTempDisplayString()
-        .split('/') ?? ['', '']
+    const temperatureStrings =
+        props.temperatureObj?.getTempDisplayStrings() ?? ['', '']
     return (
         <div>
             <Typography variant="body1" gutterBottom>

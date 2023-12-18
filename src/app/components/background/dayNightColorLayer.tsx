@@ -79,9 +79,9 @@ export interface ColorLayerProps {
 
 export const ColorLayerWrapper: React.FC<ColorLayerProps> = (props) => {
     return props.isCard ? (
-        <ColorLayerStaticWrapper />
+        <ColorLayerStaticWrapper {...props} />
     ) : (
-        <ColorLayerStateWrapper />
+        <ColorLayerStateWrapper {...props} />
     )
 }
 export const ColorLayerStateWrapper: React.FC<ColorLayerProps> = (props) => {
@@ -122,6 +122,7 @@ export const ColorLayerStaticWrapper: React.FC<ColorLayerProps> = (
 
 export interface DayNightColorLayerProps extends ColorLayerProps {
     timeOfDay?: TimeOfDayType
+    isCard?: boolean
     isDay?: boolean
     timePercent?: number
     temperatureMagnitude?: number
@@ -177,9 +178,10 @@ export interface StarryNightBackgroundProps {
 export const StarryNightBackground: React.FC<StarryNightBackgroundProps> = (
     props: StarryNightBackgroundProps
 ) => {
+    console.log('StarryNightBackground', props)
     return (
         <div className={styles.starsWrapper}>
-            <Stars num={props.isCard ? 100 : 300} />
+            <Stars num={props.isCard ? 50 : 400} />
         </div>
     )
 }
