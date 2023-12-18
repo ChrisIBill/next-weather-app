@@ -1,4 +1,7 @@
-import { HourlyForecastObjectType } from '@/lib/interfaces'
+import {
+    DailyWeatherForecastObjectType,
+    HourlyForecastObjectType,
+} from '@/lib/interfaces'
 import '../../_styles.scss'
 import styles from './hourlyWeatherReport.module.css'
 import {
@@ -20,8 +23,12 @@ import {
 } from '@/lib/obj/temperature'
 import { PrecipitationClassType } from '@/lib/obj/precipitation'
 import { WindClassType } from '@/lib/obj/wind'
-import { useForecastSetStore } from '@/lib/stores'
+import {
+    useForecastSetStore,
+    useSelectedForecastDay,
+} from '@/lib/obj/forecastStore'
 import { DEFAULT_HOUR_DATA } from '@/lib/obj/time'
+import { CloudClassType } from '@/lib/obj/cloudClass'
 
 interface StringMappedObject {
     [key: string]: string
@@ -107,7 +114,7 @@ export function TemperatureTableCell(props: TemperatureTableCellProps) {
         <TableCell
             size="medium"
             key={props.key}
-            title={`Feels like: ${props.obj.getAppTempDisplayString()}`}
+            title={('Feels like: ', props.obj.getAppTempDisplayStrings())}
             sx={{
                 color: props.palette.textSecondary,
                 textAlign: 'center',
@@ -116,7 +123,7 @@ export function TemperatureTableCell(props: TemperatureTableCellProps) {
                 width: props.columnWidth + '%',
             }}
         >
-            {props.obj.getTempDisplayString()}
+            {props.obj.getTempDisplayStrings()}
         </TableCell>
     )
 }
@@ -127,11 +134,12 @@ interface PrecipitationTableCellProps extends StateTableCellProps {
 
 export function PrecipitationTableCell(props: PrecipitationTableCellProps) {
     const state = useUserPrefsStore((state) => state.precipitationUnit)
+    const displayString = props.obj.getDisplayString()
     return (
         <TableCell
             size="medium"
             key={props.key}
-            title={`${props.obj.chance}% chance of ${props.obj.getUserValue}`}
+            title={`${props.obj.chance}% chance of ` + props.obj.getUserValue()}
             sx={{
                 color: props.palette.textSecondary,
                 textAlign: 'center',
@@ -140,7 +148,7 @@ export function PrecipitationTableCell(props: PrecipitationTableCellProps) {
                 width: props.columnWidth + '%',
             }}
         >
-            {props.obj.getDisplayString()}
+            {displayString === '' ? props.obj.chance + '%' : displayString}
         </TableCell>
     )
 }
@@ -173,6 +181,29 @@ export function WindTableCell(props: WindTableCellProps) {
             }}
         >
             {props.obj.getDescription()}
+        </TableCell>
+    )
+}
+
+export interface CloudTableCellProps extends StateTableCellProps {
+    obj: CloudClassType
+}
+
+export function CloudTableCell(props: CloudTableCellProps) {
+    return (
+        <TableCell
+            size="medium"
+            key={props.key}
+            title={props.obj.cloudCover + '% cloud cover'}
+            sx={{
+                color: props.palette.textSecondary,
+                textAlign: 'center',
+            }}
+            style={{
+                width: props.columnWidth + '%',
+            }}
+        >
+            {props.obj.getDisplayString()}
         </TableCell>
     )
 }
@@ -216,6 +247,13 @@ export const bodyTableCellHandler = (
                 columnWidth: width,
                 palette: palette,
             })
+        case 'cloudObj':
+            return CloudTableCell({
+                key: key,
+                obj: hour.cloudObj,
+                columnWidth: width,
+                palette: palette,
+            })
         default:
             return GenericTableCell({
                 key: 'undefinedCell',
@@ -228,10 +266,7 @@ export const bodyTableCellHandler = (
 
 export interface HourlyWeatherReportProps {
     //forecast?: DailyWeatherForecastType
-    forecastObj?: HourlyForecastObjectType[]
-    metadata?: any
-    selectedHour?: number
-    handleTimeSelect?: (day?: number, hour?: number) => void
+    forecastObj?: DailyWeatherForecastObjectType[]
 }
 
 export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
@@ -241,11 +276,11 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     const palette = useTheme().palette
 
     const el = React.useRef<HTMLTableRowElement>(null)
+    const selectedForecastDay = useSelectedForecastDay(props.forecastObj)
     const hourlyForecast =
-        typeof props.forecastObj !== 'undefined'
-            ? props.forecastObj
+        typeof selectedForecastDay !== 'undefined'
+            ? selectedForecastDay.hourly_weather
             : new Array(24).fill(0).map((_, i) => {})
-    const handleTimeSelect = props.handleTimeSelect
     //const defaultTime = props.forecast?.current_weather?.time
     //    ? dayjs(props.forecast.current_weather.time).hour()
     //    : 11
@@ -258,6 +293,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         'temperatureObj',
         'precipitationObj',
         'windObj',
+        'cloudObj',
         //'weathercode',
     ]
     //TODO:
@@ -331,17 +367,16 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                 sx={{
                     borderRadius: '0.5rem',
                     margin: '1rem',
-                    width: 'fit-content',
+                    width: '900px',
                     background: 'transparent',
-                    borderBottom: `1px solid ${palette.primary.contrastText}`,
-                    scrollPaddingTop: '2rem',
+                    boxShadow: '3px 6px 10px rgba(0, 0, 0, 0.9)',
                 }}
             >
                 <Table
                     stickyHeader
                     sx={{
                         minHeight: 0,
-                        minWidth: 650,
+                        minWidth: 450,
                     }}
                     style={{
                         tableLayout: 'fixed',
