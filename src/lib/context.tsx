@@ -3,6 +3,7 @@ import { createContext, useContext, useMemo, useState } from 'react'
 import { PaletteMode, Theme, createTheme } from '@mui/material'
 import { getPaletteMode } from './paletteHandler'
 import { ThemeProvider } from '@mui/material/styles'
+import { setToLocalStorage } from './stores'
 
 const THEME_TYPES = ['light', 'dark'] as const
 type ThemeType = (typeof THEME_TYPES)[number]
@@ -38,11 +39,18 @@ export interface ThemeProviderProps {
 
 const getInitialTheme = () => {
     let theme = 'light'
+    console.log('getting initial theme')
     if (typeof window === 'undefined') return theme
     if (localStorage !== undefined && localStorage.getItem('theme')) {
+        console.log(
+            'localStorage.getItem("theme")',
+            localStorage.getItem('theme')
+        )
         const local = localStorage.getItem('theme')
-        const parsed = local ? JSON.parse(local) : 'light'
-        if (THEME_TYPES.includes(parsed)) theme = parsed
+        const parsed = local ? local : 'light'
+        if (['light', 'dark'].includes(parsed)) {
+            theme = parsed
+        }
     } else if (
         window.matchMedia &&
         window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -55,11 +63,17 @@ const getInitialTheme = () => {
 }
 
 export const UserThemeProvider = (props: ThemeProviderProps) => {
-    const [mode, setMode] = useState<PaletteMode>(getInitialTheme())
+    const [mode, setMode] = useState<PaletteMode>(
+        getInitialTheme() as PaletteMode
+    )
     const colorMode = useMemo(
         () => ({
             toggleColorMode: () => {
-                setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'))
+                setMode((prevMode) => {
+                    const nextMode = prevMode === 'light' ? 'dark' : 'light'
+                    setToLocalStorage('theme', nextMode)
+                    return nextMode
+                })
             },
         }),
         []
