@@ -5,6 +5,7 @@ import styles from './layout.module.css'
 //import NavBar from './components/navbar/navbar'
 import { UserThemeProvider } from '@/lib/context'
 import dynamic from 'next/dynamic'
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,10 +26,12 @@ export default function RootLayout({
     return (
         <html lang="en" className={styles.html}>
             <body className={styles.body}>
-                <UserThemeProvider>
-                    <NavBar />
-                    <main className={styles.main}>{children}</main>
-                </UserThemeProvider>
+                <AppRouterCacheProvider>
+                    <UserThemeProvider>
+                        <NavBar />
+                        <main className={styles.main}>{children}</main>
+                    </UserThemeProvider>
+                </AppRouterCacheProvider>
             </body>
         </html>
     )
