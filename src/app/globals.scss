@@ -46,6 +46,25 @@ a {
     color: inherit;
     text-decoration: none;
 }
+*::-webkit-scrollbar {
+    visibility: hidden;
+    width: 3px;
+}
+*::-webkit-scrollbar:hover {
+}
+*::-webkit-scrollbar-track:hover {
+    visibility: hidden;
+}
+*::-webkit-scrollbar-track {
+    visibility: hidden;
+    width: 3px;
+}
+*::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    //border: 4px solid transparent;
+    background-color: white;
+    background-clip: content-box;
+}
 
 [data-theme='dark'] {
     --background: #{$dark-background};
