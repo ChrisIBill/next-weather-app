@@ -7,7 +7,7 @@ import {
     ForecastObjectType,
     HourlyForecastObjectType,
 } from '../interfaces'
-import { useTheme } from '@mui/material'
+import { PaletteMode, useTheme } from '@mui/material'
 import { useEffect, useRef } from 'react'
 
 export type TimeStateType = 'current' | [number, number | undefined]
@@ -210,13 +210,8 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
             state: 10,
             setState: (cloudMagnitude: number) => {
                 set((state) => {
-                    console.log('Setting cloud cover to ' + cloudMagnitude)
-                    if (state.cloudMagnitude.state === cloudMagnitude) {
-                        console.log(
-                            'Cloud cover already set to ' + cloudMagnitude
-                        )
+                    if (state.cloudMagnitude.state === cloudMagnitude)
                         return state
-                    }
                     return {
                         ...state,
                         cloudMagnitude: {
@@ -231,13 +226,8 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
             state: 99,
             setState: (cloudLightness: number) => {
                 set((state) => {
-                    console.log('Setting cloud lightness to ' + cloudLightness)
-                    if (state.cloudLightness.state === cloudLightness) {
-                        console.log(
-                            'Cloud lightness already set to ' + cloudLightness
-                        )
+                    if (state.cloudLightness.state === cloudLightness)
                         return state
-                    }
                     return {
                         ...state,
                         cloudLightness: {
@@ -252,11 +242,9 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
             state: 0,
             setState: (temperature: number) => {
                 set((state) => {
-                    if (state.temperatureMagnitude.state === temperature) {
+                    if (state.temperatureMagnitude.state === temperature)
                         return state
-                    }
                     const newState = setToRange(temperature, -10, 10)
-                    console.log('Setting temperature to ' + newState)
                     return {
                         ...state,
                         temperatureMagnitude: {
@@ -350,6 +338,38 @@ export function useSetForecastDay(
         )
     } catch (e) {
         console.error('Error in useSetForecastDay setting day: ', dayIndex)
+    }
+}
+
+export function setForecastDay(
+    dayIndex: number,
+    day: DailyWeatherForecastObjectType,
+    setForecastStore: any,
+    mode: PaletteMode
+) {
+    console.log('Setting day: ', dayIndex, ' with props: ', day, mode)
+    try {
+        setForecastStore.setTime([dayIndex, undefined])
+        setForecastStore.setTimePercent()
+        setForecastStore.setIsDay(mode === 'light' ? true : false)
+        setForecastStore.setTimeOfDay(mode === 'light' ? 'day' : 'night')
+        setForecastStore.setRainMagnitude(day.precipitationObj.getMagnitude())
+        //setForecastStore.setSnowMagnitude(day.precipitationObj.getSnowMagnitude?.())
+        setForecastStore.setWindMagnitude(day.windObj._beaufort()[0])
+        setForecastStore.setCloudMagnitude(day.cloudObj.cloudCover)
+        setForecastStore.setCloudLightness(day.cloudObj.getCloudLightness())
+        setForecastStore.setTemperatureMagnitude(
+            day.temperatureObj.getMagnitude()
+        )
+    } catch (e) {
+        console.error(
+            'Error in SetForecastDay setting day: ',
+            dayIndex,
+            ' with props: ',
+            day,
+            mode,
+            setForecastStore
+        )
     }
 }
 

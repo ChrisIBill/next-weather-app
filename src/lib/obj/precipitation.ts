@@ -55,6 +55,8 @@ export interface PrecipitationClassType {
     getUserValue: () => string
     getMagnitude: () => number
     getDisplayString: () => string
+    getValueString: () => string
+    getChanceString: () => string
 }
 
 export default class PrecipitationClass implements PrecipitationClassType {
@@ -135,13 +137,13 @@ export default class PrecipitationClass implements PrecipitationClassType {
             ? this.getChanceMagnitude()
             : 0
     }
-    private getValueString(): string {
+    getValueString(): string {
         return this.type === 'rain'
             ? `${RAIN_VOLUME_STRINGS[this.getValueMagnitude()]}`
             : `${SNOW_VOLUME_STRINGS[this.getValueMagnitude()]}`
     }
-    private getChanceString(): string {
-        return `${this.chance}% chance of`
+    getChanceString(): string {
+        return `${this.chance}%`
     }
 
     private calcDisplayString(): string {

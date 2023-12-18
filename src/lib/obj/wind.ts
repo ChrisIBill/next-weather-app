@@ -7,6 +7,7 @@ import {
     CARDINAL_DIRECTIONS,
     BEAUFORT_SPEEDS,
 } from './constants'
+import { cloneElement } from 'react'
 
 export type BeaufortScaleType = (typeof BEAUFORT_SCALE)[number]
 
@@ -40,6 +41,24 @@ export const memoizedKphToMph = memoize(kphToMph)
 export const memoizedKphToMs = memoize(kphToMs)
 export const memoizedKphToKn = memoize(kphToKn)
 export const memoizedKphToBeaufort = memoize(kphToBeaufort)
+
+export const convertToUserWindSpeed = (
+    val: number,
+    userUnit: WindUnitStringsType
+) => {
+    switch (userUnit) {
+        case 'kph':
+            return val
+        case 'mph':
+            return memoizedKphToMph(val)
+        case 'ms':
+            return memoizedKphToMs(val)
+        case 'kn':
+            return memoizedKphToKn(val)
+        default:
+            return val
+    }
+}
 
 export default class WindClass implements WindClassType {
     _kph: number[]
@@ -107,4 +126,15 @@ export default class WindClass implements WindClassType {
     getGustDescription = (): string => {
         return BEAUFORT_SCALE[this._beaufort()[1]].description
     }
+}
+
+interface WindComponentWrapperProps {
+    children: React.ReactNode
+}
+
+export const WindComponentWrapper: React.FC<WindComponentWrapperProps> = (
+    props: WindComponentWrapperProps
+): JSX.Element => {
+    const userUnit = localStorage.getItem('precipitationUnit')
+    return cloneElement(props.children as React.ReactElement, { userUnit })
 }
