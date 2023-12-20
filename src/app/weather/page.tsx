@@ -25,6 +25,7 @@ import {
 } from '@/lib/obj/forecastStore'
 import Scrollbars from 'react-custom-scrollbars-2'
 import { styled, useTheme } from '@mui/material'
+import { ScrollButton } from '../components/scrollButton'
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | undefined
@@ -139,7 +140,7 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
-    const [mounted, setMounted] = useState<boolean>(false)
+    const scrollRef = useRef<HTMLDivElement>(null)
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
         Array(8).fill(undefined)
@@ -176,6 +177,7 @@ export default function Page({
     }
     return (
         <div
+            ref={scrollRef}
             className={styles.weatherPageWrapper}
             data-theme={theme.palette.mode}
         >
@@ -190,9 +192,7 @@ export default function Page({
                             style={{
                                 display: 'flex',
                                 width: '90%',
-                                //paddingLeft: '30px',
-                                paddingRight: '20px',
-                                paddingBottom: '20px',
+                                flex: 2,
                                 alignSelf: 'center',
                             }}
                         >
@@ -217,6 +217,7 @@ export default function Page({
                 <Background />
                 <GradientLayer />
             </div>
+            <ScrollButton scrollRef={scrollRef} />
         </div>
     )
 }
