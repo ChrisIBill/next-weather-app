@@ -1,6 +1,6 @@
 import './globals.scss'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Roboto_Flex, Roboto_Slab } from 'next/font/google'
 import styles from './layout.module.css'
 //import NavBar from './components/navbar/navbar'
 import { UserThemeProvider } from '@/lib/context'
@@ -8,6 +8,8 @@ import dynamic from 'next/dynamic'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
 
 const inter = Inter({ subsets: ['latin'] })
+
+const robotoFlex = Roboto_Slab({ subsets: ['latin'], display: 'swap' })
 
 export const metadata: Metadata = {
     title: 'Drizzle',
@@ -24,7 +26,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" className={styles.html}>
+        <html lang="en" className={robotoFlex.className}>
             <body className={styles.body}>
                 <AppRouterCacheProvider>
                     <UserThemeProvider>
