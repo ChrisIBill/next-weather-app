@@ -108,7 +108,8 @@ export const ColorLayerStaticWrapper: React.FC<ColorLayerProps> = (
     const [timeOfDay, isDay] =
         palette.mode === 'dark' ? ['night', false] : ['day', true]
     const timePercent = 0.5
-    const temperature = 21
+    const temperature = props.forecastObj?.temperatureObj.getMagnitude() ?? 0
+    console.log('ColorLayerStaticWrapper', props)
     return (
         <DayNightColorLayer
             {...props}
@@ -131,6 +132,7 @@ export interface DayNightColorLayerProps extends ColorLayerProps {
 export const DayNightColorLayer: React.FC<DayNightColorLayerProps> = (
     props: DayNightColorLayerProps
 ) => {
+    console.log('DayNightColorLayer', props)
     const palette = useTheme().palette
     const backgroundColors = useBackgroundColors()
     const timeOfDay = props.timeOfDay ?? 'day'

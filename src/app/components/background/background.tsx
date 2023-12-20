@@ -140,6 +140,7 @@ export const Background: React.FC<BackgroundProps> = (
                 isCard={props.isCard}
                 wrapperHeight={height}
                 wrapperWidth={width}
+                forecastObj={props.forecastObj}
             />
         </div>
     )
@@ -147,6 +148,7 @@ export const Background: React.FC<BackgroundProps> = (
 
 interface ClockworkProps {
     isCard?: boolean
+    forecastObj?: DailyWeatherForecastObjectType
     wrapperWidth: number
     wrapperHeight: number
 }
@@ -175,7 +177,10 @@ const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
                 wrapperWidth={props.wrapperWidth}
                 wrapperHeight={props.wrapperHeight}
             />
-            <ColorLayerWrapper isCard={props.isCard} />
+            <ColorLayerWrapper
+                isCard={props.isCard}
+                forecastObj={props.forecastObj}
+            />
         </div>
     )
 }
