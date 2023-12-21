@@ -38,7 +38,6 @@ export default function SearchBar() {
     const searchPs = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
-    console.log('pathname: ', pathname)
     const searchParams = useSearchParams()
     const theme = useTheme()
     const palette = theme.palette
@@ -124,6 +123,9 @@ export default function SearchBar() {
                 className={styles.searchLabel}
                 sx={{
                     color: palette.text.secondary,
+                    '&.Mui-focused': {
+                        color: palette.text.primary,
+                    },
                 }}
             >
                 Location
@@ -132,19 +134,24 @@ export default function SearchBar() {
                 id="location-search"
                 sx={{
                     color: palette.text.primary,
-                    '& fieldset': {
-                        borderColor: palette.text.secondary,
-                    },
-                    '& input:valid + fieldset': {
-                        borderColor: palette.text.primary,
-                    },
-                    '& input:focus + fieldset': {
-                        borderColor: palette.secondary.main,
-                    },
+                    backgroundColor: palette.background.paper,
+                    border: `1px solid ${palette.text.secondary}`,
+                    boxShadow: 'none',
+                    //'& fieldset': {
+                    //    borderColor: palette.text.secondary,
+                    //},
+                    //'& input:valid + fieldset': {
+                    //    borderColor: palette.text.primary,
+                    //},
                     '& input:valid:focus + fieldset': {
-                        border: `0.1rem solid ${palette.secondary.main}`,
+                        boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+                    },
+                    '&.Mui-error': {
+                        border: `2px solid ${palette.error.main}`,
+                        boxShadow: '0 0 10px rgba(200,0,0,0.5)',
                     },
                 }}
+                notched
                 className={styles.searchBar}
                 onChange={(e) => handleChange(e)}
                 onKeyDown={(e) => handleEnterKey(e)}
