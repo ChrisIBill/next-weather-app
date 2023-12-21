@@ -35,8 +35,10 @@ const ValidationOutlinedInput = styled(OutlinedInput)({
 })
 
 export default function SearchBar() {
+    const searchPs = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
+    console.log('pathname: ', pathname)
     const searchParams = useSearchParams()
     const theme = useTheme()
     const palette = theme.palette
@@ -51,19 +53,15 @@ export default function SearchBar() {
     const cityStateRegEx = /^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/
     const handleEnterKey = async (e: { keyCode: number }) => {
         if (e.keyCode == 13) {
+            console.log('handleEnterKey: ', router)
+            //history.replaceState(null, '', '/weather')
             if (zipCodeRegEx.test(userAddress)) {
                 console.log('Enter key pressed')
                 setIsInputError(false)
-                router.replace(
-                    '/weather?' +
-                        createQueryString('address', userAddress.toString())
-                )
+                router.push('/weather?' + 'address=' + userAddress.toString())
             } else if (cityStateRegEx.test(userAddress)) {
                 setIsInputError(false)
-                router.replace(
-                    '/weather?' +
-                        createQueryString('address', userAddress.toString())
-                )
+                router.push('/weather?' + 'address=' + userAddress.toString())
             } else {
                 setHelperText(
                     'Please enter a valid 5 digit US Zip Code, or a city and state'
@@ -86,16 +84,6 @@ export default function SearchBar() {
         }
     }
 
-    const createQueryString = useCallback(
-        (name: string, value: string) => {
-            const params = new URLSearchParams(searchParams)
-            params.set(name, value)
-
-            return params.toString()
-        },
-        [searchParams]
-    )
-
     useEffect(() => {
         if ('geolocation' in navigator && location === undefined) {
             console.log('Geolocation available')
@@ -107,9 +95,11 @@ export default function SearchBar() {
                 setLocation({ latitude, longitude })
                 router.replace(
                     '/weather?' +
-                        createQueryString('lat', latitude.toString()) +
+                        'lat=' +
+                        latitude.toString() +
                         '&' +
-                        createQueryString('lon', longitude.toString())
+                        'lon=' +
+                        longitude.toString()
                 )
             })
         } else if (location !== undefined) {
@@ -117,13 +107,15 @@ export default function SearchBar() {
                 //Need to reroute to weather page
                 router.replace(
                     '/weather?' +
-                        createQueryString('lat', location.latitude.toString()) +
+                        'lat=' +
+                        location.latitude.toString() +
                         '&' +
-                        createQueryString('lon', location.longitude.toString())
+                        'lon=' +
+                        location.longitude.toString()
                 )
             }
         }
-    }, [createQueryString, router, location, pathname])
+    }, [router, location, pathname])
 
     return (
         <FormControl className={styles.searchForm} data-theme="dark" sx={{}}>
