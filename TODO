@@ -3,3 +3,5 @@ need static and dynamic versions of background components for better state manag
 lightning, snow, heat effects and components
 better landing page
     would like search bar to be front and center, either merge with playground slider or move slider component to side
+better search bar helper text and search sanitization/entry
+
