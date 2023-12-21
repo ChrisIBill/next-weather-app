@@ -5,6 +5,7 @@ import styles from './layout.module.css'
 import { UserThemeProvider } from '@/lib/context'
 import dynamic from 'next/dynamic'
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter'
+import { AxiomWebVitals } from 'next-axiom'
 
 const robotoFlex = Roboto_Slab({ subsets: ['latin'], display: 'swap' })
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             className={robotoFlex.className}
             suppressHydrationWarning
         >
+            <AxiomWebVitals />
             <body className={styles.body}>
                 <AppRouterCacheProvider>
                     <UserThemeProvider>

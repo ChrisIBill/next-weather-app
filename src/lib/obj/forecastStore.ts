@@ -9,6 +9,7 @@ import {
 } from '../interfaces'
 import { PaletteMode, useTheme } from '@mui/material'
 import { useEffect, useRef } from 'react'
+import { log } from 'next-axiom'
 
 export type TimeStateType = 'current' | [number, number | undefined]
 
@@ -26,10 +27,6 @@ export const enum ForecastStateKeysEnum {
 }
 export type ForecastStateKeysType = keyof typeof ForecastStateKeysEnum
 export interface ForecastObjectStateType {
-    //timeObj: HourTimeClassType | DayTimeClassType
-    //temperatureObj: HourTemperatureClassType | DayTemperatureClassType
-    //precipitationObj: PrecipitationClassType
-    //windObj: WindClassType
     time: {
         state: TimeStateType //[day, hour]
         setState: (arg0: TimeStateType) => void
@@ -71,12 +68,6 @@ export interface ForecastObjectStateType {
         state: number
         setState: (cloudLightness: number) => void
     }
-    //[key: ForecastStateKeysType]: {
-    //    state: number | TimeOfDayType | TimeStateType | boolean
-    //    setState: (
-    //        value: number | TimeOfDayType | TimeStateType | boolean
-    //    ) => void
-    //}
 }
 export const useForecastObjStore = create<ForecastObjectStateType>(
     (set, get) => ({
@@ -300,8 +291,7 @@ export function useSelectedForecastDay(
     forecastObj?: DailyWeatherForecastObjectType[]
 ): DailyWeatherForecastObjectType | undefined {
     const selectedDay = useForecastObjStore((state) => state.time.state[0])
-    console.log('Selected day: ', selectedDay)
-    console.log('DO I FIRE ON HOUR CHANGE?')
+    log.debug('Use selected forecast day: ', { selectedDay })
     try {
         if (!forecastObj || !forecastObj[0]) return undefined
         if (typeof selectedDay === 'string') return forecastObj[0]
@@ -337,7 +327,7 @@ export function useSetForecastDay(
             day.temperatureObj.getMagnitude()
         )
     } catch (e) {
-        console.error('Error in useSetForecastDay setting day: ', dayIndex)
+        log.error('Error in useSetForecastDay setting day: ', { dayIndex })
     }
 }
 
@@ -347,7 +337,7 @@ export function setForecastDay(
     setForecastStore: any,
     mode: PaletteMode
 ) {
-    console.log('Setting day: ', dayIndex, ' with props: ', day, mode)
+    log.debug('setForecastDay: ', { dayIndex, day, mode })
     try {
         setForecastStore.setTime([dayIndex, undefined])
         setForecastStore.setTimePercent()
@@ -362,6 +352,11 @@ export function setForecastDay(
             day.temperatureObj.getMagnitude()
         )
     } catch (e) {
+        log.error('Error in SetForecastDay setting day: ', {
+            dayIndex,
+            day,
+            mode,
+        })
         console.error(
             'Error in SetForecastDay setting day: ',
             dayIndex,
@@ -464,26 +459,26 @@ export interface HourlyForecastStateHandlerProps {
     dayIndex: number
 }
 
-export const HourlyForecastStateHandler: React.FC<
-    HourlyForecastStateHandlerProps
-> = (props: HourlyForecastStateHandlerProps) => {
-    const setForecastStore = useForecastSetStore()
-    const isFirstRender = useRef<boolean>(true)
-    const forecastObj = props.forecastObj
-
-    useEffect(() => {
-        const handleHourlyWeather = setForecastHour(
-            props.dayIndex,
-            forecastObj![props.dayIndex],
-            setForecastStore
-        )
-        if (forecastObj && forecastObj[0] && isFirstRender.current) {
-            isFirstRender.current = false
-            //handleInitialWeather()
-        } else {
-            console.log('No forecast object', forecastObj)
-        }
-    }, [forecastObj, setForecastStore, props.dayIndex])
-
-    return null
-}
+// export const HourlyForecastStateHandler: React.FC<
+//     HourlyForecastStateHandlerProps
+// > = (props: HourlyForecastStateHandlerProps) => {
+//     const setForecastStore = useForecastSetStore()
+//     const isFirstRender = useRef<boolean>(true)
+//     const forecastObj = props.forecastObj
+//
+//     useEffect(() => {
+//         const handleHourlyWeather = setForecastHour(
+//             props.dayIndex,
+//             forecastObj![props.dayIndex],
+//             setForecastStore
+//         )
+//         if (forecastObj && forecastObj[0] && isFirstRender.current) {
+//             isFirstRender.current = false
+//             //handleInitialWeather()
+//         } else {
+//             log.debug('No forecast object', forecastObj)
+//         }
+//     }, [forecastObj, setForecastStore, props.dayIndex])
+//
+//     return null
+// }

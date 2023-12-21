@@ -12,9 +12,9 @@ const DEFAULT_WEATHER_PARAMS =
 const DEFAULT_WEATHER_TIMEZONE = '&timezone=America%2FChicago'
 
 async function getCoords(location: LocationType): Promise<CoordinatesType> {
-    if (location.latitude && location.longitude)
+    if (location.latitude && location.longitude) {
         return { latitude: location.latitude, longitude: location.longitude }
-    else if (location.address) {
+    } else if (location.address) {
         const geocodingURL =
             process.env.GEOCODING_API_URL +
             '?address=' +

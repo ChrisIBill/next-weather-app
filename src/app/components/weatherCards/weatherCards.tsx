@@ -4,6 +4,8 @@ import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
 import { Container, Skeleton, styled } from '@mui/material'
 import React from 'react'
 import { Draggable } from '../draggable'
+import { log } from 'next-axiom'
+import { inspect } from 'util'
 
 const CardListWrapperStyled = styled('div')(({ theme }) => ({
     //width: 'fit-content',
@@ -61,7 +63,6 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //    const time = dayjs(todaysForecast.current_weather.time)
     //    showTomorrowFirst = !time.isBefore(todaysForecast.sunset)
     //}
-    console.log('Forecast Object: ', props.forecastObj)
     const setScrollPosition = (element: any) => {
         element.current.scrollLeft = 1000
     }

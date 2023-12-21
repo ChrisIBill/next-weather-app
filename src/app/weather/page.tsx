@@ -23,11 +23,13 @@ import {
     CurrentForecastStateHandler,
     useForecastSetStore,
 } from '@/lib/obj/forecastStore'
+import { log } from 'next-axiom'
 
 import { Container, styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { inspect } from 'util'
 
 const HourlyWeatherReport = dynamic<CelestialIconsHandlerProps>(
     () =>
@@ -159,6 +161,7 @@ export default function Page({
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
     const searchParams2 = useSearchParams()
+    const pathname = usePathname()
 
     const scrollRef = useRef<HTMLDivElement>(null)
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
@@ -171,18 +174,17 @@ export default function Page({
     >(Array(8).fill(undefined))
     const theme = useTheme()
 
-    console.log('Reloading Weather Page: ', params, searchParams)
+    log.debug('Reloading Forecast Page')
 
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        console.log('useEffect: searchParams', searchParams)
-        console.log('useEffect: searchParams2', searchParams2)
         const [lat, lon, address] = [
             searchParams2.get('lat'),
             searchParams2.get('lon'),
             searchParams2.get('address'),
         ]
+        log.debug('Search Parameters for weather page: ', { lat, lon, address })
         const location = address
             ? handleWeatherSearch({ address })
             : handleWeatherSearch({ lat, lon })
@@ -192,6 +194,7 @@ export default function Page({
             })
             .then((value) => {
                 console.log('Server Forecast Response: ', value)
+                log.info('Server Forecast Response: ', value)
                 setWeatherMetadata(value.metadata)
                 setWeatherForecast(value.forecast)
                 setForecastObj(
@@ -199,6 +202,10 @@ export default function Page({
                 )
             })
     }, [searchParams, searchParams2])
+
+    useEffect(() => {
+        log.debug('Weather Page ForecastObject: ', [inspect(forecastObj)])
+    })
 
     const { width, height } = useWindowDimensions() ?? {
         width: 0,

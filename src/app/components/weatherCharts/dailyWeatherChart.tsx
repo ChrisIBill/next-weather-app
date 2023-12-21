@@ -1,11 +1,9 @@
 import {
     DailyWeatherForecastObjectType,
-    DailyWeatherForecastType,
     DimensionsType,
 } from '@/lib/interfaces'
 import {
     BarChart,
-    CartesianGrid,
     XAxis,
     YAxis,
     Tooltip,
@@ -14,12 +12,12 @@ import {
     Legend,
 } from 'recharts'
 import { ChartDataKeys } from './weatherChart'
-import paletteHandler from '@/lib/paletteHandler'
-import dayjs from 'dayjs'
 import { CustomizedYAxisTickGenerator } from './chartComponents'
 import { Typography, useTheme } from '@mui/material'
 import { setForecastDay, useForecastSetStore } from '@/lib/obj/forecastStore'
 import { useUserPrefsStore } from '@/lib/stores'
+import { log } from 'next-axiom'
+import { inspect } from 'util'
 
 export interface DailyWeatherChartProps {
     forecastObj: DailyWeatherForecastObjectType[]
@@ -30,6 +28,12 @@ export interface DailyWeatherChartProps {
 export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
     props: DailyWeatherChartProps
 ) => {
+    log.debug('DailyWeatherChart props: ', {
+        forecastObj: inspect(props.forecastObj),
+        chartKey: props.chartKey,
+        textColor: props.textColor,
+        chartDimensions: props.chartDimensions,
+    })
     const precipUnit = useUserPrefsStore((state) => state.precipitationUnit)
     const palette = useTheme().palette
     const setForecastStore = useForecastSetStore()
@@ -75,14 +79,17 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
         }
     })
     const handleChartClick = (nextState: any, e: any) => {
-        console.log('Daily chart nextState: ', nextState, e)
         const index = nextState.activeTooltipIndex
         const day = props.forecastObj[index] ?? undefined
         if (day) setForecastDay(index, day, setForecastStore, palette.mode)
+        else
+            log.error('Error: day is undefined while handling chart click', {
+                nextState,
+            })
     }
     const domainVal =
         props.chartKey === 'Precipitation' ? [0, 100] : ['auto', 'auto']
-    console.log('chart data: ', data)
+    log.debug('DailyWeatherChart data: ', data)
     return (
         <BarChart
             width={props.chartDimensions.width}
