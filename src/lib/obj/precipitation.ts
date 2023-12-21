@@ -82,7 +82,7 @@ export default class PrecipitationClass implements PrecipitationClassType {
 
     //converts mm to inches
     convertToInch(): number {
-        this._inch = this._mm * 0.0394
+        this._inch = Math.round(this._mm * 0.0394 * 100) / 100
         return this._inch
     }
     getUserValue() {
