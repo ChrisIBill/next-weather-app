@@ -10,7 +10,7 @@ import {
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { Background } from '../components/background/background'
-import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
+//import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
 import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
@@ -27,11 +27,20 @@ import {
 import { Container, styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
 import { useSearchParams } from 'next/navigation'
+import dynamic from 'next/dynamic'
+
+const HourlyWeatherReport = dynamic<CelestialIconsHandlerProps>(
+    () =>
+        import('../components/weatherReports/hourlyWeatherReport').then(
+            (mod) => mod.HourlyWeatherReport
+        ),
+    { ssr: false }
+)
 
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | null
 }): LocationType {
-    console.log('Search Params: ', searchParams)
+    //console.log('Search Params: ', searchParams)
     if (searchParams.address)
         return { address: searchParams.address.toString() }
     else if (
