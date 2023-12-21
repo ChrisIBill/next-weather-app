@@ -3,13 +3,23 @@ import {
     DailyWeatherForecastType,
     DimensionsType,
 } from '@/lib/interfaces'
-import { BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts'
+import {
+    BarChart,
+    CartesianGrid,
+    XAxis,
+    YAxis,
+    Tooltip,
+    Bar,
+    LabelList,
+    Legend,
+} from 'recharts'
 import { ChartDataKeys } from './weatherChart'
 import paletteHandler from '@/lib/paletteHandler'
 import dayjs from 'dayjs'
 import { CustomizedYAxisTickGenerator } from './chartComponents'
-import { useTheme } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import { setForecastDay, useForecastSetStore } from '@/lib/obj/forecastStore'
+import { useUserPrefsStore } from '@/lib/stores'
 
 export interface DailyWeatherChartProps {
     forecastObj: DailyWeatherForecastObjectType[]
@@ -20,6 +30,7 @@ export interface DailyWeatherChartProps {
 export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
     props: DailyWeatherChartProps
 ) => {
+    const precipUnit = useUserPrefsStore((state) => state.precipitationUnit)
     const palette = useTheme().palette
     const setForecastStore = useForecastSetStore()
     const data = props.forecastObj.map((day, index) => {
@@ -28,14 +39,17 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
             case 'Temperature':
                 return {
                     day: time,
-                    values: [
+                    minLabel: day.temperatureObj.getUserTempRange?.()[0],
+                    maxLabel: day.temperatureObj.getUserTempRange?.()[1],
+                    minTemp: day.temperatureObj._celsiusRange[0],
+                    maxTempSubMin:
+                        day.temperatureObj._celsiusRange[1] -
                         day.temperatureObj._celsiusRange[0],
-                        day.temperatureObj._celsiusRange[1],
-                    ],
                 }
             case 'Precipitation':
                 return {
                     day: time,
+                    volumeLabel: day.precipitationObj?.getUserValue(),
                     chanceOfRain: day.precipitationObj.chance,
                     volumeOfRain: day.precipitationObj._mm,
                 }
@@ -47,7 +61,11 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
             case 'Wind':
                 return {
                     day: time,
-                    values: [0, 0],
+                    windLabel: day.windObj.getSpeed(),
+                    gustLabel: day.windObj.getGustSpeed(),
+                    windSpeed: day.windObj._kph[0],
+                    gustSpeedSubWind: day.windObj._kph[1] - day.windObj._kph[0],
+                    values: [day.windObj._kph[0], day.windObj._kph[1]],
                 }
             default:
                 return {
@@ -87,61 +105,70 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                     />
                 }
             />
+            <Legend verticalAlign="top" />
             <Tooltip />
             <Bar
-                hide={props.chartKey === 'Precipitation'}
-                dataKey="values"
-                fill="#680872"
-            />
+                name="Min Temp."
+                hide={props.chartKey !== 'Temperature'}
+                legendType={props.chartKey === 'Temperature' ? 'line' : 'none'}
+                dataKey="minTemp"
+                fill="#430ED5"
+                stackId="Temperature"
+            >
+                <LabelList dataKey="minLabel" />
+            </Bar>
             <Bar
+                name="Max Temp."
+                hide={props.chartKey !== 'Temperature'}
+                legendType={props.chartKey === 'Temperature' ? 'line' : 'none'}
+                dataKey="maxTempSubMin"
+                fill="#680872"
+                stackId="Temperature"
+            >
+                <LabelList dataKey="maxLabel" />
+            </Bar>
+            {/* Precipitation */}
+            <Bar
+                name="% of Precip."
                 hide={props.chartKey !== 'Precipitation'}
+                legendType={
+                    props.chartKey === 'Precipitation' ? 'line' : 'none'
+                }
                 dataKey="chanceOfRain"
                 fill="#680872"
-            />
+            ></Bar>
             <Bar
+                name={`${precipUnit} of Precip.`}
                 hide={props.chartKey !== 'Precipitation'}
+                legendType={
+                    props.chartKey === 'Precipitation' ? 'line' : 'none'
+                }
                 dataKey="volumeOfRain"
+                fill="#430ED5"
+            >
+                <LabelList dataKey="volumeLabel" />
+            </Bar>
+            {/* Wind */}
+            <Bar
+                name="Wind Speed"
+                hide={props.chartKey !== 'Wind'}
+                legendType={props.chartKey === 'Wind' ? 'line' : 'none'}
+                dataKey="windSpeed"
                 fill="#680872"
-            />
+                stackId="Wind"
+            >
+                <LabelList dataKey="windLabel" />
+            </Bar>
+            <Bar
+                name="Gust Speed"
+                hide={props.chartKey !== 'Wind'}
+                legendType={props.chartKey === 'Wind' ? 'line' : 'none'}
+                dataKey="gustSpeedSubWind"
+                fill="#430ED5"
+                stackId="Wind"
+            >
+                <LabelList dataKey="gustLabel" />
+            </Bar>
         </BarChart>
-    )
-}
-
-interface DailyWeatherChartBarProps {
-    chartKey: ChartDataKeys
-}
-
-const DailyWeatherChartBars: React.FC<DailyWeatherChartBarProps> = (
-    props: DailyWeatherChartBarProps
-) => {
-    console.log('Bars Chart key: ', props.chartKey)
-    switch (props.chartKey) {
-        case 'Precipitation':
-            return <DailyWeatherChartPrecipitationBars {...props} />
-        default:
-            return <DailyWeatherChartGenericBars {...props} />
-    }
-}
-
-const DailyWeatherChartGenericBars: React.FC<DailyWeatherChartBarProps> = (
-    props: DailyWeatherChartBarProps
-) => {
-    console.log('Generic chart props: ', props)
-    return (
-        <>
-            <Bar dataKey="values" fill="#680872" />
-        </>
-    )
-}
-const DailyWeatherChartPrecipitationBars: React.FC<
-    DailyWeatherChartBarProps
-> = (props: DailyWeatherChartBarProps) => {
-    console.log('Precipitation chart props: ', props)
-
-    return (
-        <>
-            <Bar dataKey="values[0]" fill="#680872" />
-            <Bar dataKey="values[1]" fill="#680872" />
-        </>
     )
 }
