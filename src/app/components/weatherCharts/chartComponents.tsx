@@ -19,6 +19,7 @@ import paletteHandler from '@/lib/paletteHandler'
 import { useUserPrefsStore } from '@/lib/stores'
 import { convertToUserTemp } from '@/lib/obj/temperature'
 import { convertToUserWindSpeed } from '@/lib/obj/wind'
+import { log } from 'next-axiom'
 
 export interface WeatherChartControlsProps {
     selectedKey: ChartKeysType
@@ -242,8 +243,16 @@ const TickTextStyled = styled('tspan')(({ theme }) => ({
 const CustomizedYAxisTemperatureTick: React.FC<any> = (props: any) => {
     const palette = useTheme().palette
     const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    const temperatureString =
-        convertToUserTemp(props.payload.value, tempUnit).toFixed(0) + tempUnit
+    const val = props.payload.value
+    if (typeof val !== 'number') return null
+    const userTemp = convertToUserTemp(val, tempUnit)
+    if (typeof userTemp !== 'number') {
+        log.error('userTemp is undefined', {
+            props,
+        })
+        return null
+    }
+    const temperatureString = userTemp.toFixed(0) + tempUnit
     return (
         <TickTextStyled x={props.x} dy={'0.355em'}>
             {temperatureString}
@@ -329,7 +338,10 @@ const TemperatureTooltipContent: React.FC<any> = (props: any) => {
                     }}
                 >
                     {(index == 1 ? 'Feels Like: ' : '') +
-                        convertToUserTemp(entry.value, tempUnit).toFixed(0) +
+                        convertToUserTemp(
+                            entry.value as number,
+                            tempUnit
+                        )!.toFixed(0) +
                         tempUnit}
                 </li>
             ))}

@@ -10,7 +10,6 @@ import {
     WeatherMetadata,
 } from '@/lib/interfaces'
 import { Background } from '../components/background/background'
-//import { HourlyWeatherReport } from '../components/weatherReports/hourlyWeatherReport'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
 import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
@@ -19,19 +18,17 @@ import { SelectedForecastReadout } from '../components/weatherReports/selectedFo
 import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
 import { CloudClass } from '@/lib/obj/cloudClass'
-import {
-    CurrentForecastStateHandler,
-    useForecastSetStore,
-} from '@/lib/obj/forecastStore'
+import { CurrentForecastStateHandler } from '@/lib/obj/forecastStore'
 import { log } from 'next-axiom'
 
-import { Container, styled, useTheme } from '@mui/material'
+import { styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
 import { usePathname, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { inspect } from 'util'
+import { HourlyWeatherReportProps } from '../components/weatherReports/hourlyWeatherReport'
 
-const HourlyWeatherReport = dynamic<CelestialIconsHandlerProps>(
+const HourlyWeatherReport = dynamic<HourlyWeatherReportProps>(
     () =>
         import('../components/weatherReports/hourlyWeatherReport').then(
             (mod) => mod.HourlyWeatherReport

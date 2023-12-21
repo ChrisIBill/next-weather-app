@@ -322,7 +322,7 @@ const TemperatureTooltipContent: React.FC<any> = (props: any) => {
                     }}
                 >
                     {(index == 1 ? 'Feels Like: ' : '') +
-                        convertToUserTemp(entry.value, tempUnit).toFixed(0) +
+                        convertToUserTemp(entry.value, tempUnit)?.toFixed(0) +
                         tempUnit}
                 </li>
             ))}
