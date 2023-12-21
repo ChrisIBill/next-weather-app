@@ -131,8 +131,15 @@ function handleWeatherForecast(
 }
 
 const ChartWrapper = styled('div')(({ theme }) => ({
-    [theme.breakpoints.down('md')]: {
-        //width: '75%',
+    width: '50%',
+    [theme.breakpoints.only('lg')]: {
+        width: '75%',
+    },
+    [theme.breakpoints.down('lg')]: {
+        width: '90%',
+    },
+    [theme.breakpoints.down('sm')]: {
+        width: '100%',
     },
 }))
 
@@ -204,9 +211,8 @@ export default function Page({
                             className={styles.chartWrapper}
                             ref={chartWrapperRef}
                             style={{
-                                width: '100%',
                                 height: 'auto',
-                                aspectRatio: '2/1',
+                                aspectRatio: '16/9',
                                 alignSelf: 'center',
                             }}
                         >

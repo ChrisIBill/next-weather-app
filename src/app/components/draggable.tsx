@@ -53,7 +53,7 @@ export const Draggable = ({
             onMouseMove={handleDrag}
             onMouseLeave={handleDragEnd}
             style={{
-                width: '100%',
+                width: 'fit-content',
                 overflowX: 'scroll',
                 scrollBehavior: 'smooth',
             }}

@@ -1,10 +1,52 @@
 import { WeatherCard, WeatherCardProps } from './weatherCard'
 import styles from './weatherCards.module.scss'
 import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
-import { Skeleton } from '@mui/material'
+import { Container, Skeleton, styled } from '@mui/material'
 import React from 'react'
 import { Draggable } from '../draggable'
 
+const CardListWrapperStyled = styled('div')(({ theme }) => ({
+    //width: 'fit-content',
+    margin: '1.5rem 0',
+    [theme.breakpoints.only('xs')]: {
+        marginBottom: '2rem',
+        width: '100%',
+        height: '13.1rem',
+        overflow: 'scroll',
+    },
+    [theme.breakpoints.only('sm')]: {
+        height: '12.5rem',
+        marginRight: '5rem',
+        width: '35rem',
+        overflow: 'visible',
+    },
+    [theme.breakpoints.only('md')]: {
+        height: '15rem',
+        marginRight: '6rem',
+        width: '42rem',
+    },
+    [theme.breakpoints.up('lg')]: {
+        height: '17.5rem',
+        marginRight: '7rem',
+        width: '49rem',
+    },
+}))
+
+const CardWrapperStyled = styled('div')(({ theme }) => ({
+    height: 'auto',
+    [theme.breakpoints.only('xs')]: {
+        width: '5rem',
+    },
+    [theme.breakpoints.only('sm')]: {
+        width: '5rem',
+    },
+    [theme.breakpoints.only('md')]: {
+        width: '6rem',
+    },
+    [theme.breakpoints.up('lg')]: {
+        width: '7rem',
+    },
+}))
 export interface WeatherCardsProps {
     forecastObj: DailyWeatherForecastObjectType[]
 }
@@ -27,7 +69,11 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //need a generator to create the formatted data for the cards
     const weatherCards = props.forecastObj.slice(0, 7).map((weather, index) => {
         return (
-            <div key={index} className={styles.cardWrapper} style={{}}>
+            <CardWrapperStyled
+                key={index}
+                className={styles.cardWrapper}
+                style={{}}
+            >
                 {weather ? (
                     <WeatherCard
                         forecastObj={props.forecastObj[index]}
@@ -36,7 +82,7 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
                 ) : (
                     <Skeleton variant="rectangular" width={210} height={118} />
                 )}
-            </div>
+            </CardWrapperStyled>
         )
     })
 
@@ -44,17 +90,12 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //    if (showTomorrowFirst) setScrollPosition(listWrapper)
     //}, [])
     return (
-        <Draggable>
-            <div
-                className={styles.cardsListWrapper}
-                ref={listWrapper}
-                style={{
-                    width: '100%',
-                    overflow: 'scroll',
-                }}
-            >
-                <ul className={styles.cardsList}>{weatherCards}</ul>
-            </div>
-        </Draggable>
+        <CardListWrapperStyled
+            className={styles.cardsListWrapper}
+            ref={listWrapper}
+            style={{}}
+        >
+            <ul className={styles.cardsList}>{weatherCards}</ul>
+        </CardListWrapperStyled>
     )
 }

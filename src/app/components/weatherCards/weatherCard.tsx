@@ -70,8 +70,8 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             //variant="elevation"
             sx={{
                 position: 'absolute',
-                width: '9rem',
-                height: '11rem',
+                width: '200%',
+                paddingBottom: '250%',
                 //top: '0px',
                 //left: '0px',
                 //bottom: '0px',
@@ -87,6 +87,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
                 onClick={(event) => handleCardSelect(props.index)}
                 //disabled={props.index == props.selectedDay}
                 sx={{
+                    position: 'absolute',
                     backgroundColor:
                         palette.mode === 'dark'
                             ? `rgba(0, 0, 0, 0.35)`

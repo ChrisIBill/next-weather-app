@@ -47,28 +47,30 @@
 .cardsList {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: center;
     width: fit-content;
     overflow: visible;
     height: 100%;
-    min-height: 15rem;
-    max-height: 25rem;
     flex: 1;
 }
 .cardsListWrapper {
-    width: 100%;
     height: fit-content;
+    //overflow: visible;
+    margin: 1rem 0;
     //min-height: 11rem;
     //max-height: 25rem;
-    display: flex;
+    //display: flex;
+    //align-items: center;
+    //align-content: center;
+    //justify-content: center;
     position: relative;
     z-index: 100;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
+    padding: 0.5rem 0;
 }
 .cardWrapper {
-    min-width: 5rem;
-    min-height: 11rem;
+    //max-width: 5rem;
+    //min-height: 11rem;
+    overflow: visible;
     box-sizing: border-box;
     position: relative;
     flex: 1;
