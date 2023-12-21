@@ -86,7 +86,7 @@ $background: var(--background);
 }
 .landingPage {
     width: 100%;
-    height: calc(100vh - 4rem);
+    min-height: calc(100vh - 4rem);
     //max-height: max-content;
     display: flex;
     flex-direction: column;
@@ -110,17 +110,17 @@ $background: var(--background);
     position: relative;
     z-index: 10;
 }
-.chartWrapper {
-    box-sizing: border-box;
-    flex: 1;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    min-height: 400px;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    max-height: 80vh;
-}
+//.chartWrapper {
+//    box-sizing: border-box;
+//    flex: 1;
+//    width: 100%;
+//    display: flex;
+//    justify-content: center;
+//    min-height: 400px;
+//    max-height: 700px;
+//    margin-top: 0.5rem;
+//    margin-bottom: 0.5rem;
+//}
 .gradientLayer {
     $background: var(--background);
     pointer-events: none;

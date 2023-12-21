@@ -8,6 +8,7 @@ import {
     SpeedDialAction,
     Box,
     useTheme,
+    styled,
 } from '@mui/material'
 import React from 'react'
 import { ChartDataKeys, ChartKeysType, ChartTimespanType } from './weatherChart'
@@ -17,6 +18,7 @@ import { LuWind } from 'react-icons/lu'
 import paletteHandler from '@/lib/paletteHandler'
 import { useUserPrefsStore } from '@/lib/stores'
 import { convertToUserTemp } from '@/lib/obj/temperature'
+import { convertToUserWindSpeed } from '@/lib/obj/wind'
 
 export interface WeatherChartControlsProps {
     selectedKey: ChartKeysType
@@ -27,13 +29,40 @@ export interface WeatherChartControlsProps {
     handleTimespanSelect: (e: any, timespan: ChartTimespanType) => void
 }
 
+const ChartHeaderStyles = styled('div')(({ theme }) => ({
+    [theme.breakpoints.down('sm')]: {
+        paddingLeft: '0px',
+    },
+    [theme.breakpoints.up('sm')]: {
+        paddingLeft: '60px',
+    },
+}))
+
+const ChartHeaderTab = styled(Tab)(({ theme }) => ({
+    [theme.breakpoints.up('sm')]: {
+        minWidth: '80px',
+        padding: '10px 14px',
+    },
+    [theme.breakpoints.down('sm')]: {
+        minWidth: '60px',
+        padding: '4px 6px',
+    },
+}))
+
 export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
     props
 ) => {
     const palette = useTheme().palette
 
     return (
-        <div className={styles.chartHeader} style={{}}>
+        <ChartHeaderStyles
+            className={styles.chartHeader}
+            style={{
+                position: 'relative',
+                width: '100%',
+                top: '4px',
+            }}
+        >
             <Tabs
                 value={props.selectedTimespan}
                 onChange={props.handleTimespanSelect}
@@ -42,7 +71,7 @@ export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
                     zIndex: 2000,
                 }}
             >
-                <Tab
+                <ChartHeaderTab
                     label="Day"
                     value="Day"
                     className={styles.chartHeaderTab}
@@ -62,7 +91,7 @@ export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
                         color: palette.primary.contrastText,
                     }}
                 />
-                <Tab
+                <ChartHeaderTab
                     label="Week"
                     value="Week"
                     className={styles.chartHeaderTab}
@@ -88,7 +117,7 @@ export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
                 handleDialSelect={props.handleKeySelect}
                 chartKey={props.selectedKey}
             />
-        </div>
+        </ChartHeaderStyles>
     )
 }
 
@@ -117,7 +146,9 @@ export const WeatherChartDial: React.FC<WeatherChartDialProps> = (props) => {
     return (
         <Box
             sx={{
-                width: 320,
+                position: 'absolute',
+                right: '0',
+                height: 320,
                 transform: 'translateZ(0px)',
                 flexGrow: 1,
                 zIndex: 2000,
@@ -125,7 +156,7 @@ export const WeatherChartDial: React.FC<WeatherChartDialProps> = (props) => {
         >
             <SpeedDial
                 ariaLabel={'ChartDial'}
-                direction={'left'}
+                direction={'down'}
                 sx={{}}
                 icon={ChartKeyIcons({ chartKey: props.chartKey, size: 24 })}
             >
@@ -190,28 +221,59 @@ const TickTextGenerator: React.FC<any> = (props: any) => {
             return <CustomizedYAxisTemperatureTick {...props} />
         case 'Precipitation':
             return <CustomizedYAxisPrecipitationTick {...props} />
+        case 'Wind':
+            return <CustomizedYAxisWindTick {...props} />
         default:
             return <CustomizedYAxisTemperatureTick {...props} />
     }
 }
+
+const TickTextStyled = styled('tspan')(({ theme }) => ({
+    [theme.breakpoints.up('lg')]: {
+        fontSize: '1rem',
+    },
+    [theme.breakpoints.down('md')]: {
+        fontSize: '0.9rem',
+    },
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '0.8rem',
+    },
+}))
 const CustomizedYAxisTemperatureTick: React.FC<any> = (props: any) => {
     const palette = useTheme().palette
     const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
     const temperatureString =
         convertToUserTemp(props.payload.value, tempUnit).toFixed(0) + tempUnit
     return (
-        <tspan x={props.x} dy={'0.355em'}>
+        <TickTextStyled x={props.x} dy={'0.355em'}>
             {temperatureString}
-        </tspan>
+        </TickTextStyled>
     )
 }
 const CustomizedYAxisPrecipitationTick: React.FC<any> = (props: any) => {
     //const precipUnit = useUserPrefsStore((state) => state.precipitationUnit)
     const precipitationString = props.payload.value + '%'
     return (
-        <tspan x={props.x} dy={'0.355em'}>
+        <TickTextStyled x={props.x} dy={'0.355em'}>
             {precipitationString}
-        </tspan>
+        </TickTextStyled>
+    )
+}
+const CustomizedYAxisWindTick: React.FC<any> = (props: any) => {
+    const windUnit = useUserPrefsStore((state) => state.windUnit)
+    const windString =
+        convertToUserWindSpeed(props.payload.value, windUnit).toFixed(0) +
+        windUnit
+    return (
+        <TickTextStyled
+            x={props.x}
+            dy={'0.355em'}
+            style={{
+                fontSize: ['mph', 'kph'].includes(windUnit) ? '0.9rem' : '1rem',
+            }}
+        >
+            {windString}
+        </TickTextStyled>
     )
 }
 export const CustomizedTooltip: React.FC<any> = (props: any) => {

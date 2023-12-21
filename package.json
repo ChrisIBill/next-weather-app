@@ -10,10 +10,12 @@
         "test": "jest --watch"
     },
     "dependencies": {
+        "@emotion/cache": "^11.11.0",
         "@emotion/react": "^11.11.1",
         "@emotion/styled": "^11.11.0",
         "@mui/icons-material": "^5.14.13",
         "@mui/material": "^5.14.13",
+        "@mui/material-nextjs": "^5.15.0",
         "compass": "^0.1.1",
         "dayjs": "^1.11.10",
         "localStorage": "^1.0.4",

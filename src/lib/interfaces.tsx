@@ -187,6 +187,7 @@ export interface HourlyForecastObjectType extends ForecastObjectType {
     cloudObj: CloudClassType
     hourly_weather?: undefined
     current_weather?: undefined
+    [key: string]: any
 }
 
 export type DetailedWeatherDataType = CurrentWeatherDataType &

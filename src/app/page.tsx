@@ -1,12 +1,22 @@
 'use client'
 import styles from './page.module.css'
 import './globals.scss'
-import { Background } from './components/background/background'
 import { PlaygroundSliders } from './components/playgroundSliders'
 import { useEffect, useState } from 'react'
 import DayTimeClass from '@/lib/obj/time'
 import { useTheme } from '@mui/material'
+import dynamic from 'next/dynamic'
+import { BackgroundProps } from './components/background/background'
 
+const Background = dynamic<BackgroundProps>(
+    () =>
+        import('./components/background/background').then(
+            (mod) => mod.Background
+        ),
+    {
+        ssr: false,
+    }
+)
 export default function Home() {
     const [mode, setMode] = useState<'light' | 'dark'>('light')
 
@@ -20,6 +30,7 @@ export default function Home() {
             className={styles.landingPage}
             data-theme={theme.palette.mode}
             style={{}}
+            suppressHydrationWarning
         >
             <PlaygroundSliders />
             <Background />

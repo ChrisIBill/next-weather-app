@@ -16,6 +16,7 @@ import {
     useSelectedForecastDay,
 } from '@/lib/obj/forecastStore'
 import { Payload } from 'recharts/types/component/DefaultLegendContent'
+import { ResponsiveContainer } from 'recharts'
 
 export const ChartTimespan = ['Day', 'Week'] as const
 export const ChartKeys = [
@@ -73,23 +74,6 @@ const getChartHeight = (windowHeight?: number) => {
     return chartHeight
 }
 
-const useChartDimensions = () => {
-    const windowDimensions = useWindowDimensions()
-    const [chartDimensions, setChartDimensions] = React.useState({
-        height: getChartHeight(windowDimensions.height),
-        width: getChartWidth(windowDimensions.width),
-    })
-
-    useEffect(() => {
-        setChartDimensions({
-            height: getChartHeight(windowDimensions.height),
-            width: getChartWidth(windowDimensions.width),
-        })
-    }, [windowDimensions])
-
-    return chartDimensions
-}
-
 export interface WeatherChartProps {
     forecastObj?: DailyWeatherForecastObjectType[]
     parentRef: React.RefObject<HTMLDivElement>
@@ -101,7 +85,7 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
     const windowDimensions = useWindowDimensions()
     console.log('Chart Parent ref: ', props.parentRef)
     const chartDimensions: DimensionsType = {
-        height: props.parentRef.current?.clientHeight ?? 0,
+        height: props.parentRef.current?.clientHeight ?? 25,
         width: props.parentRef.current?.clientWidth ?? 0,
     }
     console.log('chart dimensions: ', chartDimensions)
@@ -132,62 +116,58 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
     }, [windowDimensions])
     if (props.forecastObj?.[0] === undefined) return <div>Loading...</div>
     return (
-        <Box
-            className={styles.weatherChart}
+        //<Box
+        //    className={styles.weatherChart}
+        //    sx={{
+        //        position: 'relative',
+        //        width: '100%',
+        //        height: '100%',
+        //        padding: '8px',
+        //        paddingRight: '0',
+        //        marginRight: '1rem',
+        //    }}
+        //>
+        <Paper
+            className={styles.chartContainer}
+            elevation={0}
             sx={{
                 position: 'relative',
-                width: '100%',
-                height: '100%',
-                padding: '8px',
-                paddingRight: '0',
+                backgroundColor: 'transparent',
+                '&:after': {
+                    position: 'absolute',
+                    content: '""',
+                    top: '-0.5rem',
+                    left: '0',
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 20,
+                    background: `${
+                        palette.mode === 'dark'
+                            ? 'rgba(0,0,0,0.3)'
+                            : 'rgba(50,50,50,0.2)'
+                    }`,
+                    borderRadius: '16px',
+                    boxShadow: '3px 6px 12px rgba(0, 0, 0, 0.3)',
+                    backdropFilter: 'blur(5px)',
+                },
             }}
         >
-            <Paper
-                className={styles.chartContainer}
-                elevation={0}
-                sx={{
-                    position: 'relative',
-                    backgroundColor: 'transparent',
-                    '&:after': {
-                        position: 'absolute',
-                        content: '""',
-                        top: '-0.5rem',
-                        left: '0',
-                        width: 'calc(100% + 1rem)',
-                        height: 'calc(100% + 1rem)',
-                        zIndex: 20,
-                        background: `${
-                            palette.mode === 'dark'
-                                ? 'rgba(0,0,0,0.3)'
-                                : 'rgba(50,50,50,0.2)'
-                        }`,
-                        borderRadius: '16px',
-                        boxShadow: '3px 6px 12px rgba(0, 0, 0, 0.3)',
-                        backdropFilter: 'blur(5px)',
-                    },
-                }}
-            >
-                <WeatherChartHeader
-                    selectedKey={selectedVar}
-                    selectedTimespan={chartType}
-                    chartKeys={[
-                        'Temperature',
-                        'Precipitation',
-                        'Humidity',
-                        'Wind',
-                    ]}
-                    handleKeySelect={handleChartKeyChange}
-                    handleTimespanSelect={handleChartTypeChange}
-                />
-                <ChartComponent
-                    forecastObj={props.forecastObj}
-                    chartKey={selectedVar}
-                    chartType={chartType}
-                    chartDimensions={chartDimensions}
-                    textColor={'white'}
-                />
-            </Paper>
-        </Box>
+            <WeatherChartHeader
+                selectedKey={selectedVar}
+                selectedTimespan={chartType}
+                chartKeys={['Temperature', 'Precipitation', 'Humidity', 'Wind']}
+                handleKeySelect={handleChartKeyChange}
+                handleTimespanSelect={handleChartTypeChange}
+            />
+            <ChartComponent
+                forecastObj={props.forecastObj}
+                chartKey={selectedVar}
+                chartType={chartType}
+                chartDimensions={chartDimensions}
+                textColor={'white'}
+            />
+        </Paper>
+        //</Box>
     )
 }
 
@@ -213,6 +193,7 @@ const ChartComponent: React.FC<ChartComponentProps> = (props) => {
                 position: 'relative',
                 zIndex: 1000,
                 height: '100%',
+                top: '-2rem',
             }}
         >
             {props.chartType === 'Week' ? (

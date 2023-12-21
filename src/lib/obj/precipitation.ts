@@ -39,9 +39,11 @@ export const DEFAULT_PRECIPITATION_CLASS: PrecipitationClassType = {
     _magnitude: 0,
     _displayString: 'No rain',
     convertToInch: () => 0,
-    getUserValue: () => 0,
+    getUserValue: () => '0',
     getMagnitude: () => 0,
     getDisplayString: () => 'No rain',
+    getValueString: () => '',
+    getChanceString: () => '',
 }
 
 export interface PrecipitationClassType {

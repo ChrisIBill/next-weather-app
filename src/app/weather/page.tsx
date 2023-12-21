@@ -24,12 +24,15 @@ import {
     useForecastSetStore,
 } from '@/lib/obj/forecastStore'
 import Scrollbars from 'react-custom-scrollbars-2'
-import { styled, useTheme } from '@mui/material'
+
+import { Container, styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
+import { useSearchParams } from 'next/navigation'
 
 function handleWeatherSearch(searchParams: {
-    [key: string]: string | string[] | undefined
+    [key: string]: string | string[] | null
 }): LocationType {
+    console.log('Search Params: ', searchParams)
     if (searchParams.address)
         return { address: searchParams.address.toString() }
     else if (
@@ -129,7 +132,7 @@ function handleWeatherForecast(
 
 const ChartWrapper = styled('div')(({ theme }) => ({
     [theme.breakpoints.down('md')]: {
-        width: '75%',
+        //width: '75%',
     },
 }))
 
@@ -140,6 +143,8 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    const searchParams2 = useSearchParams()
+
     const scrollRef = useRef<HTMLDivElement>(null)
     const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
     const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
@@ -156,7 +161,16 @@ export default function Page({
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        const location = handleWeatherSearch(searchParams)
+        console.log('useEffect: searchParams', searchParams)
+        console.log('useEffect: searchParams2', searchParams2)
+        const [lat, lon, address] = [
+            searchParams2.get('lat'),
+            searchParams2.get('lon'),
+            searchParams2.get('address'),
+        ]
+        const location = address
+            ? handleWeatherSearch({ address })
+            : handleWeatherSearch({ lat, lon })
         getWeather(location)
             .then((response) => {
                 return JSON.parse(response)
@@ -169,7 +183,7 @@ export default function Page({
                     handleWeatherForecast(value.forecast, value.metadata)
                 )
             })
-    }, [searchParams])
+    }, [searchParams, searchParams2])
 
     const { width, height } = useWindowDimensions() ?? {
         width: 0,
@@ -190,9 +204,9 @@ export default function Page({
                             className={styles.chartWrapper}
                             ref={chartWrapperRef}
                             style={{
-                                display: 'flex',
-                                width: '90%',
-                                flex: 2,
+                                width: '100%',
+                                height: 'auto',
+                                aspectRatio: '2/1',
                                 alignSelf: 'center',
                             }}
                         >
@@ -205,9 +219,7 @@ export default function Page({
                                 <div></div>
                             )}
                         </ChartWrapper>
-                        <div className={styles.cardsWrapper}>
-                            <WeatherCards forecastObj={forecastObj} />
-                        </div>
+                        <WeatherCards forecastObj={forecastObj} />
                     </div>
 
                     <div className={styles.reportsPage}>

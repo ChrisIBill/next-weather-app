@@ -100,15 +100,13 @@ const TimeReadout: React.FC<WeatherPageHeaderProps> = (
                     {timeObj.dateObj.format('dddd')}
                 </DateTimeTypography>
                 <DateTimeTypography
-                    variant="h3"
-                    component="h2"
+                    variant="h2"
                     align="center"
                     noWrap={true}
                     className={styles.headerText}
                     sx={{
                         fontSize: '3.5rem',
                         fontWeight: 'lighter',
-                        noWrap: true,
                     }}
                     style={{}}
                 >
@@ -116,8 +114,7 @@ const TimeReadout: React.FC<WeatherPageHeaderProps> = (
                 </DateTimeTypography>
             </div>
             <HourTypography
-                variant="h4"
-                component="h3"
+                variant="h3"
                 className={styles.headerText}
                 sx={{
                     fontSize: '2.5rem',

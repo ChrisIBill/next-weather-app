@@ -23,8 +23,15 @@ export const RainBackgroundCardStateWrapper: React.FC<
     RainBackgroundWrapperProps
 > = (props: RainBackgroundWrapperProps) => {
     const weight = props.precipObj.getMagnitude()
-    const angle = props.windObj?._beaufort()[0] * 3 ?? 0
-    return <RainBackground {...props} isCard={true} weight={weight} />
+    const angle = props.windObj ? props.windObj._beaufort()[0] * 3 : 0
+    return (
+        <RainBackground
+            {...props}
+            isCard={true}
+            weight={weight}
+            angle={angle}
+        />
+    )
 }
 
 export const RainBackgroundPageStateWrapper: React.FC<

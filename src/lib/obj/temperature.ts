@@ -136,7 +136,7 @@ export class DayTemperatureClass implements TemperatureClassType {
             userUnit === '°F'
                 ? this.getUserTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserTempRange().map((temp) => temp.toFixed(1))
-        return [`${tempRange[0]} ${userUnit}`, `${tempRange[1]} ${userUnit}`]
+        return [`${tempRange[0]}${userUnit}`, `${tempRange[1]}${userUnit}`]
     }
 
     getAppTempDisplayStrings(): string[] {
@@ -145,7 +145,7 @@ export class DayTemperatureClass implements TemperatureClassType {
             userUnit === '°F'
                 ? this.getUserAppTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserAppTempRange().map((temp) => temp.toFixed(1))
-        return [`${tempRange[0]} ${userUnit}`, `${tempRange[1]} ${userUnit}`]
+        return [`${tempRange[0]}${userUnit}`, `${tempRange[1]}${userUnit}`]
     }
 
     //private generateTempDisplayString(): string {

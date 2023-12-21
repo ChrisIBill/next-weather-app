@@ -6,16 +6,21 @@ import {
     setForecastHour,
     useForecastSetStore,
     useSelectedForecastDay,
-    useSetForecastHour,
 } from '@/lib/obj/forecastStore'
 import { convertToUserTemp } from '@/lib/obj/temperature'
 import { useUserPrefsStore } from '@/lib/stores'
 import { useTheme } from '@mui/material'
-import { Area, AreaChart, Legend, Tooltip, XAxis, YAxis } from 'recharts'
+import {
+    Area,
+    AreaChart,
+    Legend,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
 import { ChartKeysType, legendPayloads } from './weatherChart'
-import { Payload } from 'recharts/types/component/DefaultLegendContent'
-import { RenderToggler } from './chartComponents'
-import { convertToUserWindSpeed } from '@/lib/obj/wind'
+import { CustomizedYAxisTickGenerator, RenderToggler } from './chartComponents'
 import { useEffect, useState } from 'react'
 
 const CHART_COLORS = ['#EA79F6', '#9C74FB']
@@ -46,6 +51,8 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
         props.chartKey === 'Humidity',
         props.chartKey === 'Wind',
     ]
+    const isSmall = window.innerWidth < 600
+    const isMedium = window.innerWidth < 900
     console.log('Selected Forecast Obj: ', selectedForecastDay)
     console.log('Forecast Obj: ', props.forecastObj)
     const data = selectedForecastDay?.hourly_weather.map((hour, index) => {
@@ -105,200 +112,161 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
     if (!isMounted) return null
 
     return (
-        <AreaChart
-            width={wrapperDimensions.width}
-            height={wrapperDimensions.height}
-            data={data}
-            onClick={(nextState, e) => handleChartClick(nextState, e)}
-            style={{
-                color: 'white',
-            }}
-        >
-            <XAxis
-                dataKey="hour"
-                interval={3}
-                tickCount={8}
-                color={palette.text.primary}
-                tick={{
-                    fill: palette.text.primary,
+        <ResponsiveContainer width="100%" aspect={2}>
+            <AreaChart
+                //width={wrapperDimensions.width}
+                //height={wrapperDimensions.height}
+                margin={{
+                    top: 20,
+                    right: 0,
+                    left: 0,
+                    bottom: 20,
                 }}
-            />
-            <YAxis
-                domain={domainVal}
-                yAxisId="left"
-                tick={
-                    <CustomizedYAxisTickGenerator
-                        chartKey={props.chartKey}
-                        fill={palette.text.primary}
-                    />
-                }
-            />
-            <YAxis
-                yAxisId="right"
-                hide={!isPrecipitation}
-                domain={['auto', 'auto']}
-                orientation="right"
-            />
-            <Tooltip
-                //
-                content={<CustomizedTooltip chartKey={props.chartKey} />}
-                //
-            />
-            <Legend
-                verticalAlign="top"
-                height={36}
-                //payload={legendPayloads[props.chartKey] as Payload[]}
-            />
-            <defs>
-                <linearGradient id="color0" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#890A97" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#890A97" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="color1" x1="" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3704AD" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="#3704AD" stopOpacity={0} />
-                </linearGradient>
-            </defs>
-            <Area
-                name="Actual Temperature"
-                legendType={isTemperature ? 'line' : 'none'}
-                yAxisId="left"
-                hide={!isTemperature}
-                type="monotone"
-                dataKey="temperature"
-                stroke={CHART_COLORS[0]}
-                fillOpacity={1}
-                fill="url(#color0)"
-            />
-            <Area
-                name="Apparent Temperature"
-                legendType={isTemperature ? 'line' : 'none'}
-                hide={!isTemperature}
-                yAxisId="left"
-                type="monotone"
-                dataKey="feelsLike"
-                stroke={CHART_COLORS[1]}
-                fillOpacity={1}
-                fill="url(#color1)"
-            />
-            <Area
-                hide={!isPrecipitation}
-                legendType={isPrecipitation ? 'line' : 'none'}
-                name="Chance of Precipitation"
-                yAxisId="left"
-                type="monotone"
-                dataKey="chance"
-                stroke={CHART_COLORS[0]}
-                fillOpacity={1}
-                fill="url(#color0)"
-            />
-            <Area
-                hide={!isPrecipitation}
-                legendType={isPrecipitation ? 'line' : 'none'}
-                name="Precipitation Volume"
-                yAxisId="right"
-                type="monotone"
-                dataKey="volume"
-                stroke={CHART_COLORS[1]}
-                fillOpacity={1}
-                fill="url(#color1)"
-            />
-            <Area
-                hide={!isWind}
-                legendType={isWind ? 'line' : 'none'}
-                name="Wind Speed"
-                yAxisId="left"
-                type="monotone"
-                dataKey="windSpeed"
-                fillOpacity={1}
-                stroke={CHART_COLORS[0]}
-                fill="url(#color0)"
-            />
-            <Area
-                hide={!isWind}
-                legendType={isWind ? 'line' : 'none'}
-                name="Wind Gust"
-                yAxisId="left"
-                type="monotone"
-                stroke={CHART_COLORS[1]}
-                dataKey="windGust"
-                fillOpacity={1}
-                fill="url(#color1)"
-            />
-        </AreaChart>
-    )
-}
-
-interface CustomizedYAxisTickProps {
-    chartKey: string
-    [key: string]: any
-}
-export const CustomizedYAxisTickGenerator: React.FC<
-    CustomizedYAxisTickProps
-> = (props: CustomizedYAxisTickProps) => {
-    return (
-        <text
-            className={props.className}
-            orientation="left"
-            height={props.height}
-            width={props.width}
-            x={props.x}
-            y={props.y}
-            color={props.color}
-            fill={props.fill}
-            stroke={props.stroke}
-            textAnchor={props.textAnchor}
-        >
-            <TickTextGenerator {...props} />
-        </text>
-    )
-}
-const TickTextGenerator: React.FC<any> = (props: any) => {
-    switch (props.chartKey) {
-        case 'Temperature':
-            return <CustomizedYAxisTemperatureTick {...props} />
-        case 'Precipitation':
-            return <CustomizedYAxisPrecipitationTick {...props} />
-        case 'Wind':
-            return <CustomizedYAxisWindTick {...props} />
-        default:
-            return <CustomizedYAxisTemperatureTick {...props} />
-    }
-}
-export const CustomizedYAxisTemperatureTick: React.FC<any> = (props: any) => {
-    const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    const temperatureString =
-        convertToUserTemp(props.payload.value, tempUnit).toFixed(0) + tempUnit
-    return (
-        <tspan x={props.x} dy={'0.355em'}>
-            {temperatureString}
-        </tspan>
-    )
-}
-export const CustomizedYAxisPrecipitationTick: React.FC<any> = (props: any) => {
-    //const precipUnit = useUserPrefsStore((state) => state.precipitationUnit)
-    const precipitationString = props.payload.value + '%'
-    return (
-        <tspan x={props.x} dy={'0.355em'}>
-            {precipitationString}
-        </tspan>
-    )
-}
-export const CustomizedYAxisWindTick: React.FC<any> = (props: any) => {
-    const windUnit = useUserPrefsStore((state) => state.windUnit)
-    const windString =
-        convertToUserWindSpeed(props.payload.value, windUnit).toFixed(0) +
-        windUnit
-    return (
-        <tspan
-            x={props.x}
-            dy={'0.355em'}
-            style={{
-                fontSize: ['mph', 'kph'].includes(windUnit) ? '0.9rem' : '1rem',
-            }}
-        >
-            {windString}
-        </tspan>
+                data={data}
+                onClick={(nextState, e) => handleChartClick(nextState, e)}
+                style={{
+                    color: 'white',
+                }}
+            >
+                <XAxis
+                    dataKey="hour"
+                    interval={3}
+                    tickCount={8}
+                    color={palette.text.primary}
+                    tick={{
+                        fill: palette.text.primary,
+                        fontSize: isSmall ? 10 : 12,
+                    }}
+                />
+                <YAxis
+                    domain={domainVal}
+                    yAxisId="left"
+                    tick={
+                        <CustomizedYAxisTickGenerator
+                            chartKey={props.chartKey}
+                            fill={palette.text.primary}
+                        />
+                    }
+                />
+                <YAxis
+                    yAxisId="right"
+                    hide={!isPrecipitation}
+                    domain={['auto', 'auto']}
+                    orientation="right"
+                />
+                <Tooltip
+                    //
+                    content={<CustomizedTooltip chartKey={props.chartKey} />}
+                    //
+                />
+                <Legend
+                    verticalAlign="top"
+                    height={38}
+                    layout="vertical"
+                    wrapperStyle={{
+                        left: isSmall ? '200px' : '300px',
+                        top: '-18px',
+                    }}
+                    // style={{
+                    //     left: '300px',
+                    //     top: '-18px',
+                    // }}
+                    //payload={legendPayloads[props.chartKey] as Payload[]}
+                />
+                <defs>
+                    <linearGradient id="color0" x1="0" y1="0" x2="0" y2="1">
+                        <stop
+                            offset="5%"
+                            stopColor="#890A97"
+                            stopOpacity={0.8}
+                        />
+                        <stop
+                            offset="95%"
+                            stopColor="#890A97"
+                            stopOpacity={0}
+                        />
+                    </linearGradient>
+                    <linearGradient id="color1" x1="" y1="0" x2="0" y2="1">
+                        <stop
+                            offset="5%"
+                            stopColor="#3704AD"
+                            stopOpacity={0.8}
+                        />
+                        <stop
+                            offset="95%"
+                            stopColor="#3704AD"
+                            stopOpacity={0}
+                        />
+                    </linearGradient>
+                </defs>
+                <Area
+                    name="Actual Temperature"
+                    legendType={isTemperature ? 'line' : 'none'}
+                    yAxisId="left"
+                    hide={!isTemperature}
+                    type="monotone"
+                    dataKey="temperature"
+                    stroke={CHART_COLORS[0]}
+                    fillOpacity={1}
+                    fill="url(#color0)"
+                />
+                <Area
+                    name="Apparent Temperature"
+                    legendType={isTemperature ? 'line' : 'none'}
+                    hide={!isTemperature}
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="feelsLike"
+                    stroke={CHART_COLORS[1]}
+                    fillOpacity={1}
+                    fill="url(#color1)"
+                />
+                <Area
+                    hide={!isPrecipitation}
+                    legendType={isPrecipitation ? 'line' : 'none'}
+                    name="Chance of Precipitation"
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="chance"
+                    stroke={CHART_COLORS[0]}
+                    fillOpacity={1}
+                    fill="url(#color0)"
+                />
+                <Area
+                    hide={!isPrecipitation}
+                    legendType={isPrecipitation ? 'line' : 'none'}
+                    name="Precipitation Volume"
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="volume"
+                    stroke={CHART_COLORS[1]}
+                    fillOpacity={1}
+                    fill="url(#color1)"
+                />
+                <Area
+                    hide={!isWind}
+                    legendType={isWind ? 'line' : 'none'}
+                    name="Wind Speed"
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="windSpeed"
+                    fillOpacity={1}
+                    stroke={CHART_COLORS[0]}
+                    fill="url(#color0)"
+                />
+                <Area
+                    hide={!isWind}
+                    legendType={isWind ? 'line' : 'none'}
+                    name="Wind Gust"
+                    yAxisId="left"
+                    type="monotone"
+                    stroke={CHART_COLORS[1]}
+                    dataKey="windGust"
+                    fillOpacity={1}
+                    fill="url(#color1)"
+                />
+            </AreaChart>
+        </ResponsiveContainer>
     )
 }
 const CustomizedTooltip: React.FC<any> = (props: any) => {

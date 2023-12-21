@@ -1,13 +1,9 @@
-import { CoordinatesType } from '@/app/geolocation/page'
 import { WeatherCard, WeatherCardProps } from './weatherCard'
 import styles from './weatherCards.module.scss'
-import {
-    DailyWeatherForecastObjectType,
-    DailyWeatherForecastType,
-} from '@/lib/interfaces'
+import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
 import { Skeleton } from '@mui/material'
-import dayjs from 'dayjs'
-import React, { ReactHTMLElement, useEffect } from 'react'
+import React from 'react'
+import { Draggable } from '../draggable'
 
 export interface WeatherCardsProps {
     forecastObj: DailyWeatherForecastObjectType[]
@@ -31,7 +27,7 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //need a generator to create the formatted data for the cards
     const weatherCards = props.forecastObj.slice(0, 7).map((weather, index) => {
         return (
-            <div key={index} className={styles.cardWrapper}>
+            <div key={index} className={styles.cardWrapper} style={{}}>
                 {weather ? (
                     <WeatherCard
                         forecastObj={props.forecastObj[index]}
@@ -48,8 +44,17 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //    if (showTomorrowFirst) setScrollPosition(listWrapper)
     //}, [])
     return (
-        <div className={styles.cardsListWrapper} ref={listWrapper}>
-            <ul className={styles.cardsList}>{weatherCards}</ul>
-        </div>
+        <Draggable>
+            <div
+                className={styles.cardsListWrapper}
+                ref={listWrapper}
+                style={{
+                    width: '100%',
+                    overflow: 'scroll',
+                }}
+            >
+                <ul className={styles.cardsList}>{weatherCards}</ul>
+            </div>
+        </Draggable>
     )
 }

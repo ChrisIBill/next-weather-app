@@ -133,7 +133,7 @@ export const CelestialIconsPathGenerator = memo(
                 xmlns="http://www.w3.org/2000/svg"
             >
                 {/* <path d={bezierString} stroke="#111" /> */}
-                <PageCelestialIcons
+                <CelestialIcons
                     timeObj={props.timeObj}
                     bezierPath={bezierPath}
                     bezierString={bezierString}
@@ -165,7 +165,7 @@ export interface DynamicCelestialIconsProps extends CelestialIconsProps {
 
 export interface PageCelestialIconsProps extends DynamicCelestialIconsProps {}
 
-export const PageCelestialIcons: React.FC<PageCelestialIconsProps> = (
+export const CelestialIcons: React.FC<PageCelestialIconsProps> = (
     props: DynamicCelestialIconsProps
 ) => {
     const [firstTime, setFirstTime] = React.useState(true)

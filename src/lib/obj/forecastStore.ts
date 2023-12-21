@@ -459,13 +459,6 @@ export interface DailyForecastStateHandlerProps {
     forecastObj?: DailyWeatherForecastObjectType[]
 }
 
-export const DailyForecastStateHandler: React.FC<
-    DailyForecastStateHandlerProps
-> = (props: DailyForecastStateHandlerProps) => {
-    const setForecastStore = useForecastSetStore()
-    const forecastObj = props.forecastObj
-}
-
 export interface HourlyForecastStateHandlerProps {
     forecastObj?: HourlyForecastObjectType[]
     dayIndex: number

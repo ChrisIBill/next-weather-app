@@ -113,7 +113,7 @@ export function forecastFormater(weatherApiData: any): string {
                 windgusts_10m_max: adf.windgusts_10m_max[index],
                 winddirection_10m_dominant:
                     adf.winddirection_10m_dominant[index],
-                avg_cloudcover: dsum.toString(),
+                avg_cloudcover: dsum,
                 hourly_weather: getHourlyWeather(adf.time[index], index),
                 current_weather: index === 0 ? current_weather : undefined,
             }

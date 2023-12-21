@@ -3,8 +3,9 @@ import {
     HourlyForecastObjectType,
 } from '@/lib/interfaces'
 import '../../_styles.scss'
-import styles from './hourlyWeatherReport.module.css'
+import styles from './hourlyWeatherReport.module.scss'
 import {
+    ButtonBase,
     Paper,
     Table,
     TableBody,
@@ -29,6 +30,7 @@ import {
 } from '@/lib/obj/forecastStore'
 import { DEFAULT_HOUR_DATA } from '@/lib/obj/time'
 import { CloudClassType } from '@/lib/obj/cloudClass'
+import TouchRipple from '@mui/material/ButtonBase/TouchRipple'
 
 interface StringMappedObject {
     [key: string]: string
@@ -91,7 +93,7 @@ export function GenericStateTableCell(props: StateCellProps) {
                 textAlign: 'center',
             }}
             style={{
-                width: props.columnWidth + '%',
+                minWidth: props.columnWidth + '%',
             }}
         >
             {props.string ? props.string() : ''}
@@ -110,11 +112,13 @@ interface TemperatureTableCellProps extends StateTableCellProps {
 }
 export function TemperatureTableCell(props: TemperatureTableCellProps) {
     const state = useUserPrefsStore((state) => state.temperatureUnit)
+    const titleString =
+        'Feels Like: ' + props.obj.getAppTempDisplayStrings().join(' ')
     return (
         <TableCell
             size="medium"
             key={props.key}
-            title={('Feels like: ', props.obj.getAppTempDisplayStrings())}
+            title={titleString}
             sx={{
                 color: props.palette.textSecondary,
                 textAlign: 'center',
@@ -198,6 +202,7 @@ export function CloudTableCell(props: CloudTableCellProps) {
             sx={{
                 color: props.palette.textSecondary,
                 textAlign: 'center',
+                pointerEvents: 'none',
             }}
             style={{
                 width: props.columnWidth + '%',
@@ -308,6 +313,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
     const TableHeader: React.FC<TableProps> = (props: TableProps) => {
         return (
             <TableRow
+                hover
                 sx={{
                     height: '2rem',
                 }}
@@ -335,7 +341,8 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
             </TableRow>
         )
     }
-    const TableContent: React.FC<TableProps> = (props: TableProps) => {
+    const TableContent: React.FC<TableProps> = (props: any) => {
+        console.log('TableContent: ', props)
         //useEffect(() => {
         //    let firstRender = true
         //    if (firstRender && el.current) {
@@ -345,19 +352,15 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
         //        firstRender = false
         //    }
         //}, [])
-        return (
-            <>
-                {hourlyForecast.map((hour, index) => (
-                    <TableContentRow
-                        key={`weatherReportTR${index}`}
-                        index={index}
-                        forecastObj={hour ?? undefined}
-                        columnWidth={columnWidth}
-                        keys={props.keys}
-                    />
-                ))}
-            </>
-        )
+        return hourlyForecast.map((hour, index) => (
+            <TableContentRow
+                key={`weatherReportTR${index}`}
+                index={index}
+                forecastObj={hour ?? undefined}
+                columnWidth={columnWidth}
+                keys={props.keys}
+            />
+        ))
     }
 
     return (
@@ -379,7 +382,7 @@ export const HourlyWeatherReport: React.FC<HourlyWeatherReportProps> = (
                         minWidth: 450,
                     }}
                     style={{
-                        tableLayout: 'fixed',
+                        //tableLayout: 'fixed',
                         borderCollapse: 'collapse',
                     }}
                     aria-label="hourly report table"
@@ -412,9 +415,25 @@ export interface TableContentRowProps {
     keys: string[]
 }
 
+export const dataRowSX = {
+    display: 'table-row',
+    ':hover': {
+        backgroundColor: 'red',
+        cursor: 'pointer',
+    },
+}
+
 const TableContentRow: React.FC<TableContentRowProps> = (
-    props: TableContentRowProps
+    props: TableContentRowProps,
+    ...otherProps
 ) => {
+    const rippleRef = React.useRef<any>(null)
+    const onRippleStart = (e: any) => {
+        rippleRef.current?.start?.(e)
+    }
+    const onRippleStop = (e: any) => {
+        rippleRef.current?.stop?.(e)
+    }
     const palette = useTheme().palette
     const setForecastStoreState = useForecastSetStore()
     const timeObj = props.forecastObj?.timeObj
@@ -446,15 +465,37 @@ const TableContentRow: React.FC<TableContentRowProps> = (
     }
 
     return (
-        <tr
+        <TableRow
+            //component={TableRow}
+            //sx={dataRowSX}
+            {...otherProps}
+            hover={true}
             //ref={index === defaultTime ? el : null}
             onClick={() => {
                 handleCardSelect()
             }}
-            style={{
-                color: palette.primary.contrastText,
-                backgroundColor: palette.secondary.main,
+            onMouseDown={onRippleStart}
+            onMouseUp={onRippleStop}
+            sx={{
+                display: 'table-row',
+                width: '100%',
+                position: 'relative',
+
+                '&:hover td:nth-of-type(n)': {
+                    background: palette.secondary.dark,
+                },
+                '&:not(:hover) td:nth-of-type(n)': {
+                    background: palette.secondary.main,
+                },
             }}
+            style={
+                {
+                    color: palette.primary.contrastText,
+                    //backgroundColor: palette.secondary.main,
+                    backgroundColor:
+                        palette.mode === 'dark' ? 'rgba(0,0,0,0.3)' : '',
+                } as React.CSSProperties
+            }
         >
             {props.keys.map((key) => {
                 if (typeof props.forecastObj?.[key] === 'undefined') return null
@@ -465,6 +506,13 @@ const TableContentRow: React.FC<TableContentRowProps> = (
                     palette
                 )
             })}
-        </tr>
+            <TouchRipple
+                ref={rippleRef}
+                center={false}
+                style={{
+                    position: 'absolute',
+                }}
+            />
+        </TableRow>
     )
 }

@@ -2,6 +2,7 @@ import {
     Card,
     CardActionArea,
     CardContent,
+    Divider,
     Typography,
     styled,
 } from '@mui/material'
@@ -68,7 +69,13 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             className={styles.weatherCard}
             //variant="elevation"
             sx={{
-                position: 'relative',
+                position: 'absolute',
+                width: '9rem',
+                height: '11rem',
+                //top: '0px',
+                //left: '0px',
+                //bottom: '0px',
+                //right: '0px',
                 backgroundColor: `${palette.primary.main}`,
                 color: `${palette.primary.contrastText}`,
                 borderRadius: '16px',
@@ -203,13 +210,16 @@ const WeatherCardContent: React.FC<CardContentProps> = ({
         : ''
     return (
         <div className={styles.bodyWrapper} style={{}}>
-            <Typography variant="body1">
+            <Typography variant="body1" align="center">
                 {forecastObj.cloudObj.getDisplayString()}
             </Typography>
-            <Typography variant="body1">
+            <Typography variant="body1" align="center">
                 {forecastObj.windObj.getDescription()}
             </Typography>
-            <Typography variant="body1">{precipString}</Typography>
+            <Divider />
+            <Typography variant="body1" align="center">
+                {precipString}
+            </Typography>
         </div>
     )
 }

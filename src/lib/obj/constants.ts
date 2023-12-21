@@ -210,7 +210,7 @@ export const BEAUFORT_SCALE = [
     },
     {
         speed: 28,
-        description: 'moderate breeze',
+        description: 'breeze',
     },
     {
         speed: 38,

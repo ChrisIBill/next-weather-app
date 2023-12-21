@@ -143,7 +143,10 @@ export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
     nextAnimationLevel: () => {
         set((state) => {
             const nextUnit = (state.animationLevel + 1) % 4
-            setToLocalStorage('animationLevel', nextUnit)
+            setToLocalStorage(
+                'animationLevel',
+                ANIMATION_PREF_STRINGS[nextUnit]
+            )
             return {
                 animationLevel: nextUnit,
             }

@@ -108,7 +108,10 @@ export function bezierCurve(
  * @param {string} s - a string in the array
  * @param {string[]} strs - an array of string
  */
-export const stringLiteralGenerator = function* (s: string, strs: readonly []) {
+export const stringLiteralGenerator = function* (
+    s: string,
+    strs: readonly string[]
+) {
     let i = 0
     if (strs.includes(s)) i = strs.indexOf(s)
     while (true) {
@@ -127,6 +130,10 @@ export function formatUserPrefs(str: string): string {
     return str.toLowerCase().replace(/[^a-z]/gi, '')
 }
 
+export interface FlatObject {
+    [key: string]: any
+}
+
 /**
  * Flatten a multidimensional object
  *
@@ -136,7 +143,7 @@ export function formatUserPrefs(str: string): string {
  *   { a: 1, c: 2}
  */
 export const flattenObject = (obj: any) => {
-    const flattened = {}
+    const flattened: FlatObject = {}
 
     Object.keys(obj).forEach((key) => {
         const value = obj[key]
@@ -241,6 +248,9 @@ export function rgbToHsl(r: number, g: number, b: number): Array<any> {
                 break
             case b:
                 h = (r - g) / d + 4
+                break
+            default:
+                h = 0
                 break
         }
 
