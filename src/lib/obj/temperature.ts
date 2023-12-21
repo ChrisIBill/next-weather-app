@@ -61,6 +61,15 @@ export function calcTemperatureMagnitude(vals: NumUnionType): number {
     }
 }
 
+const handleTemperatureValues = (vals: number[]): number[] => {
+    if (vals.length === 0) return [NaN, NaN]
+    else if (vals.length === 1) {
+        console.error('DayTemperatureClass handed 1 temp value instead of 2')
+        return [vals[0], vals[0]]
+    } else if (vals.length === 2) return vals.sort((a, b) => a - b)
+    else return [vals[0], vals[1]]
+}
+
 export class DayTemperatureClass implements TemperatureClassType {
     _celsiusRange: number[]
     _appCelsiusRange: number[]
@@ -76,7 +85,9 @@ export class DayTemperatureClass implements TemperatureClassType {
         celsiusRange: [number?, number?],
         appCelsiusRange: [number?, number?]
     ) {
-        this._celsiusRange = celsiusRange.map((temp) => temp ?? NaN)
+        this._celsiusRange = handleTemperatureValues(
+            celsiusRange.map((temp) => temp ?? NaN)
+        )
         this._appCelsiusRange = appCelsiusRange.map((temp) => temp ?? NaN)
         this._magnitude = () => this.generateMagnitude()
         this._appMagnitude = () => this.generateAppMagnitude()
@@ -305,5 +316,5 @@ export const convertToUserTemp = (
     tempUnit: TemperatureUnitStringsType
 ) => {
     if (tempUnit == '°C') return value
-    else return (value * 9) / 5 + 32
+    else if (tempUnit == '°F') return (value * 9) / 5 + 32
 }
