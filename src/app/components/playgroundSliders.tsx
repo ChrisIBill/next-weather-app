@@ -93,7 +93,15 @@ const GenericPlaygroundSlider: React.FC<GenericPlaygroundSliderProps> = (
     }
     return (
         <div className={styles.sliderWrapper}>
-            <Typography>{props.label}</Typography>
+            <Typography
+                sx={{
+                    color: props.disabled
+                        ? palette.text.disabled
+                        : palette.text.primary,
+                }}
+            >
+                {props.label}
+            </Typography>
             <Slider
                 size="small"
                 min={props.min}
@@ -139,7 +147,16 @@ const TimeSlider: React.FC<{}> = () => {
 
     return (
         <div className={styles.sliderWrapper}>
-            <Typography>Time</Typography>
+            <Typography
+                sx={{
+                    color: palette.text.primary,
+                    '&.Mui-disabled': {
+                        color: palette.primary.main,
+                    },
+                }}
+            >
+                Time
+            </Typography>
             <Slider
                 size="small"
                 min={0}
