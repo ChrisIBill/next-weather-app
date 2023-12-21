@@ -65,14 +65,16 @@ export default function SearchBar() {
                         createQueryString('address', userAddress.toString())
                 )
             } else {
-                setHelperText('Please enter a valid 5 digit US Zip Code')
+                setHelperText(
+                    'Please enter a valid 5 digit US Zip Code, or a city and state'
+                )
                 setIsInputError(true)
             }
         }
     }
 
     const handleChange = (e: any) => {
-        const regex = /^[0-9a-zA-Z\b]+$/
+        const regex = /^[0-9a-zA-Z \b]+$/
         console.log(e.keycode)
         if (e.target.value === '' || regex.test(e.target.value)) {
             setUserAddress(e.target.value)
@@ -80,7 +82,7 @@ export default function SearchBar() {
             setHelperText('')
         } else {
             setIsInputError(true)
-            setHelperText('Please enter numbers only')
+            setHelperText('Please enter numbers, letters and spaces only')
         }
     }
 
