@@ -82,6 +82,7 @@ interface GenericPlaygroundSliderProps {
 const GenericPlaygroundSlider: React.FC<GenericPlaygroundSliderProps> = (
     props: GenericPlaygroundSliderProps
 ) => {
+    const palette = useTheme().palette
     const state = useForecastObjStore((state) => state[props.storeKey]['state'])
     const setState = useForecastObjStore(
         (state) => state[props.storeKey]['setState']
@@ -97,6 +98,12 @@ const GenericPlaygroundSlider: React.FC<GenericPlaygroundSliderProps> = (
                 size="small"
                 min={props.min}
                 max={props.max}
+                sx={{
+                    color: palette.text.primary,
+                    '&.Mui-disabled': {
+                        color: palette.primary.main,
+                    },
+                }}
                 disabled={props.disabled}
                 value={state}
                 onChange={(event, newValue) => setState(newValue as number)}
@@ -112,6 +119,7 @@ export interface TimeSliderProps {
 
 const TimeSlider: React.FC<{}> = () => {
     const [hour, setHour] = React.useState<number>(12)
+    const palette = useTheme().palette
     const setTimePercent = useForecastObjStore(
         (state) => state.timePercent.setState
     )
@@ -136,6 +144,12 @@ const TimeSlider: React.FC<{}> = () => {
                 size="small"
                 min={0}
                 max={23}
+                sx={{
+                    color: palette.text.primary,
+                    '&.Mui-disabled': {
+                        color: palette.primary.main,
+                    },
+                }}
                 value={hour}
                 onChange={(e, val) => handleChange(e, val as number)}
             />
@@ -145,6 +159,7 @@ const TimeSlider: React.FC<{}> = () => {
 
 const TemperatureSlider: React.FC<{}> = () => {
     const [temperature, setTemperature] = React.useState<number>(21)
+    const palette = useTheme().palette
     const setTemperatureMagnitude = useForecastObjStore(
         (state) => state.temperatureMagnitude.setState
     )
@@ -162,6 +177,12 @@ const TemperatureSlider: React.FC<{}> = () => {
                 min={-40}
                 max={50}
                 value={temperature}
+                sx={{
+                    color: palette.text.primary,
+                    '&.Mui-disabled': {
+                        color: palette.primary.main,
+                    },
+                }}
                 onChange={(e, val) => handleChange(e, val as number)}
             />
         </div>
