@@ -23,7 +23,6 @@ import {
     CurrentForecastStateHandler,
     useForecastSetStore,
 } from '@/lib/obj/forecastStore'
-import Scrollbars from 'react-custom-scrollbars-2'
 
 import { Container, styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
