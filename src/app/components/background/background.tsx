@@ -43,6 +43,7 @@ export interface BackgroundComponentsProps {
 export const Background: React.FC<BackgroundProps> = (
     props: BackgroundProps
 ) => {
+    const windowDimensions = useWindowDimensions()
     const [containerDimensions, setContainerDimensions] = React.useState({
         width: 0,
         height: 0,
@@ -70,16 +71,15 @@ export const Background: React.FC<BackgroundProps> = (
     useEffect(() => {
         //if card then need container dimensions, otherwise use window dimensions
         const handleContainerDimensions = () => {
-            console.log('handleContainerDimensions')
             if (props.isCard && ref.current)
                 return {
                     width: ref.current.clientWidth,
                     height: ref.current.clientHeight,
                 }
-            else if (typeof window !== 'undefined')
+            else if (typeof windowDimensions !== 'undefined')
                 return {
-                    width: window.innerWidth,
-                    height: window.innerHeight,
+                    width: windowDimensions.width,
+                    height: windowDimensions.height,
                 }
             else
                 return {
@@ -90,7 +90,7 @@ export const Background: React.FC<BackgroundProps> = (
         const { width, height } = handleContainerDimensions()
         console.log('width, height', width, height)
         setContainerDimensions(handleContainerDimensions())
-    }, [props.isCard])
+    }, [props.isCard, windowDimensions])
 
     return (
         <div

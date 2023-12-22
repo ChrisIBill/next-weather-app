@@ -11,7 +11,11 @@ import {
     JSXElementConstructor,
     ReactNode,
     PromiseLikeOfReactNode,
+    useState,
 } from 'react'
+import { BEAUFORT_SPEEDS } from '@/lib/obj/constants'
+import { log } from 'next-axiom'
+import { useWindowDimensions } from '@/lib/hooks'
 
 export interface RainBackgroundWrapperProps extends BackgroundComponentsProps {
     isCard: boolean
@@ -19,11 +23,26 @@ export interface RainBackgroundWrapperProps extends BackgroundComponentsProps {
     windObj?: WindClassType
 }
 
+export const RainBackgroundStateWrapper: React.FC<
+    RainBackgroundWrapperProps
+> = (props: RainBackgroundWrapperProps) => {
+    return props.isCard ? (
+        <RainBackgroundCardStateWrapper {...props} />
+    ) : (
+        <RainBackgroundPageStateWrapper {...props} />
+    )
+}
+
 export const RainBackgroundCardStateWrapper: React.FC<
     RainBackgroundWrapperProps
 > = (props: RainBackgroundWrapperProps) => {
     const weight = props.precipObj.getMagnitude()
-    const angle = props.windObj ? props.windObj._beaufort()[0] * 3 : 0
+    const beaufort = props.windObj ? props.windObj._beaufort()[0] : 0
+    let bSpeed = BEAUFORT_SPEEDS[beaufort]
+    if (bSpeed === undefined) bSpeed = 0
+    if (bSpeed > 130) bSpeed = 130
+    const angle = bSpeed / 130
+    console.log('RainBackgroundCardStateWrapper: ', angle, weight)
     return (
         <RainBackground
             {...props}
@@ -38,7 +57,13 @@ export const RainBackgroundPageStateWrapper: React.FC<
     RainBackgroundWrapperProps
 > = (props: RainBackgroundWrapperProps) => {
     const weight = useForecastObjStore((state) => state.rainMagnitude.state)
-    const angle = useForecastObjStore((state) => state.windMagnitude.state) * 3
+    let bSpeed =
+        BEAUFORT_SPEEDS[
+            useForecastObjStore((state) => state.windMagnitude.state)
+        ]
+    if (bSpeed === undefined) bSpeed = 0
+    if (bSpeed > 130) bSpeed = 130
+    const angle = bSpeed / 130
     return (
         <RainBackground
             {...props}
@@ -49,50 +74,48 @@ export const RainBackgroundPageStateWrapper: React.FC<
     )
 }
 
-export const RainBackgroundStateWrapper: React.FC<
-    RainBackgroundWrapperProps
-> = (props: RainBackgroundWrapperProps) => {
-    return props.isCard ? (
-        <RainBackgroundCardStateWrapper {...props} />
-    ) : (
-        <RainBackgroundPageStateWrapper {...props} />
-    )
-}
-
 export interface RainBackgroundProps extends RainBackgroundWrapperProps {
     weight: number
     angle?: number
 }
 export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
     const height = props.height
+    const width = props.width
     const weight = props.weight
     const numDrops = props.isCard ? 10 * weight : 50 * weight
     const angle = props.angle ?? 0
+    log.debug('RainBackground: ', { height, weight, numDrops, angle })
 
+    const transX = angle * 0.5 * width
+    const transY = (height ?? 0) * 1.5
+    const adjustedWidth = width + transX
+    console.log('RainBackground: ', { transX, transY, adjustedWidth })
     const dropKeyframe = keyframes`
         0% {
         transform: translate(0, 0);
         }
         100% {
-            transform: translate(${-angle}%, ${height * 1.5}px);
+            transform: translate(${transX}px, ${transY}px);
         }
 `
     const drops: JSX.Element[] = []
     const backDrops = []
-    new Array(numDrops).fill(0).forEach((_, i) => {
+
+    for (let i = 0; i < numDrops; i++) {
+        console.log('RainBackground2: ', { i, numDrops, adjustedWidth })
         const randoHundo = Math.floor(Math.random() * (98 - 1 + 1) + 1)
         const randoFiver = Math.floor(Math.random() * (5 - 2 + 1) + 2)
-        const right = (i * (100 + angle)) / numDrops
+        const right = (i / numDrops) * adjustedWidth
         drops.push(
             <div
                 key={`drop${i}`}
                 className="drop"
                 css={css`
-                    animation: ${dropKeyframe} 0.5s linear infinite;
+                    animation: ${dropKeyframe} 9.5s linear infinite;
                 `}
                 style={{
-                    rotate: `${-angle}deg`,
-                    right: `${right}%`,
+                    rotate: `${-angle * 27}deg`,
+                    right: `${right}px`,
                     bottom: `${randoFiver + randoFiver - 1 + 100}%`,
                     animationDelay: `0.${randoHundo}s`,
                     animationDuration: `0.5${randoHundo}s`,
@@ -102,7 +125,7 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
                 <div
                     className="stem"
                     style={{
-                        rotate: `${-angle * 0.6}deg`,
+                        rotate: `${-angle * 20}deg`,
                         width: `${Math.ceil((weight * 3) / 5)}px`,
                         animationDelay: `0.${randoHundo}s`,
                         animationDuration: `0.5${randoHundo}s`,
@@ -110,7 +133,7 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
                 ></div>
             </div>
         )
-    })
+    }
     //const backDrops = []
 
     //while (increment < 100) {
@@ -163,8 +186,9 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
     //        </div>
     //    )
     //}
+
     return (
-        <div className="rainContainer">
+        <div className="rainContainer" style={{}}>
             <div className="rain front-row">{drops}</div>
             {/* <div className="rain back-row">{backDrops}</div> */}
         </div>
