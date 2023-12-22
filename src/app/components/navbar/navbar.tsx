@@ -46,9 +46,7 @@ const NavBar: React.FC<NavBarProps> = () => {
                     },
                 }}
             >
-                {(windowDimensions?.width ?? 0) > 900 ? (
-                    <div className={styles.fillerElement}></div>
-                ) : null}
+                <LocationReadout isSearchExpanded={isSearchExpanded} />
                 <TitleWrapper
                     className={styles.titleWrapper}
                     style={{
