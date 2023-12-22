@@ -437,7 +437,7 @@ const TableContentRow: React.FC<TableContentRowProps> = (
     const palette = useTheme().palette
     const setForecastStoreState = useForecastSetStore()
     const timeObj = props.forecastObj?.timeObj
-    const handleCardSelect = () => {
+    const handleTableSelect = () => {
         setForecastStoreState.setHour(props.index)
         setForecastStoreState.setTemperatureMagnitude(
             props.forecastObj?.temperatureObj.getMagnitude() ?? 0
@@ -472,7 +472,7 @@ const TableContentRow: React.FC<TableContentRowProps> = (
             hover={true}
             //ref={index === defaultTime ? el : null}
             onClick={() => {
-                handleCardSelect()
+                handleTableSelect()
             }}
             onMouseDown={onRippleStart}
             onMouseUp={onRippleStop}
