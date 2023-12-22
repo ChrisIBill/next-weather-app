@@ -11,9 +11,14 @@ const DEFAULT_WEATHER_PARAMS =
 //timeformat=unixtime
 //const DEFAULT_WEATHER_TIMEZONE = '&timezone=America%2FChicago'
 //
-interface LocationInterface {}
+interface LocationInterface {
+    coords: CoordinatesType
+    address: any
+}
 
-async function handleLocation(location: LocationType): Promise<> {
+async function handleLocation(
+    location: LocationType
+): Promise<LocationInterface> {
     if (location.latitude && location.longitude) {
         const geocodingURL =
             process.env.GEOCODING_API_URL +

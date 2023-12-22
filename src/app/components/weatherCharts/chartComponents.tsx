@@ -271,8 +271,7 @@ const CustomizedYAxisPrecipitationTick: React.FC<any> = (props: any) => {
 const CustomizedYAxisWindTick: React.FC<any> = (props: any) => {
     const windUnit = useUserPrefsStore((state) => state.windUnit)
     const windString =
-        convertToUserWindSpeed(props.payload.value, windUnit).toFixed(0) +
-        windUnit
+        convertToUserWindSpeed(props.payload.value, windUnit) + windUnit
     return (
         <TickTextStyled
             x={props.x}
