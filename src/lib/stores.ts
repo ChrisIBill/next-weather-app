@@ -112,8 +112,13 @@ const temperatureUnitStringGenerator = function* (
     }
 }
 
+const getIsImperial = () => {
+    if (typeof navigator === 'undefined') return true
+    else return navigator.language === 'en-US'
+}
+
 const getInitialUserPrefs = () => {
-    const isImperial = navigator.language === 'en-US'
+    const isImperial = getIsImperial()
     const animationLevel = parseInt(
         getFromLocalStorage('animationLevel') ?? '3'
     )
