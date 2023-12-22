@@ -16,6 +16,7 @@ import { LocationInterface } from '../location'
 export type TimeStateType = 'current' | [number, number | undefined]
 
 export const enum ForecastStateKeysEnum {
+    location = 'location',
     time = 'time',
     timePercent = 'timePercent',
     isDay = 'isDay',
