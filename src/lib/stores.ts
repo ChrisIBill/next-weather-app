@@ -113,16 +113,24 @@ const temperatureUnitStringGenerator = function* (
 }
 
 const getInitialUserPrefs = () => {
+    const isImperial = navigator.language === 'en-US'
     const animationLevel = parseInt(
         getFromLocalStorage('animationLevel') ?? '3'
     )
     const temperatureUnit =
-        setInitialUserPref('temperatureUnit', TEMPERATURE_UNIT_STRINGS) || '°C'
+        setInitialUserPref('temperatureUnit', TEMPERATURE_UNIT_STRINGS) ||
+        isImperial
+            ? ('°F' as TemperatureUnitStringsType)
+            : ('°C' as TemperatureUnitStringsType)
     const windUnit =
-        setInitialUserPref('windSpeedUnit', WIND_UNIT_STRINGS) || 'kph'
+        setInitialUserPref('windSpeedUnit', WIND_UNIT_STRINGS) || isImperial
+            ? ('mph' as WindUnitStringsType)
+            : ('kph' as WindUnitStringsType)
     const precipitationUnit =
         setInitialUserPref('precipitationUnit', PRECIPIATION_UNIT_STRINGS) ||
-        'mm'
+        isImperial
+            ? ('inch' as PrecipitationUnitStringsType)
+            : ('mm' as PrecipitationUnitStringsType)
     return {
         animationLevel,
         temperatureUnit,
