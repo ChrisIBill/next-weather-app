@@ -7,6 +7,7 @@ import {
 } from './obj/temperature'
 import DayTimeClass, { HourTimeClass, TimeClassType } from './obj/time'
 import { CloudClassType } from './obj/cloudClass'
+import { LocationInterface } from './location'
 
 export interface WeatherReportDataType {
     time: string
@@ -179,6 +180,13 @@ export interface DailyWeatherForecastObjectType extends ForecastObjectType {
     hourly_weather: HourlyForecastObjectType[]
     current_weather?: ForecastObjectType
     cloudObj: CloudClassType
+}
+export interface ForecastObjectMetadataType {
+    location?: LocationInterface
+}
+export interface FullForecastObjectType {
+    forecast: DailyWeatherForecastObjectType[]
+    metadata: ForecastObjectMetadataType
 }
 export interface HourlyForecastObjectType extends ForecastObjectType {
     timeObj: HourTimeClass

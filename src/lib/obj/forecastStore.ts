@@ -5,11 +5,13 @@ import { setToRange } from '../lib'
 import {
     DailyWeatherForecastObjectType,
     ForecastObjectType,
+    FullForecastObjectType,
     HourlyForecastObjectType,
 } from '../interfaces'
 import { PaletteMode, useTheme } from '@mui/material'
 import { useEffect, useRef } from 'react'
 import { log } from 'next-axiom'
+import { LocationInterface } from '../location'
 
 export type TimeStateType = 'current' | [number, number | undefined]
 
@@ -27,6 +29,10 @@ export const enum ForecastStateKeysEnum {
 }
 export type ForecastStateKeysType = keyof typeof ForecastStateKeysEnum
 export interface ForecastObjectStateType {
+    location: {
+        state: LocationInterface | undefined
+        setState: (location: LocationInterface) => void
+    }
     time: {
         state: TimeStateType //[day, hour]
         setState: (arg0: TimeStateType) => void
@@ -71,6 +77,18 @@ export interface ForecastObjectStateType {
 }
 export const useForecastObjStore = create<ForecastObjectStateType>(
     (set, get) => ({
+        location: {
+            state: undefined,
+            setState: (location: LocationInterface) => {
+                set((state) => ({
+                    ...state,
+                    location: {
+                        ...state.location,
+                        state: location,
+                    },
+                }))
+            },
+        },
         time: {
             state: [0, 12], //[ day, hour ]
             setState: (time: TimeStateType = 'current') => {
@@ -252,6 +270,7 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
 export function useForecastSetStore() {
     const setForecastStore = useForecastObjStore(
         useShallow((state) => ({
+            setLocation: state.location.setState,
             setTime: state.time.setState,
             setHour: state.time.setHourState,
             setTimePercent: state.timePercent.setState,
@@ -393,7 +412,7 @@ export function setForecastHour(
 }
 
 export interface CurrentForecastStateHandlerProps {
-    forecastObj?: DailyWeatherForecastObjectType[]
+    forecastObj?: FullForecastObjectType
 }
 
 export const CurrentForecastStateHandler: React.FC<
@@ -401,11 +420,13 @@ export const CurrentForecastStateHandler: React.FC<
 > = (props: CurrentForecastStateHandlerProps) => {
     const setForecastStore = useForecastSetStore()
     const isFirstRender = useRef<boolean>(true)
-    const forecastObj = props.forecastObj
 
     useEffect(() => {
+        const forecastObj = props.forecastObj?.forecast
+        const metadata = props.forecastObj?.metadata
         const handleInitialWeather = () => {
             try {
+                setForecastStore.setLocation(metadata!.location!)
                 setForecastStore.setTime('current')
                 setForecastStore.setCloudMagnitude(
                     forecastObj![0].cloudObj.cloudCover
@@ -445,7 +466,7 @@ export const CurrentForecastStateHandler: React.FC<
         } else {
             console.log('No forecast object', forecastObj)
         }
-    }, [forecastObj, setForecastStore])
+    }, [props.forecastObj, setForecastStore])
 
     return null
 }

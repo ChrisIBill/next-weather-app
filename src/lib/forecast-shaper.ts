@@ -31,7 +31,7 @@ function getApiMetadata(weatherApiData: any) {
     }
 }
 
-export function forecastFormater(weatherApiData: any): string {
+export function forecastFormater(weatherApiData: any) {
     //TODO: add error handling
     const metadata = getApiMetadata(weatherApiData)
     const current_weather = {
@@ -118,9 +118,6 @@ export function forecastFormater(weatherApiData: any): string {
                 current_weather: index === 0 ? current_weather : undefined,
             }
         })
-    return JSON.stringify({
-        metadata: metadata,
-        forecast: weather_forecast,
-    })
+    return weather_forecast
     //return {metadata, current_weather, weather_forecast[8]}
 }

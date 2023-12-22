@@ -5,6 +5,7 @@ import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
     DailyWeatherForecastObjectType,
+    FullForecastObjectType,
     LocationType,
     WeatherForecastType,
     WeatherMetadata,
@@ -27,6 +28,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { inspect } from 'util'
 import { HourlyWeatherReportProps } from '../components/weatherReports/hourlyWeatherReport'
+import { LocationInterface, handleLocation } from '@/lib/location'
 
 const HourlyWeatherReport = dynamic<HourlyWeatherReportProps>(
     () =>
@@ -57,9 +59,9 @@ function handleWeatherSearch(searchParams: {
 
 function handleWeatherForecast(
     forecast: WeatherForecastType,
-    metadata: WeatherMetadata
-): DailyWeatherForecastObjectType[] {
-    return forecast.map((day) => {
+    location: LocationInterface
+): FullForecastObjectType {
+    const forecastObj = forecast.map((day) => {
         if (!day.time2)
             throw new Error('Malformed forecast data, no time field')
         const timeObj = new DayTimeClass(day.time2, day.sunrise2, day.sunset2)
@@ -135,6 +137,10 @@ function handleWeatherForecast(
                 : undefined,
         }
     })
+    const metadata = {
+        location: handleLocation(location),
+    }
+    return { forecast: forecastObj, metadata }
 }
 
 const ChartWrapper = styled('div')(({ theme }) => ({
@@ -161,14 +167,12 @@ export default function Page({
     const pathname = usePathname()
 
     const scrollRef = useRef<HTMLDivElement>(null)
-    const [weatherMetadata, setWeatherMetadata] = useState<WeatherMetadata>()
-    const [weatherForecast, setWeatherForecast] = useState<WeatherForecastType>(
-        Array(8).fill(undefined)
-    )
+    const [location, setLocation] = useState<any>([])
     //const isFirstRender = useRef<boolean>(true)
-    const [forecastObj, setForecastObj] = useState<
-        DailyWeatherForecastObjectType[]
-    >(Array(8).fill(undefined))
+    const [forecastObj, setForecastObj] = useState<FullForecastObjectType>({
+        forecast: Array(8).fill(undefined),
+        metadata: {},
+    })
     const theme = useTheme()
 
     log.debug('Reloading Forecast Page')
@@ -192,16 +196,16 @@ export default function Page({
             .then((value) => {
                 console.log('Server Forecast Response: ', value)
                 log.info('Server Forecast Response: ', value)
-                setWeatherMetadata(value.metadata)
-                setWeatherForecast(value.forecast)
+                setLocation(handleLocation(value.address))
                 setForecastObj(
-                    handleWeatherForecast(value.forecast, value.metadata)
+                    handleWeatherForecast(value.forecast, value.address)
                 )
             })
     }, [searchParams, searchParams2])
 
     useEffect(() => {
         log.debug('Weather Page ForecastObject: ', [inspect(forecastObj)])
+        console.log('Location Array: ', location)
     })
 
     const { width, height } = useWindowDimensions() ?? {
@@ -218,7 +222,9 @@ export default function Page({
             <div className={styles.weatherPage}>
                 <div className={styles.contentWrapper}>
                     <div className={styles.landingPage}>
-                        <SelectedForecastReadout forecastObj={forecastObj} />
+                        <SelectedForecastReadout
+                            forecastObj={forecastObj.forecast}
+                        />
                         <ChartWrapper
                             className={styles.chartWrapper}
                             ref={chartWrapperRef}
@@ -230,18 +236,20 @@ export default function Page({
                         >
                             {chartWrapperRef.current !== null ? (
                                 <WeatherChart
-                                    forecastObj={forecastObj}
+                                    forecastObj={forecastObj.forecast}
                                     parentRef={chartWrapperRef}
                                 />
                             ) : (
                                 <div></div>
                             )}
                         </ChartWrapper>
-                        <WeatherCards forecastObj={forecastObj} />
+                        <WeatherCards forecastObj={forecastObj.forecast} />
                     </div>
 
                     <div className={styles.reportsPage}>
-                        <HourlyWeatherReport forecastObj={forecastObj} />
+                        <HourlyWeatherReport
+                            forecastObj={forecastObj.forecast}
+                        />
                     </div>
                 </div>
                 <Background />

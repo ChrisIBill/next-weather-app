@@ -9,11 +9,29 @@ const WeatherAPISrc = '/SampleWeatherData.json'
 const DEFAULT_WEATHER_PARAMS =
     '&current=temperature_2m,relativehumidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weathercode,cloudcover,pressure_msl,surface_pressure,windspeed_10m,winddirection_10m&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,surface_pressure,cloudcover,visibility,windspeed_10m,winddirection_10m,windgusts_10m,temperature_80m,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant&forecast_days=8&'
 //timeformat=unixtime
-const DEFAULT_WEATHER_TIMEZONE = '&timezone=America%2FChicago'
+//const DEFAULT_WEATHER_TIMEZONE = '&timezone=America%2FChicago'
+//
+interface LocationInterface {}
 
-async function getCoords(location: LocationType): Promise<CoordinatesType> {
+async function handleLocation(location: LocationType): Promise<> {
     if (location.latitude && location.longitude) {
-        return { latitude: location.latitude, longitude: location.longitude }
+        const geocodingURL =
+            process.env.GEOCODING_API_URL +
+            '?latlng=' +
+            location.latitude +
+            ',' +
+            location.longitude +
+            '&key=' +
+            process.env.GOOGLE_API_KEY
+        const result = await fetch(geocodingURL)
+        const data = await result.json()
+        return {
+            coords: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+            },
+            address: data,
+        }
     } else if (location.address) {
         const geocodingURL =
             process.env.GEOCODING_API_URL +
@@ -25,8 +43,11 @@ async function getCoords(location: LocationType): Promise<CoordinatesType> {
         if (result.status === 200) {
             const data = await result.json()
             return {
-                latitude: data.results[0].geometry.location.lat,
-                longitude: data.results[0].geometry.location.lng,
+                coords: {
+                    latitude: data.results[0].geometry.location.lat,
+                    longitude: data.results[0].geometry.location.lng,
+                } as CoordinatesType,
+                address: data,
             }
         }
     } else throw new Error('Failed to get coordinates, invalid location data')
@@ -48,10 +69,16 @@ async function getCoords(location: LocationType): Promise<CoordinatesType> {
 //}
 export async function getWeather(location: LocationType) {
     //TODO: cache handling
-    const coords: CoordinatesType = await getCoords(location)
+    const { coords, address } = await handleLocation(location)
     if (!coords) {
         console.log('bad coords')
-    } else console.log('Coordinates from geocoding: ', coords)
+    } else
+        console.log(
+            'Coordinates from geocoding: ',
+            coords,
+            address,
+            address.geometry
+        )
     //const testURL = process.env.URL + WeatherAPISrc
     //const result = await fetch(testURL, {
     //    cache: 'no-cache',
@@ -59,8 +86,7 @@ export async function getWeather(location: LocationType) {
     const reqURL =
         process.env.OPEN_METEO_API_URL +
         `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
-        DEFAULT_WEATHER_PARAMS +
-        DEFAULT_WEATHER_TIMEZONE
+        DEFAULT_WEATHER_PARAMS
 
     console.log('reqURL: ', reqURL)
 
@@ -72,5 +98,8 @@ export async function getWeather(location: LocationType) {
         console.error(result.status)
         throw new Error('Error with fetching weather data')
     }
-    return forecastFormater(await result.json())
+    return JSON.stringify({
+        forecast: forecastFormater(await result.json()),
+        address,
+    })
 }
