@@ -6,6 +6,7 @@ import {
     FormControl,
     FormHelperText,
     FormLabel,
+    IconButton,
     InputBase,
     InputLabel,
     OutlinedInput,
@@ -17,6 +18,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import styles from './navbar.module.scss'
 import { CoordinatesType } from '@/lib/interfaces'
+import SearchIcon from '@mui/icons-material/Search'
 import palette from '@/lib/export.module.scss'
 import paletteHandler from '@/lib/paletteHandler'
 
@@ -34,7 +36,13 @@ const ValidationOutlinedInput = styled(OutlinedInput)({
     },
 })
 
-export default function SearchBar() {
+export interface SearchBarProps {
+    isExpanded: boolean
+    handleExpand: (arg: boolean) => void
+}
+
+const SearchBar: React.FC<SearchBarProps> = (props: SearchBarProps) => {
+    const isExpanded = props.isExpanded
     const searchPs = useSearchParams()
     const router = useRouter()
     const pathname = usePathname()
@@ -83,6 +91,26 @@ export default function SearchBar() {
         }
     }
 
+    const collapsedSearchBarStyle = {
+        width: '2.5rem',
+        transitionDuration: '0.5s',
+    }
+
+    const expandedSearchBarStyle = {
+        borderRadius: '2.5rem',
+        width: '200px',
+        transitionDuration: '0.5s',
+    }
+
+    const expandedSearchIconStyle = {
+        opacity: 0,
+        transitionDuration: '0.5s',
+    }
+    const collapsedSearchIconStyle = {
+        opacity: 1,
+        transitionDuration: '0.5s',
+    }
+
     useEffect(() => {
         if ('geolocation' in navigator && location === undefined) {
             console.log('Geolocation available')
@@ -117,11 +145,29 @@ export default function SearchBar() {
     }, [router, location, pathname])
 
     return (
-        <FormControl className={styles.searchForm} data-theme="dark" sx={{}}>
+        <FormControl
+            className={styles.searchForm}
+            data-theme="dark"
+            sx={{
+                position: 'relative',
+            }}
+            style={
+                isExpanded
+                    ? {
+                          width: '200px',
+                          transitionDuration: '0.5s',
+                      }
+                    : {
+                          width: '2.5rem',
+                          transitionDuration: '0.5s',
+                      }
+            }
+        >
             <InputLabel
                 htmlFor="location-search"
                 className={styles.searchLabel}
                 sx={{
+                    display: isExpanded ? 'block' : 'none',
                     color: palette.text.secondary,
                     '&.Mui-focused': {
                         color: palette.text.primary,
@@ -133,32 +179,67 @@ export default function SearchBar() {
             <OutlinedInput
                 id="location-search"
                 sx={{
+                    position: 'absolute',
+                    paddingLeft: '0',
+                    top: '0',
+                    right: '0',
                     color: palette.text.primary,
                     backgroundColor: palette.background.paper,
                     border: `1px solid ${palette.text.secondary}`,
                     boxShadow: 'none',
+                    borderRadius: '2.5rem',
+                    transitionDuration: '0.5s',
                     //'& fieldset': {
                     //    borderColor: palette.text.secondary,
                     //},
                     //'& input:valid + fieldset': {
                     //    borderColor: palette.text.primary,
                     //},
-                    '& input:valid:focus + fieldset': {
-                        boxShadow: '0 0 10px rgba(255,255,255,0.5)',
+                    '& input:focus + fieldset': {},
+                    '&.MuiOutlinedInput-inputTypeSearch': {
+                        paddingLeft: '2.5rem',
                     },
                     '&.Mui-error': {
                         border: `2px solid ${palette.error.main}`,
                         boxShadow: '0 0 10px rgba(200,0,0,0.5)',
                     },
                 }}
+                inputProps={{
+                    style: {
+                        paddingLeft: '.5rem',
+                    },
+                }}
                 notched
                 className={styles.searchBar}
+                onFocus={() => props.handleExpand(true)}
+                onBlur={() => props.handleExpand(false)}
                 onChange={(e) => handleChange(e)}
                 onKeyDown={(e) => handleEnterKey(e)}
                 value={userAddress}
                 error={isInputError}
+                startAdornment={
+                    <SearchIcon
+                        sx={{
+                            pointerEvents: 'none',
+                            position: 'relative',
+                            left: '7px',
+                        }}
+                    />
+                }
             />
+
+            {/* <SearchIcon */}
+            {/*     sx={{ */}
+            {/*         //display: isExpanded ? 'none' : 'block', */}
+            {/*         pointerEvents: 'none', */}
+            {/*         position: 'absolute', */}
+            {/*         top: '20%', */}
+            {/*         left: '0.6rem', */}
+            {/*     }} */}
+            {/* /> */}
             <FormHelperText>{helperText}</FormHelperText>
         </FormControl>
     )
 }
+
+export default SearchBar

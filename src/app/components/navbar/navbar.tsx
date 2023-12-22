@@ -1,12 +1,13 @@
 'use client'
-import { AppBar, Toolbar, styled } from '@mui/material'
+import { AppBar, Toolbar, Typography, styled } from '@mui/material'
 import styles from './navbar.module.scss'
 import SearchBar from './search-bar'
 import { Settings } from './settings'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTheme } from '@mui/material/styles'
 import { useWindowDimensions } from '@/lib/hooks'
 import dynamic from 'next/dynamic'
+import { LocationReadout } from './locationReadout'
 
 const TitleWrapper = styled('div')(({ theme }) => ({
     [theme.breakpoints.down('sm')]: {
@@ -17,10 +18,16 @@ const TitleWrapper = styled('div')(({ theme }) => ({
 }))
 
 export interface NavBarProps {}
+
 const NavBar: React.FC<NavBarProps> = () => {
     //TODO: If mobile, render navbar in footer
+    const [isMounted, setIsMounted] = React.useState(false)
+    const [isSearchExpanded, setIsSearchExpanded] = React.useState(false)
     const theme = useTheme()
     const palette = theme.palette
+    const handleSearchExpand = (expanded: boolean) => {
+        setIsSearchExpanded(expanded)
+    }
     const windowDimensions = useWindowDimensions()
     return (
         <AppBar
@@ -42,14 +49,37 @@ const NavBar: React.FC<NavBarProps> = () => {
                 {(windowDimensions?.width ?? 0) > 900 ? (
                     <div className={styles.fillerElement}></div>
                 ) : null}
-                <TitleWrapper className={styles.titleWrapper}>
-                    <h1 className={styles.title}>Drizzle</h1>
-                    <h3 className={styles.subtitle}>
+                <TitleWrapper
+                    className={styles.titleWrapper}
+                    style={{
+                        overflow: 'hidden',
+                    }}
+                >
+                    <Typography
+                        variant="h1"
+                        fontFamily="RobotoSlab"
+                        fontWeight="bold"
+                        noWrap
+                        className={styles.title}
+                    >
+                        Drizzle
+                    </Typography>
+                    <Typography
+                        variant="h3"
+                        fontFamily="RobotoSlab"
+                        fontWeight="normal"
+                        noWrap
+                        className={styles.subtitle}
+                        style={{}}
+                    >
                         (Yet Another Weather App)
-                    </h3>
+                    </Typography>
                 </TitleWrapper>
                 <div className={styles.itemsWrapper}>
-                    <SearchBar />
+                    <SearchBar
+                        isExpanded={isSearchExpanded}
+                        handleExpand={handleSearchExpand}
+                    />
                     <Settings />
                 </div>
             </Toolbar>

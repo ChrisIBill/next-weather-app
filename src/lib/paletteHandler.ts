@@ -25,6 +25,9 @@ export default function paletteHandler(theme?: string) {
 const empty_palette = createTheme()
 
 export const getPaletteMode = (mode: PaletteMode) => ({
+    typography: {
+        fontFamily: 'Roboto, Roboto_Slab, sans-serif',
+    },
     palette: {
         mode,
         contrastThreshold: 4.5,

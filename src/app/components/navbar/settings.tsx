@@ -44,7 +44,7 @@ export const Settings: React.FC<SettingsProps> = ({}: SettingsProps) => {
     }
 
     return (
-        <div className={styles.settingsWrapper} ref={settingsRef}>
+        <div className={styles.settingsWrapper} ref={settingsRef} style={{}}>
             <IconButton
                 aria-label="settings"
                 aria-controls={open ? 'basic-menu' : undefined}
