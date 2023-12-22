@@ -56,7 +56,7 @@ export const convertToUserWindSpeed = (
         case 'kn':
             return memoizedKphToKn(val)
         default:
-            return val
+            return val + ' kph'
     }
 }
 
