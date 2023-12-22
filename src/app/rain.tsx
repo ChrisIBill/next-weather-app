@@ -6,16 +6,8 @@ import PrecipitationClass from '@/lib/obj/precipitation'
 import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { WindClassType } from '@/lib/obj/wind'
 import { JSX } from '@emotion/react/jsx-runtime'
-import {
-    ReactElement,
-    JSXElementConstructor,
-    ReactNode,
-    PromiseLikeOfReactNode,
-    useState,
-} from 'react'
 import { BEAUFORT_SPEEDS } from '@/lib/obj/constants'
-import { log } from 'next-axiom'
-import { useWindowDimensions } from '@/lib/hooks'
+import { useLogger } from 'next-axiom'
 
 export interface RainBackgroundWrapperProps extends BackgroundComponentsProps {
     isCard: boolean
@@ -42,7 +34,6 @@ export const RainBackgroundCardStateWrapper: React.FC<
     if (bSpeed === undefined) bSpeed = 0
     if (bSpeed > 130) bSpeed = 130
     const angle = bSpeed / 130
-    console.log('RainBackgroundCardStateWrapper: ', angle, weight)
     return (
         <RainBackground
             {...props}
@@ -79,17 +70,17 @@ export interface RainBackgroundProps extends RainBackgroundWrapperProps {
     angle?: number
 }
 export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
+    const log = useLogger()
+
     const height = props.height
     const width = props.width
     const weight = props.weight
     const numDrops = props.isCard ? 10 * weight : 50 * weight
     const angle = props.angle ?? 0
-    log.debug('RainBackground: ', { height, weight, numDrops, angle })
 
     const transX = angle * 0.5 * width
     const transY = (height ?? 0) * 1.5
     const adjustedWidth = width + transX
-    console.log('RainBackground: ', { transX, transY, adjustedWidth })
     const dropKeyframe = keyframes`
         0% {
         transform: translate(0, 0);
@@ -98,11 +89,16 @@ export const RainBackground: React.FC<RainBackgroundProps> = (props) => {
             transform: translate(${transX}px, ${transY}px);
         }
 `
+    log.debug('RainBackground: ', {
+        angle,
+        height,
+        width,
+        isCard: props.isCard,
+    })
     const drops: JSX.Element[] = []
     const backDrops = []
 
     for (let i = 0; i < numDrops; i++) {
-        console.log('RainBackground2: ', { i, numDrops, adjustedWidth })
         const randoHundo = Math.floor(Math.random() * (98 - 1 + 1) + 1)
         const randoFiver = Math.floor(Math.random() * (5 - 2 + 1) + 2)
         const right = (i / numDrops) * adjustedWidth
