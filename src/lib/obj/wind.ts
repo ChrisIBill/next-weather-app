@@ -27,10 +27,10 @@ export interface WindClassType {
 
 export const kphToMph = (speed: number) => {
     console.log('MemoLog: kphToMph called')
-    return speed * 0.621371
+    return Math.round(speed * 0.621371)
 }
-export const kphToMs = (speed: number) => speed * 0.277778
-export const kphToKn = (speed: number) => speed * 0.539957
+export const kphToMs = (speed: number) => Math.round(speed * 0.277778)
+export const kphToKn = (speed: number) => Math.round(speed * 0.539957)
 export const kphToBeaufort = (speed: number) => {
     const index = BEAUFORT_SPEEDS.findIndex((val) => {
         return speed < val
