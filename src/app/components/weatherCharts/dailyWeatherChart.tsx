@@ -12,12 +12,20 @@ import {
     Legend,
 } from 'recharts'
 import { ChartDataKeys } from './weatherChart'
-import { CustomizedYAxisTickGenerator } from './chartComponents'
+import {
+    CustomizedTooltip,
+    CustomizedYAxisTickGenerator,
+} from './chartComponents'
 import { Typography, useTheme } from '@mui/material'
 import { setForecastDay, useForecastSetStore } from '@/lib/obj/forecastStore'
-import { useUserPrefsStore } from '@/lib/stores'
+import {
+    USER_PREFERENCES_KEYS,
+    UserPreferencesKeysType,
+    useUserPrefsStore,
+} from '@/lib/stores'
 import { log } from 'next-axiom'
 import { inspect } from 'util'
+import { MappableObject } from '@/lib/genInterfaces'
 
 export interface DailyWeatherChartProps {
     forecastObj: DailyWeatherForecastObjectType[]
@@ -45,6 +53,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                     day: time,
                     minLabel: day.temperatureObj.getUserTempRange?.()[0],
                     maxLabel: day.temperatureObj.getUserTempRange?.()[1],
+                    userTempRange: day.temperatureObj.getUserTempRange,
                     minTemp: day.temperatureObj._celsiusRange[0],
                     maxTempSubMin:
                         day.temperatureObj._celsiusRange[1] -
@@ -87,6 +96,12 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 nextState,
             })
     }
+
+    const labelStrings: MappableObject = {
+        Temperature: ['Max Temp.', 'Min Temp.'],
+        Precipitation: ['Chance: ', `Volume: `],
+        Wind: ['Wind Speed', 'Gust Speed'],
+    }
     const domainVal =
         props.chartKey === 'Precipitation' ? [0, 100] : ['auto', 'auto']
     log.debug('DailyWeatherChart data: ', data)
@@ -113,7 +128,14 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 }
             />
             <Legend verticalAlign="top" />
-            <Tooltip />
+            <Tooltip
+                content={
+                    <CustomizedTooltip
+                        chartKey={props.chartKey}
+                        labelStrings={labelStrings[props.chartKey]}
+                    />
+                }
+            />
             <Bar
                 name="Min Temp."
                 hide={props.chartKey !== 'Temperature'}
@@ -121,9 +143,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 dataKey="minTemp"
                 fill="#430ED5"
                 stackId="Temperature"
-            >
-                <LabelList dataKey="minLabel" />
-            </Bar>
+            ></Bar>
             <Bar
                 name="Max Temp."
                 hide={props.chartKey !== 'Temperature'}
@@ -132,7 +152,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 fill="#680872"
                 stackId="Temperature"
             >
-                <LabelList dataKey="maxLabel" />
+                <GenericStateLabelList dataKey="maxLabel" />
             </Bar>
             {/* Precipitation */}
             <Bar
@@ -153,7 +173,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 dataKey="volumeOfRain"
                 fill="#430ED5"
             >
-                <LabelList dataKey="volumeLabel" />
+                <GenericStateLabelList dataKey="volumeLabel" />
             </Bar>
             {/* Wind */}
             <Bar
@@ -164,7 +184,7 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 fill="#680872"
                 stackId="Wind"
             >
-                <LabelList dataKey="windLabel" />
+                <GenericStateLabelList dataKey="windLabel" />
             </Bar>
             <Bar
                 name="Gust Speed"
@@ -174,8 +194,89 @@ export const DailyWeatherChart: React.FC<DailyWeatherChartProps> = (
                 fill="#430ED5"
                 stackId="Wind"
             >
-                <LabelList dataKey="gustLabel" />
+                <GenericStateLabelList dataKey="gustLabel" />
             </Bar>
         </BarChart>
     )
 }
+
+const barKeyToStateMap: MappableObject = {
+    minLabel: 'temperatureUnit',
+    maxLabel: 'temperatureUnit',
+    volumeLabel: 'precipitationUnit',
+    windLabel: 'windUnit',
+    gustLabel: 'windUnit',
+}
+
+export const GenericStateLabelList: React.FC<MappableObject> = (props) => {
+    const stateString = barKeyToStateMap[props.dataKey]
+    if (!stateString || !USER_PREFERENCES_KEYS.includes(stateString))
+        throw new Error(
+            `Invalid dataKey ${props.dataKey} in GenericStateLabelList`
+        )
+    const state = useUserPrefsStore(
+        (state) => state[stateString as UserPreferencesKeysType]
+    )
+    console.log('GenericStateLabelList', { stateString, state })
+
+    const palette = useTheme().palette
+    if (!props.dataKey) return null
+    return (
+        <text fill={props.textColor ?? palette.text.primary}>
+            {props.value}
+        </text>
+    )
+}
+
+const chartKeyToStateMap: MappableObject = {
+    Temperature: 'temperatureUnit',
+    Precipitation: 'precipitationUnit',
+    Wind: 'windUnit',
+}
+
+export const TemperatureLabelList: React.FC<MappableObject> = (props) => {
+    console.log('TemperatureLabelList', { props })
+    const temperatureUnit = useUserPrefsStore((state) => state.temperatureUnit)
+    const palette = useTheme().palette
+    return (
+        <LabelList
+            dataKey={props.dataKey}
+            fill={props.textColor ?? palette.text.primary}
+            formatter={(value) => `${value} ${temperatureUnit}`}
+            {...props.otherProps}
+        />
+    )
+}
+
+const DailyTooltipGenerator: React.FC<MappableObject> = (props) => {
+    console.log('DailyTooltipGenerator', { props })
+    const stateString = chartKeyToStateMap[props.chartKey]
+    const state = useUserPrefsStore(
+        (state) => state[stateString as UserPreferencesKeysType]
+    )
+    const palette = useTheme().palette
+    const { payload, label, active } = props
+    if (!props.chartKey || !state) return null
+    return (
+        <Tooltip
+            cursor={{ fill: palette.text.primary }}
+            {...props.otherProps}
+        />
+    )
+}
+
+//const GenericStateTooltip: React.FC<MappableObject> = (props) => {
+//    console.log('GenericStateTooltip', { props })
+//    const stateString = chartKeyToStateMap[props.dataKey]
+//    const state = useUserPrefsStore(
+//        (state) => state[stateString as UserPreferencesKeysType]
+//    )
+//    const palette = useTheme().palette
+//    const { payload, label, active } = props
+//
+//
+//    if (!props.dataKey || !state) return null
+//    return (
+//        <
+//    )
+//}

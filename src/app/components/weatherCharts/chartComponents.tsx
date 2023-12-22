@@ -286,7 +286,9 @@ const CustomizedYAxisWindTick: React.FC<any> = (props: any) => {
 }
 export const CustomizedTooltip: React.FC<any> = (props: any) => {
     const palette = useTheme().palette
-    const { payload, wrapperStyle, cursorStyle, labelStyle, ...styles } = props
+    const { payload, wrapperStyle, cursorStyle, labelStrings, ...styles } =
+        props
+    console.log('CustomizedTooltip', { props })
     return (
         <div
             className={'recharts-default-tooltip'}
@@ -313,7 +315,9 @@ const TooltipTextGenerator: React.FC<any> = (props: any) => {
         case 'Temperature':
             return <TemperatureTooltipContent {...props} />
         case 'Precipitation':
-            return <GenericTooltipContent append={'%'} {...props} />
+            return <PrecipitationTooltipWrapper {...props} />
+        case 'Wind':
+            return <WindTooltipWrapper {...props} />
         default:
             return <GenericTooltipContent {...props} />
     }
@@ -322,6 +326,8 @@ const TemperatureTooltipContent: React.FC<any> = (props: any) => {
     const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
     const palette = useTheme().palette
     const { payload, label, active } = props
+    const labelStrings = props.labelStrings ?? ['', '']
+    console.log('TemperatureTooltipContent', { props, labelStrings })
     return (
         <ul
             style={{
@@ -336,7 +342,7 @@ const TemperatureTooltipContent: React.FC<any> = (props: any) => {
                         color: palette.text.primary,
                     }}
                 >
-                    {(index == 1 ? 'Feels Like: ' : '') +
+                    {labelStrings[index] +
                         convertToUserTemp(
                             entry.value as number,
                             tempUnit
@@ -348,11 +354,36 @@ const TemperatureTooltipContent: React.FC<any> = (props: any) => {
     )
 }
 
+const PrecipitationTooltipWrapper: React.FC<any> = (props: any) => {
+    const state = useUserPrefsStore((state) => state.precipitationUnit)
+    const str = state === 'inch' ? 'in.' : state
+    return (
+        <GenericTooltipContent
+            labelStrings={['', '']}
+            appendStrings={['%', ` ${str}`]}
+            {...props}
+        />
+    )
+}
+
+const WindTooltipWrapper: React.FC<any> = (props: any) => {
+    const state = useUserPrefsStore((state) => state.windUnit)
+
+    return (
+        <GenericTooltipContent
+            labelStrings={['Wind Speed: ', 'Gust Speed: ']}
+            appendStrings={[` ${state}`, ` ${state}`]}
+            {...props}
+        />
+    )
+}
+
 const GenericTooltipContent: React.FC<any> = (props: any) => {
     const prepend = typeof props.prepend === 'string' ? props.prepend : ''
-    const append = typeof props.append === 'string' ? props.append : ''
     const palette = useTheme().palette
     const { payload, label, active } = props
+    const labelStrings = props.labelStrings ?? ['', '']
+    const appendStrings = props.appendStrings ?? ['', '']
     return (
         <ul
             style={{
@@ -367,7 +398,7 @@ const GenericTooltipContent: React.FC<any> = (props: any) => {
                         color: palette.text.primary,
                     }}
                 >
-                    {prepend + entry.value + append}
+                    {labelStrings[index] + entry.value + appendStrings[index]}
                 </li>
             ))}
         </ul>

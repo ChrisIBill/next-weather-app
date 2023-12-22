@@ -20,8 +20,13 @@ import {
     YAxis,
 } from 'recharts'
 import { ChartKeysType, legendPayloads } from './weatherChart'
-import { CustomizedYAxisTickGenerator, RenderToggler } from './chartComponents'
+import {
+    CustomizedTooltip,
+    CustomizedYAxisTickGenerator,
+    RenderToggler,
+} from './chartComponents'
 import { useEffect, useState } from 'react'
+import { MappableObject } from '@/lib/genInterfaces'
 
 const CHART_COLORS = ['#EA79F6', '#9C74FB']
 
@@ -95,6 +100,7 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
         }
     })
     const handleChartClick = (nextState: any, e: any) => {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
         const index = nextState.activeTooltipIndex
         const hour = selectedForecastDay?.hourly_weather[index]
         if (hour) setForecastHour(index, hour, setStateStore)
@@ -103,6 +109,10 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
 
     const domainVal =
         props.chartKey == 'Precipitation' ? [0, 100] : ['auto', 'auto']
+
+    const labelStrings: MappableObject = {
+        Temperature: ['Temperature: ', 'Feels Like: '],
+    }
 
     useEffect(() => {
         if (props.parentRef.current) {
@@ -155,9 +165,12 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     orientation="right"
                 />
                 <Tooltip
-                    //
-                    content={<CustomizedTooltip chartKey={props.chartKey} />}
-                    //
+                    content={
+                        <CustomizedTooltip
+                            chartKey={props.chartKey}
+                            labelStrings={labelStrings[props.chartKey]}
+                        />
+                    }
                 />
                 <Legend
                     verticalAlign="top"
@@ -267,91 +280,5 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 />
             </AreaChart>
         </ResponsiveContainer>
-    )
-}
-const CustomizedTooltip: React.FC<any> = (props: any) => {
-    const palette = useTheme().palette
-    const { payload, wrapperStyle, cursorStyle, labelStyle, ...styles } = props
-    return (
-        <div
-            className={'recharts-default-tooltip'}
-            style={{
-                margin: '0px',
-                padding: '10px',
-                backgroundColor: palette.background.paper,
-                whiteSpace: 'nowrap',
-            }}
-        >
-            <p className={'recharts-tooltip-label'} style={{}}></p>
-            <ul
-                style={{
-                    listStyleType: 'none',
-                }}
-            >
-                <TooltipTextGenerator {...props} />
-            </ul>
-        </div>
-    )
-}
-const TooltipTextGenerator: React.FC<any> = (props: any) => {
-    switch (props.chartKey) {
-        case 'Temperature':
-            return <TemperatureTooltipContent {...props} />
-        case 'Precipitation':
-            return <GenericTooltipContent append={'%'} {...props} />
-        default:
-            return <GenericTooltipContent {...props} />
-    }
-}
-const TemperatureTooltipContent: React.FC<any> = (props: any) => {
-    const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    const palette = useTheme().palette
-    const { payload, label, active } = props
-    return (
-        <ul
-            style={{
-                listStyleType: 'none',
-            }}
-        >
-            {payload.map((entry: any, index: number) => (
-                <li
-                    key={`item-${index}`}
-                    style={{
-                        ...entry,
-                        color: palette.text.primary,
-                    }}
-                >
-                    {(index == 1 ? 'Feels Like: ' : '') +
-                        convertToUserTemp(entry.value, tempUnit)?.toFixed(0) +
-                        tempUnit}
-                </li>
-            ))}
-        </ul>
-    )
-}
-
-const GenericTooltipContent: React.FC<any> = (props: any) => {
-    const prepend = typeof props.prepend === 'string' ? props.prepend : ''
-    const append = typeof props.append === 'string' ? props.append : ''
-    const palette = useTheme().palette
-    const { payload, label, active } = props
-    return (
-        <ul
-            style={{
-                listStyleType: 'none',
-            }}
-        >
-            {payload.map((entry: any, index: number) => (
-                <li
-                    key={`item-${index}`}
-                    style={{
-                        ...entry,
-                        color: palette.text.primary,
-                    }}
-                >
-                    {prepend + entry.value + append}
-                </li>
-            ))}
-        </ul>
     )
 }
