@@ -205,8 +205,7 @@ export default function Page({
 
     useEffect(() => {
         log.debug('Weather Page ForecastObject: ', [inspect(forecastObj)])
-        console.log('Location Array: ', location)
-    })
+    }, [forecastObj])
 
     const { width, height } = useWindowDimensions() ?? {
         width: 0,

@@ -80,13 +80,15 @@ export const useForecastObjStore = create<ForecastObjectStateType>(
         location: {
             state: undefined,
             setState: (location: LocationInterface) => {
-                set((state) => ({
-                    ...state,
-                    location: {
-                        ...state.location,
-                        state: location,
-                    },
-                }))
+                set((state) => {
+                    return {
+                        ...state,
+                        location: {
+                            ...state.location,
+                            state: location,
+                        },
+                    }
+                })
             },
         },
         time: {
@@ -419,14 +421,17 @@ export const CurrentForecastStateHandler: React.FC<
     CurrentForecastStateHandlerProps
 > = (props: CurrentForecastStateHandlerProps) => {
     const setForecastStore = useForecastSetStore()
-    const isFirstRender = useRef<boolean>(true)
+
+    useEffect(() => {}, [props.forecastObj])
 
     useEffect(() => {
         const forecastObj = props.forecastObj?.forecast
         const metadata = props.forecastObj?.metadata
+        const location = metadata?.location
+
         const handleInitialWeather = () => {
             try {
-                setForecastStore.setLocation(metadata!.location!)
+                setForecastStore.setLocation(location!)
                 setForecastStore.setTime('current')
                 setForecastStore.setCloudMagnitude(
                     forecastObj![0].cloudObj.cloudCover
@@ -460,11 +465,12 @@ export const CurrentForecastStateHandler: React.FC<
                 console.log(error)
             }
         }
-        if (forecastObj && forecastObj[0] && isFirstRender.current) {
-            isFirstRender.current = false
+        if (forecastObj && forecastObj[0]) {
+            log.debug('CurrentForecastStateHandler: ', {
+                metadata,
+                location,
+            })
             handleInitialWeather()
-        } else {
-            console.log('No forecast object', forecastObj)
         }
     }, [props.forecastObj, setForecastStore])
 
@@ -479,27 +485,3 @@ export interface HourlyForecastStateHandlerProps {
     forecastObj?: HourlyForecastObjectType[]
     dayIndex: number
 }
-
-// export const HourlyForecastStateHandler: React.FC<
-//     HourlyForecastStateHandlerProps
-// > = (props: HourlyForecastStateHandlerProps) => {
-//     const setForecastStore = useForecastSetStore()
-//     const isFirstRender = useRef<boolean>(true)
-//     const forecastObj = props.forecastObj
-//
-//     useEffect(() => {
-//         const handleHourlyWeather = setForecastHour(
-//             props.dayIndex,
-//             forecastObj![props.dayIndex],
-//             setForecastStore
-//         )
-//         if (forecastObj && forecastObj[0] && isFirstRender.current) {
-//             isFirstRender.current = false
-//             //handleInitialWeather()
-//         } else {
-//             log.debug('No forecast object', forecastObj)
-//         }
-//     }, [forecastObj, setForecastStore, props.dayIndex])
-//
-//     return null
-// }
