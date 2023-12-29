@@ -7,6 +7,9 @@ import DayTimeClass from '@/lib/obj/time'
 import { useTheme } from '@mui/material'
 import dynamic from 'next/dynamic'
 import { BackgroundProps } from './components/background/background'
+import logger from '../lib/pinoLogger'
+
+const landingPageLogger = logger.child({ module: 'landingPage' })
 
 const Background = dynamic<BackgroundProps>(
     () =>
@@ -19,6 +22,7 @@ const Background = dynamic<BackgroundProps>(
 )
 export default function Home() {
     const [mode, setMode] = useState<'light' | 'dark'>('light')
+    landingPageLogger.debug('rendering landing page')
 
     const theme = useTheme()
     useEffect(() => {
