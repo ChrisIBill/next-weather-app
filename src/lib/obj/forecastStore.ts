@@ -12,6 +12,7 @@ import { PaletteMode, useTheme } from '@mui/material'
 import { useEffect, useRef } from 'react'
 import { log } from 'next-axiom'
 import { LocationInterface } from '../location'
+import logger from '../pinoLogger'
 
 export type TimeStateType = 'current' | [number, number | undefined]
 
@@ -418,6 +419,10 @@ export interface CurrentForecastStateHandlerProps {
     forecastObj?: FullForecastObjectType
 }
 
+const currentForecastStateHandlerLogger = logger.child({
+    module: 'CurrentForecastStateHandler',
+})
+
 export const CurrentForecastStateHandler: React.FC<
     CurrentForecastStateHandlerProps
 > = (props: CurrentForecastStateHandlerProps) => {
@@ -463,11 +468,19 @@ export const CurrentForecastStateHandler: React.FC<
                     forecastObj![0].current_weather!.temperatureObj.getMagnitude()
                 )
             } catch (error) {
-                console.log(error)
+                currentForecastStateHandlerLogger.error(
+                    'Error in handleInitialWeather setting current weather: ',
+                    {
+                        metadata,
+                        location,
+                        forecastObj,
+                    }
+                )
+                //TODO: need error state
             }
         }
         if (forecastObj && forecastObj[0]) {
-            log.debug('CurrentForecastStateHandler: ', {
+            currentForecastStateHandlerLogger.debug('Setting initial weather', {
                 metadata,
                 location,
             })

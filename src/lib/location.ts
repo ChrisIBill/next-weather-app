@@ -49,6 +49,7 @@ export function handleLocation(location: any) {
                 loc[result.types[0] as string] = result.long_name
             }
         })
+        console.log('Location Handler: ', loc)
         return loc
     }
 }

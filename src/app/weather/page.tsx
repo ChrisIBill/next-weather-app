@@ -29,6 +29,9 @@ import dynamic from 'next/dynamic'
 import { inspect } from 'util'
 import { HourlyWeatherReportProps } from '../components/weatherReports/hourlyWeatherReport'
 import { LocationInterface, handleLocation } from '@/lib/location'
+import logger from '@/lib/pinoLogger'
+
+const weatherPageLogger = logger.child({ module: 'Weather Page' })
 
 const HourlyWeatherReport = dynamic<HourlyWeatherReportProps>(
     () =>
@@ -63,7 +66,7 @@ function handleWeatherForecast(
 ): FullForecastObjectType {
     const forecastObj = forecast.map((day) => {
         if (!day.time2)
-            throw new Error('Malformed forecast data, no time field')
+            throw new Error('Invalid forecast object: missing time2')
         const timeObj = new DayTimeClass(day.time2, day.sunrise2, day.sunset2)
         const tempObj = new DayTemperatureClass(
             [day.temperature_2m_max, day.temperature_2m_min],
@@ -163,6 +166,7 @@ export default function Page({
     params: { slug: string }
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
+    weatherPageLogger.debug('rendering weather page')
     const searchParams2 = useSearchParams()
     const pathname = usePathname()
 
@@ -175,8 +179,6 @@ export default function Page({
     })
     const theme = useTheme()
 
-    log.debug('Reloading Forecast Page')
-
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -185,7 +187,11 @@ export default function Page({
             searchParams2.get('lon'),
             searchParams2.get('address'),
         ]
-        log.debug('Search Parameters for weather page: ', { lat, lon, address })
+        weatherPageLogger.debug('Search Parameters for weather page: ', {
+            lat,
+            lon,
+            address,
+        })
         const location = address
             ? handleWeatherSearch({ address })
             : handleWeatherSearch({ lat, lon })
@@ -194,18 +200,13 @@ export default function Page({
                 return JSON.parse(response)
             })
             .then((value) => {
-                console.log('Server Forecast Response: ', value)
-                log.info('Server Forecast Response: ', value)
+                weatherPageLogger.info('Server Forecast Response: ', value)
                 setLocation(handleLocation(value.address))
                 setForecastObj(
                     handleWeatherForecast(value.forecast, value.address)
                 )
             })
     }, [searchParams, searchParams2])
-
-    useEffect(() => {
-        log.debug('Weather Page ForecastObject: ', [inspect(forecastObj)])
-    }, [forecastObj])
 
     const { width, height } = useWindowDimensions() ?? {
         width: 0,
