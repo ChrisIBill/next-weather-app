@@ -4,7 +4,10 @@ import React, { useEffect, useCallback } from 'react'
 import styles from './background.module.scss'
 import { ColorLayerWrapper, DayNightColorLayer } from './dayNightColorLayer'
 import { RainBackground, RainBackgroundStateWrapper } from '@/app/rain'
-import { DailyWeatherForecastObjectType } from '@/lib/interfaces'
+import {
+    DailyWeatherForecastObjectType,
+    DimensionsType,
+} from '@/lib/interfaces'
 import { useWindowDimensions } from '@/lib/hooks'
 import { CloudsGeneratorStateWrapper } from './clouds'
 import PrecipitationClass, {
@@ -13,6 +16,9 @@ import PrecipitationClass, {
 import frozenImageOverlay from '/public/frozen-corner-1.png'
 import dynamic from 'next/dynamic'
 import { CelestialIconsHandlerProps } from './celestialIcons'
+import logger from '@/lib/pinoLogger'
+
+const BackgroundLogger = logger.child({ module: 'Background' })
 
 export interface BackgroundProps {
     forecastObj?: DailyWeatherForecastObjectType
@@ -70,13 +76,13 @@ export const Background: React.FC<BackgroundProps> = (
 
     useEffect(() => {
         //if card then need container dimensions, otherwise use window dimensions
-        const handleContainerDimensions = () => {
+        const handleContainerDimensions = (): DimensionsType => {
             if (props.isCard && ref.current)
                 return {
                     width: ref.current.clientWidth,
                     height: ref.current.clientHeight,
                 }
-            else if (typeof windowDimensions !== 'undefined')
+            else if (typeof windowDimensions.height !== 'undefined')
                 return {
                     width: windowDimensions.width,
                     height: windowDimensions.height,
@@ -88,7 +94,6 @@ export const Background: React.FC<BackgroundProps> = (
                 }
         }
         const { width, height } = handleContainerDimensions()
-        console.log('width, height', width, height)
         setContainerDimensions(handleContainerDimensions())
     }, [props.isCard, windowDimensions])
 
