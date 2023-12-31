@@ -1,13 +1,13 @@
 import { cloneElement } from 'react'
-import { TEMPERATURE_UNIT_STRINGS, useUserPrefsStore } from '../stores'
+import { useUserPrefsStore } from '../stores'
+import { TEMPERATURE_UNIT, TemperatureUnitStringsType } from '../constants'
 
 const LOWEST_TEMPERATURE = -40
 const MEDIAN_TEMPERATURE = 21
 const HIGHEST_TEMPERATURE = 50
 const COLD_TEMPERATURE_RANGE = MEDIAN_TEMPERATURE - LOWEST_TEMPERATURE
 const HOT_TEMPERATURE_RANGE = HIGHEST_TEMPERATURE - MEDIAN_TEMPERATURE
-export type TemperatureUnitStringsType =
-    (typeof TEMPERATURE_UNIT_STRINGS)[number]
+
 type NumUnionType = number | number[]
 
 export interface TemperatureClassType {
@@ -100,7 +100,7 @@ export class DayTemperatureClass implements TemperatureClassType {
 
     getUserTempRange(): number[] {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        return userUnit === '°F'
+        return userUnit === TEMPERATURE_UNIT.FAHRENHEIT
             ? this._fahrenheitRange instanceof Function
                 ? this._fahrenheitRange()
                 : this._fahrenheitRange
@@ -108,7 +108,7 @@ export class DayTemperatureClass implements TemperatureClassType {
     }
     getUserAppTempRange(): number[] {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        return userUnit === '°F'
+        return userUnit === TEMPERATURE_UNIT.FAHRENHEIT
             ? this._appFahrenheitRange instanceof Function
                 ? this._appFahrenheitRange()
                 : this._appFahrenheitRange
@@ -144,7 +144,7 @@ export class DayTemperatureClass implements TemperatureClassType {
     getTempDisplayStrings(): string[] {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
         const tempRange =
-            userUnit === '°F'
+            userUnit === TEMPERATURE_UNIT.FAHRENHEIT
                 ? this.getUserTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserTempRange().map((temp) => temp.toFixed(1))
         return [`${tempRange[0]}${userUnit}`, `${tempRange[1]}${userUnit}`]
@@ -153,7 +153,7 @@ export class DayTemperatureClass implements TemperatureClassType {
     getAppTempDisplayStrings(): string[] {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
         const tempRange =
-            userUnit === '°F'
+            userUnit === TEMPERATURE_UNIT.FAHRENHEIT
                 ? this.getUserAppTempRange().map((temp) => temp.toFixed(0))
                 : this.getUserAppTempRange().map((temp) => temp.toFixed(1))
         return [`${tempRange[0]}${userUnit}`, `${tempRange[1]}${userUnit}`]
@@ -237,7 +237,7 @@ export class HourTemperatureClass implements HourTemperatureClassType {
     }
     getUserTemp = (): number => {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        return userUnit === TEMPERATURE_UNIT_STRINGS[0]
+        return userUnit === TEMPERATURE_UNIT.FAHRENHEIT
             ? typeof this._fahrenheit === 'function'
                 ? this._fahrenheit()
                 : this._fahrenheit
@@ -245,7 +245,7 @@ export class HourTemperatureClass implements HourTemperatureClassType {
     }
     getUserAppTemp = (): number => {
         const userUnit = useUserPrefsStore.getState().temperatureUnit
-        return userUnit === '°F'
+        return userUnit === TEMPERATURE_UNIT.FAHRENHEIT
             ? typeof this._appFahrenheit === 'function'
                 ? this._appFahrenheit()
                 : this._appFahrenheit

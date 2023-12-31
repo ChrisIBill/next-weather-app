@@ -1,25 +1,16 @@
 import { create } from 'zustand'
-import PrecipitationClass, {
-    PrecipitationClassType,
-    PrecipitationUnitStringsType,
-} from './obj/precipitation'
 import {
-    DayTemperatureClass,
-    DayTemperatureClassType,
-    HourTemperatureClass,
-    HourTemperatureClassType,
+    ANIMATION_PREF_STRINGS,
+    PRECIPITATION_UNIT,
+    PRECIPITATION_UNIT_STRINGS,
+    PrecipitationUnitStringsType,
+    TEMPERATURE_UNIT,
+    TEMPERATURE_UNIT_STRINGS,
     TemperatureUnitStringsType,
-} from './obj/temperature'
-import WindClass, {
+    WIND_UNIT,
     WIND_UNIT_STRINGS,
-    WindClassType,
     WindUnitStringsType,
-} from './obj/wind'
-import { setToRange } from './lib'
-import { TimeOfDayType } from './obj/time'
-import DayTimeClass, { DayTimeClassType, HourTimeClassType } from './obj/time'
-import { CloudClass, CloudClassType, hslType } from './obj/cloudClass'
-import { hsl } from './lib'
+} from './constants'
 
 export const USER_PREFERENCES_KEYS = [
     'animationLevel',
@@ -36,9 +27,9 @@ export interface UserPreferencesInterface {
 }
 export const DEFAULT_USER_PREFS: UserPreferencesInterface = {
     animationLevel: 3,
-    temperatureUnit: '°F',
-    windUnit: 'mph',
-    precipitationUnit: 'inch',
+    temperatureUnit: TEMPERATURE_UNIT.FAHRENHEIT,
+    windUnit: WIND_UNIT.MPH,
+    precipitationUnit: PRECIPITATION_UNIT.INCH,
 }
 export const enum AnimationLevelsEnum {
     None,
@@ -52,20 +43,17 @@ export const ANIMATION_LEVELS = [
     AnimationLevelsEnum.Medium,
     AnimationLevelsEnum.High,
 ] as const
-export const ANIMATION_PREF_STRINGS = ['None', 'Low', 'Medium', 'High'] as const
-export const TEMPERATURE_UNIT_STRINGS = ['°F', '°C'] as const
-export const PRECIPIATION_UNIT_STRINGS = ['inch', 'mm'] as const
 
 export const USER_PREFS_STRINGS = {
     temperatureStrings: TEMPERATURE_UNIT_STRINGS,
     windStrings: WIND_UNIT_STRINGS,
-    precipitationStrings: PRECIPIATION_UNIT_STRINGS,
+    precipitationStrings: PRECIPITATION_UNIT_STRINGS,
 } as const
 export type UserPrefsStringsType =
     | (typeof ANIMATION_PREF_STRINGS)[number]
     | (typeof TEMPERATURE_UNIT_STRINGS)[number]
     | (typeof WIND_UNIT_STRINGS)[number]
-    | (typeof PRECIPIATION_UNIT_STRINGS)[number]
+    | (typeof PRECIPITATION_UNIT_STRINGS)[number]
 export function getFromLocalStorage(key: string) {
     try {
         //TODO: this catches if ran on server, but dont think this should be running on server in first place
@@ -125,16 +113,16 @@ const getInitialUserPrefs = () => {
     const temperatureUnit =
         setInitialUserPref('temperatureUnit', TEMPERATURE_UNIT_STRINGS) ||
         isImperial
-            ? ('°F' as TemperatureUnitStringsType)
-            : ('°C' as TemperatureUnitStringsType)
+            ? TEMPERATURE_UNIT.FAHRENHEIT
+            : TEMPERATURE_UNIT.CELSIUS
     const windUnit =
         setInitialUserPref('windSpeedUnit', WIND_UNIT_STRINGS) || isImperial
-            ? ('mph' as WindUnitStringsType)
-            : ('kph' as WindUnitStringsType)
+            ? WIND_UNIT.MPH
+            : WIND_UNIT.KPH
     const precipitationUnit =
-        setInitialUserPref('precipitationUnit', PRECIPIATION_UNIT_STRINGS) ||
+        setInitialUserPref('precipitationUnit', PRECIPITATION_UNIT_STRINGS) ||
         isImperial
-            ? ('inch' as PrecipitationUnitStringsType)
+            ? PRECIPITATION_UNIT.INCH
             : ('mm' as PrecipitationUnitStringsType)
     return {
         animationLevel,
@@ -195,12 +183,12 @@ export const useUserPrefsStore = create<UserPrefsState>()((set, get) => ({
     nextPrecipitationUnit: () =>
         set((state) => {
             const nextUnit =
-                PRECIPIATION_UNIT_STRINGS[
-                    (PRECIPIATION_UNIT_STRINGS.indexOf(
+                PRECIPITATION_UNIT_STRINGS[
+                    (PRECIPITATION_UNIT_STRINGS.indexOf(
                         state.precipitationUnit
                     ) +
                         1) %
-                        PRECIPIATION_UNIT_STRINGS.length
+                        PRECIPITATION_UNIT_STRINGS.length
                 ]
             setToLocalStorage('precipitationUnit', nextUnit)
             return {

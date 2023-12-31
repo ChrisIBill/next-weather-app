@@ -1,10 +1,9 @@
 import { cloneElement } from 'react'
-import { PRECIPIATION_UNIT_STRINGS, useUserPrefsStore } from '../stores'
+import { useUserPrefsStore } from '../stores'
 import { ForecastObjectType } from './forecastClass'
 
 export const PRECIPITATION_TYPES = ['rain', 'snow', 'hail'] as const
-export type PrecipitationUnitStringsType =
-    (typeof PRECIPIATION_UNIT_STRINGS)[number]
+
 export type PrecipitationType = (typeof PRECIPITATION_TYPES)[number]
 
 export const RAIN_VOLUME_STRINGS = [

@@ -1,13 +1,12 @@
 import { memoize } from 'lodash'
 
-export const WIND_UNIT_STRINGS = ['ms', 'kph', 'mph', 'kn'] as const
-export type WindUnitStringsType = (typeof WIND_UNIT_STRINGS)[number]
 import {
     BEAUFORT_SCALE,
     CARDINAL_DIRECTIONS,
     BEAUFORT_SPEEDS,
 } from './constants'
 import { cloneElement } from 'react'
+import { WindUnitStringsType } from '../constants'
 
 export type BeaufortScaleType = (typeof BEAUFORT_SCALE)[number]
 

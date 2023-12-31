@@ -6,7 +6,8 @@ import { IconButton, Menu, MenuItem } from '@mui/material'
 import React from 'react'
 import { useColorMode } from '@/lib/context'
 import { useTheme } from '@mui/material/styles'
-import { ANIMATION_PREF_STRINGS, useUserPrefsStore } from '@/lib/stores'
+import { useUserPrefsStore } from '@/lib/stores'
+import { ANIMATION_PREF_STRINGS } from '@/lib/constants'
 
 export interface SettingsProps {}
 
