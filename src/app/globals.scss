@@ -14,7 +14,7 @@
     $accent: var(--accent);
     background-color: $background;
     color: $text-primary;
-    overflow: hidden;
+    //overflow: hidden;
 }
 
 @media (prefers-color-scheme: dark) {

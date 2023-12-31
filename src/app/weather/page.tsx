@@ -4,13 +4,10 @@ import { WeatherCards } from '../components/weatherCards/weatherCards'
 import styles from './page.module.scss'
 import { getWeather } from './actions'
 import {
-    DailyWeatherForecastObjectType,
     FullForecastObjectType,
     LocationType,
     WeatherForecastType,
-    WeatherMetadata,
 } from '@/lib/interfaces'
-import { Background } from '../components/background/background'
 import { WeatherChart } from '../components/weatherCharts/weatherChart'
 import PrecipitationClass from '@/lib/obj/precipitation'
 import { useWindowDimensions } from '@/lib/hooks'
@@ -20,13 +17,10 @@ import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
 import { CloudClass } from '@/lib/obj/cloudClass'
 import { CurrentForecastStateHandler } from '@/lib/obj/forecastStore'
-import { log } from 'next-axiom'
-
 import { styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
 import { usePathname, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { inspect } from 'util'
 import { HourlyWeatherReportProps } from '../components/weatherReports/hourlyWeatherReport'
 import { LocationInterface, handleLocation } from '@/lib/location'
 import logger from '@/lib/pinoLogger'
@@ -44,7 +38,6 @@ const HourlyWeatherReport = dynamic<HourlyWeatherReportProps>(
 function handleWeatherSearch(searchParams: {
     [key: string]: string | string[] | null
 }): LocationType {
-    //console.log('Search Params: ', searchParams)
     if (searchParams.address)
         return { address: searchParams.address.toString() }
     else if (
@@ -168,7 +161,6 @@ export default function Page({
 }) {
     weatherPageLogger.debug('rendering weather page')
     const searchParams2 = useSearchParams()
-    const pathname = usePathname()
 
     const scrollRef = useRef<HTMLDivElement>(null)
     const [location, setLocation] = useState<any>([])
@@ -177,7 +169,6 @@ export default function Page({
         forecast: Array(8).fill(undefined),
         metadata: {},
     })
-    const theme = useTheme()
 
     const chartWrapperRef = React.useRef<HTMLDivElement>(null)
 
@@ -213,50 +204,41 @@ export default function Page({
         height: 0,
     }
     return (
-        <div
-            ref={scrollRef}
-            className={styles.weatherPageWrapper}
-            data-theme={theme.palette.mode}
-        >
+        <React.Fragment>
             <CurrentForecastStateHandler forecastObj={forecastObj} />
-            <div className={styles.weatherPage}>
-                <div className={styles.contentWrapper}>
-                    <div className={styles.landingPage}>
-                        <SelectedForecastReadout
-                            forecastObj={forecastObj.forecast}
-                        />
-                        <ChartWrapper
-                            className={styles.chartWrapper}
-                            ref={chartWrapperRef}
-                            style={{
-                                height: 'auto',
-                                aspectRatio: '16/9',
-                                alignSelf: 'center',
-                            }}
-                        >
-                            {chartWrapperRef.current !== null ? (
-                                <WeatherChart
-                                    forecastObj={forecastObj.forecast}
-                                    parentRef={chartWrapperRef}
-                                />
-                            ) : (
-                                <div></div>
-                            )}
-                        </ChartWrapper>
-                        <WeatherCards forecastObj={forecastObj.forecast} />
-                    </div>
-
-                    <div className={styles.reportsPage}>
-                        <HourlyWeatherReport
-                            forecastObj={forecastObj.forecast}
-                        />
-                    </div>
+            <div className={styles.contentWrapper}>
+                <div className={styles.landingPage}>
+                    <SelectedForecastReadout
+                        forecastObj={forecastObj.forecast}
+                    />
+                    <ChartWrapper
+                        className={styles.chartWrapper}
+                        ref={chartWrapperRef}
+                        style={{
+                            height: 'auto',
+                            aspectRatio: '16/9',
+                            alignSelf: 'center',
+                        }}
+                    >
+                        {chartWrapperRef.current !== null ? (
+                            <WeatherChart
+                                forecastObj={forecastObj.forecast}
+                                parentRef={chartWrapperRef}
+                            />
+                        ) : (
+                            <div></div>
+                        )}
+                    </ChartWrapper>
+                    <WeatherCards forecastObj={forecastObj.forecast} />
                 </div>
-                <Background />
-                <GradientLayer />
+
+                <div className={styles.reportsPage}>
+                    <HourlyWeatherReport forecastObj={forecastObj.forecast} />
+                </div>
             </div>
+            <GradientLayer />
             <ScrollButton scrollRef={scrollRef} />
-        </div>
+        </React.Fragment>
     )
 }
 
