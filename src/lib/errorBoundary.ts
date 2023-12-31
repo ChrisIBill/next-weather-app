@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
+import logger from './pinoLogger'
 
 interface Props {
     fallback: ReactNode
@@ -8,6 +9,8 @@ interface Props {
 interface State {
     hasError: boolean
 }
+
+const ErrorBoundaryLogger = logger.child({ component: 'ErrorBoundary' })
 
 class ErrorBoundary extends Component<Props, State> {
     constructor(props: Props) {
@@ -21,7 +24,7 @@ class ErrorBoundary extends Component<Props, State> {
     }
 
     public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error('Uncaught error:', error, errorInfo)
+        ErrorBoundaryLogger.error('Uncaught error:', error, errorInfo)
     }
 
     public render() {
