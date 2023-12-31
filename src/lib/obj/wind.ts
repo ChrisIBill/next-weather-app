@@ -5,8 +5,11 @@ import {
     CARDINAL_DIRECTIONS,
     BEAUFORT_SPEEDS,
 } from './constants'
+import { WIND_UNIT, WindUnitStringsType } from '../constants'
 import { cloneElement } from 'react'
-import { WindUnitStringsType } from '../constants'
+import logger from '../pinoLogger'
+import { ForecastObjectLogger, WindLogger } from './forecastClass'
+import { useUserPrefsStore } from '../stores'
 
 export type BeaufortScaleType = (typeof BEAUFORT_SCALE)[number]
 
@@ -25,7 +28,6 @@ export interface WindClassType {
 }
 
 export const kphToMph = (speed: number) => {
-    console.log('MemoLog: kphToMph called')
     return Math.round(speed * 0.621371)
 }
 export const kphToMs = (speed: number) => Math.round(speed * 0.277778)
@@ -55,7 +57,20 @@ export const convertToUserWindSpeed = (
         case 'kn':
             return memoizedKphToKn(val)
         default:
-            return val + ' kph'
+            return val
+    }
+}
+export function convertToUserSpeed(value: number, unit: WindUnitStringsType) {
+    switch (unit) {
+        case WIND_UNIT.KPH:
+            return value
+        case WIND_UNIT.MPH:
+            return memoizedKphToMph(value)
+        case WIND_UNIT.MS:
+            return memoizedKphToMs(value)
+        case WIND_UNIT.KN:
+            return memoizedKphToKn(value)
+        default:
     }
 }
 
@@ -69,7 +84,7 @@ export default class WindClass implements WindClassType {
     constructor(speeds: [number?, number?], direction: number | undefined) {
         this._kph = speeds.map((val, i) => {
             if (val === undefined) {
-                console.error(
+                WindLogger.error(
                     `Wind speed ${i} is undefined in Wind constructor: `,
                     this
                 )
@@ -77,6 +92,7 @@ export default class WindClass implements WindClassType {
             }
             return val
         })
+        //TODO: remove these
         this._mph = () => this._kph.map((val) => memoizedKphToMph(val))
         this._ms = () => this._kph.map((val) => memoizedKphToMs(val))
         this._kn = () => this._kph.map((val) => memoizedKphToKn(val))
@@ -85,34 +101,12 @@ export default class WindClass implements WindClassType {
             this._kph.map((val) => memoizedKphToBeaufort(val))
     }
     getSpeed = (): string => {
-        const userUnit = localStorage.getItem('windUnit')
-        switch (userUnit) {
-            case 'kph':
-                return this._kph[0] + ' kph'
-            case 'mph':
-                return this._mph()[0] + ' mph'
-            case 'ms':
-                return this._ms()[0] + ' ms'
-            case 'kn':
-                return this._kn()[0] + ' kn'
-            default:
-                return this._kph[0] + ' kph'
-        }
+        const userUnit = useUserPrefsStore.getState().windUnit
+        return convertToUserSpeed(this._kph[0], userUnit) + ' ' + userUnit
     }
     getGustSpeed = (): string => {
-        const userUnit = localStorage.getItem('windUnit')
-        switch (userUnit) {
-            case 'kph':
-                return this._kph[1] + ' kph'
-            case 'mph':
-                return this._mph()[1] + ' mph'
-            case 'ms':
-                return this._ms()[1] + ' ms'
-            case 'kn':
-                return this._kn()[1] + ' kn'
-            default:
-                return this._kph[1] + ' kph'
-        }
+        const userUnit = useUserPrefsStore.getState().windUnit
+        return convertToUserSpeed(this._kph[1], userUnit) + ' ' + userUnit
     }
     getCardinalDirection = (): string => {
         const val = Math.floor(this._degrees / 22.5 + 0.5)

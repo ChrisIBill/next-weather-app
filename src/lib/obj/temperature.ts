@@ -1,14 +1,14 @@
 import { cloneElement } from 'react'
 import { useUserPrefsStore } from '../stores'
 import { TEMPERATURE_UNIT, TemperatureUnitStringsType } from '../constants'
+import { NumArrayUnionType } from '../interfaces'
+import { TemperatureLogger } from './forecastClass'
 
 const LOWEST_TEMPERATURE = -40
 const MEDIAN_TEMPERATURE = 21
 const HIGHEST_TEMPERATURE = 50
 const COLD_TEMPERATURE_RANGE = MEDIAN_TEMPERATURE - LOWEST_TEMPERATURE
 const HOT_TEMPERATURE_RANGE = HIGHEST_TEMPERATURE - MEDIAN_TEMPERATURE
-
-type NumUnionType = number | number[]
 
 export interface TemperatureClassType {
     //_tempDisplayString: () => string
@@ -34,13 +34,25 @@ export interface DayTemperatureClassType extends TemperatureClassType {
     current?: HourTemperatureClassType
 }
 
-function convertToFahrenheit(vals: NumUnionType): NumUnionType {
-    return vals instanceof Array
-        ? vals.map((temp) => Math.round((temp * 9) / 5 + 32))
-        : Math.round((vals * 9) / 5 + 32)
+export function _convertToFahrenheit(vals: number): number {
+    return (vals * 9) / 5 + 32
+}
+export const convertToUserTemp = (
+    value: number,
+    unit: TemperatureUnitStringsType
+) => {
+    TemperatureLogger.debug('convertToUserTemp', value, unit)
+    switch (unit) {
+        case TEMPERATURE_UNIT.CELSIUS:
+            return value
+        case TEMPERATURE_UNIT.FAHRENHEIT:
+            return _convertToFahrenheit(value).toFixed(0)
+        default:
+            return value
+    }
 }
 
-export function calcTemperatureMagnitude(vals: NumUnionType): number {
+export function calcTemperatureMagnitude(vals: NumArrayUnionType): number {
     //newVal = ((oldVal - oldMin) * (newRange)) / (oldRange) + newMin
     try {
         const avgTemp =
@@ -56,7 +68,7 @@ export function calcTemperatureMagnitude(vals: NumUnionType): number {
             return ((avgTemp - MEDIAN_TEMPERATURE) * 10) / HOT_TEMPERATURE_RANGE
         else throw new Error('Temperature magnitude error')
     } catch (err) {
-        console.error(err)
+        TemperatureLogger.error('calcTemperatureMagnitude error', err, vals)
         return 0
     }
 }
@@ -64,7 +76,9 @@ export function calcTemperatureMagnitude(vals: NumUnionType): number {
 const handleTemperatureValues = (vals: number[]): number[] => {
     if (vals.length === 0) return [NaN, NaN]
     else if (vals.length === 1) {
-        console.error('DayTemperatureClass handed 1 temp value instead of 2')
+        TemperatureLogger.error(
+            'DayTemperatureClass handed 1 temp value instead of 2'
+        )
         return [vals[0], vals[0]]
     } else if (vals.length === 2) return vals.sort((a, b) => a - b)
     else return [vals[0], vals[1]]
@@ -173,15 +187,15 @@ export class DayTemperatureClass implements TemperatureClassType {
     //    return this._appTempDisplayString
     //}
     private generateFahrenheitRange(): number[] {
-        this._fahrenheitRange = convertToFahrenheit(
-            this._celsiusRange
-        ) as number[]
+        this._fahrenheitRange = this._celsiusRange.map(
+            (temp) => _convertToFahrenheit(temp) as number
+        )
         return this._fahrenheitRange
     }
     private generateAppFahrenheitRange(): number[] {
-        this._appFahrenheitRange = convertToFahrenheit(
-            this._appCelsiusRange
-        ) as number[]
+        this._appFahrenheitRange = this._appCelsiusRange.map(
+            (temp) => _convertToFahrenheit(temp) as number
+        )
         return this._appFahrenheitRange
     }
 
@@ -281,11 +295,11 @@ export class HourTemperatureClass implements HourTemperatureClassType {
         return [`${temp}${userUnit}`]
     }
     private generateFahrenheit(): number {
-        this._fahrenheit = convertToFahrenheit(this._celsius) as number
+        this._fahrenheit = _convertToFahrenheit(this._celsius) as number
         return this._fahrenheit
     }
     private generateAppFahrenheit(): number {
-        this._appFahrenheit = convertToFahrenheit(this._appCelsius) as number
+        this._appFahrenheit = _convertToFahrenheit(this._appCelsius) as number
         return this._appFahrenheit
     }
     private generateMagnitude(): number {
@@ -310,11 +324,4 @@ export const TemperatureComponentWrapper: React.FC<
     const userUnit = useUserPrefsStore((state) => state.temperatureUnit)
     return cloneElement(props.children as React.ReactElement)
     //return <div>{props.children}</div>
-}
-export const convertToUserTemp = (
-    value: number,
-    tempUnit: TemperatureUnitStringsType
-) => {
-    if (tempUnit == '°C') return value
-    else if (tempUnit == '°F') return (value * 9) / 5 + 32
 }

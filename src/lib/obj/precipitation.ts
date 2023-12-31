@@ -1,6 +1,7 @@
 import { cloneElement } from 'react'
 import { useUserPrefsStore } from '../stores'
 import { ForecastObjectType } from './forecastClass'
+import { PRECIPITATION_UNIT, PrecipitationUnitStringsType } from '../constants'
 
 export const PRECIPITATION_TYPES = ['rain', 'snow', 'hail'] as const
 
@@ -60,6 +61,22 @@ export interface PrecipitationClassType {
     getChanceString: () => string
 }
 
+export function _convertToInch(value: number) {
+    return value * 0.0394
+}
+
+export function convertToUserVolume(
+    value: number,
+    unit: PrecipitationUnitStringsType
+) {
+    switch (unit) {
+        case PRECIPITATION_UNIT.MM:
+            return value
+        case PRECIPITATION_UNIT.INCH:
+            return _convertToInch(value)
+    }
+}
+
 export default class PrecipitationClass implements PrecipitationClassType {
     _mm: number
     chance?: number
@@ -86,10 +103,10 @@ export default class PrecipitationClass implements PrecipitationClassType {
     }
     getUserValue() {
         const userUnit = useUserPrefsStore.getState().precipitationUnit
-        return userUnit === 'inch'
+        return userUnit === PRECIPITATION_UNIT.INCH
             ? typeof this._inch === 'function'
-                ? this._inch() + ' in'
-                : this._inch + ' in'
+                ? this._inch() + ' in.'
+                : this._inch + ' in.'
             : this._mm + ' mm'
     }
     getDisplayString(): string {
