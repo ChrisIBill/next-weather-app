@@ -259,3 +259,7 @@ export function rgbToHsl(r: number, g: number, b: number): Array<any> {
 
     return [h * 360, s * 100, l * 100]
 }
+
+export function convertRemToPixels(rem: number) {
+    return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+}
