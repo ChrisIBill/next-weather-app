@@ -1,5 +1,16 @@
 import { PaletteMode, createTheme } from '@mui/material'
 import impPalette from './export.module.scss'
+
+export const BREAKPOINTS = {
+    xs: 0,
+    sm: 600,
+    md: 960,
+    lg: 1280,
+    xl: 1920,
+    tablet: 640,
+    laptop: 1024,
+    desktop: 1280,
+} as const
 export default function paletteHandler(theme?: string) {
     if (theme === 'dark')
         return {
@@ -25,6 +36,18 @@ export default function paletteHandler(theme?: string) {
 const empty_palette = createTheme()
 
 export const getPaletteMode = (mode: PaletteMode) => ({
+    breakpoints: {
+        values: {
+            xs: BREAKPOINTS.xs,
+            sm: BREAKPOINTS.sm,
+            md: BREAKPOINTS.md,
+            lg: BREAKPOINTS.lg,
+            xl: BREAKPOINTS.xl,
+            tablet: BREAKPOINTS.tablet,
+            laptop: BREAKPOINTS.laptop,
+            desktop: BREAKPOINTS.desktop,
+        },
+    },
     typography: {
         fontFamily: 'Roboto, Roboto_Slab, sans-serif',
     },

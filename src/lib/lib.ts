@@ -263,3 +263,11 @@ export function rgbToHsl(r: number, g: number, b: number): Array<any> {
 export function convertRemToPixels(rem: number) {
     return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
 }
+/**
+ * @description Converts a number to a string with a given number of digits after the decimal point
+ * @param {number} val - A number to be converted
+ * @param {number} digits - A number of digits after the decimal point
+ * @returns {number} - A string with a given number of digits after the decimal point
+ */
+export const numToFixed = (val: number, digits: number): number =>
+    Math.round(val * 10 ** digits) / 10 ** digits
