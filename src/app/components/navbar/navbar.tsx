@@ -10,7 +10,7 @@ import {
 import styles from './navbar.module.scss'
 import SearchBar from './search-bar'
 import { Settings } from './settings'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTheme } from '@mui/material/styles'
 import { useScrollPosition } from '@/lib/hooks'
 import { LocationReadout } from './locationReadout'
@@ -46,7 +46,9 @@ const NavBar: React.FC<NavBarProps> = (props) => {
             <AppBar
                 className={styles.MuiAppBar}
                 data-theme={theme.palette.mode}
-                sx={{}}
+                sx={{
+                    pointerEvents: 'all',
+                }}
             >
                 <Toolbar
                     className={styles.Toolbar}
@@ -106,11 +108,29 @@ export const HideOnScroll = (props: Props) => {
     NavBarLogger.debug('HideOnScroll', { props })
     const { children } = props
     const [scrollPosition, setScrollPosition] = useScrollPosition()
-    const trigger = useScrollTrigger()
+    const scrollTrigger = useScrollTrigger()
+    const [trigger, setTrigger] = useState(scrollTrigger)
     NavBarLogger.debug('HideOnScroll', { trigger, scrollPosition })
+    const handleMouseEnter = () => {
+        NavBarLogger.debug('Mouse Enter NavBar')
+        setTrigger(false)
+    }
+    useEffect(() => {
+        setTrigger(scrollTrigger)
+    }, [scrollTrigger])
     return (
-        <Slide appear={true} direction="down" in={!trigger}>
-            {children}
-        </Slide>
+        <div
+            style={{
+                position: 'fixed',
+                height: '4rem',
+                width: '100vw',
+                pointerEvents: 'none',
+            }}
+            onMouseEnter={handleMouseEnter}
+        >
+            <Slide appear={true} direction="down" in={!trigger}>
+                {children}
+            </Slide>
+        </div>
     )
 }
