@@ -46,3 +46,7 @@ export type TemperatureUnitStringsType =
 export type PrecipitationUnitStringsType =
     (typeof PRECIPITATION_UNIT_STRINGS)[number]
 export type WindUnitStringsType = (typeof WIND_UNIT_STRINGS)[number]
+export type WeatherUnitStringsType =
+    | TemperatureUnitStringsType
+    | PrecipitationUnitStringsType
+    | WindUnitStringsType
