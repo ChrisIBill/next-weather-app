@@ -239,3 +239,5 @@ export type StringLiteralType<T> = T extends string
         : T
     : never
 export type StringLiteralUnion<T extends U, U = string> = T | (U & {})
+
+export type NumArrayUnionType = number | number[]
