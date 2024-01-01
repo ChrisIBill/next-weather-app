@@ -24,9 +24,8 @@ $drawerWidth: 240px;
     display: flex;
     justify-content: space-between;
     width: 100%;
+    position: relative;
     box-sizing: border-box;
-}
-.chartButtonsWrapper {
 }
 .chartButtonContent {
     display: flex;

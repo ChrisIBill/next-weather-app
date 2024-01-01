@@ -1,22 +1,17 @@
 import React, { useEffect } from 'react'
 import {
     DailyWeatherForecastObjectType,
-    DailyWeatherForecastType,
     DimensionsType,
 } from '@/lib/interfaces'
 import styles from './weatherChart.module.scss'
-import { Box, Paper, useTheme } from '@mui/material'
-import { WeatherChartHeader } from './chartComponents'
+import { Paper, useTheme } from '@mui/material'
+import { ChartLogger } from './chartComponents'
+import WeatherChartHeader from './chartHeader'
 import { HourlyWeatherChart } from './hourlyWeatherCharts'
 import { DailyWeatherChart } from './dailyWeatherChart'
 import { useWindowDimensions } from '@/lib/hooks'
-import {
-    useForecastObjStore,
-    useForecastSetStore,
-    useSelectedForecastDay,
-} from '@/lib/obj/forecastStore'
 import { Payload } from 'recharts/types/component/DefaultLegendContent'
-import { ResponsiveContainer } from 'recharts'
+import { MappableObject } from '@/lib/genInterfaces'
 
 export const ChartTimespan = ['Day', 'Week'] as const
 export const ChartKeys = [
@@ -25,6 +20,11 @@ export const ChartKeys = [
     'Humidity',
     'Wind',
 ] as const
+export const ChartKeyToStateMap: MappableObject = {
+    Temperature: 'temperatureUnit',
+    Precipitation: 'precipitationUnit',
+    Wind: 'windUnit',
+}
 
 export type ChartTimespanType = (typeof ChartTimespan)[number]
 export type ChartKeysType = (typeof ChartKeys)[number]
@@ -83,28 +83,22 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
 ) => {
     const [chartType, setChartType] = React.useState<ChartTimespanType>('Day')
     const windowDimensions = useWindowDimensions()
-    console.log('Chart Parent ref: ', props.parentRef)
     const chartDimensions: DimensionsType = {
         height: props.parentRef.current?.clientHeight ?? 25,
         width: props.parentRef.current?.clientWidth ?? 0,
     }
-    console.log('chart dimensions: ', chartDimensions)
+    ChartLogger.debug('Weather Chart Rendered', props, chartDimensions)
     const palette = useTheme().palette
-    //For contrast text
-    //const bgColor = useBackgroundColors()[props.forecastObj.timeOfDay!].sky
-    //const contrastColor = palette.getContrastText(bgColor)
-
-    //const chartDimensions = useChartDimensions(props)
 
     const [selectedVar, setSelectedVar] =
         React.useState<ChartDataKeys>('Temperature')
 
     const handleChartTypeChange = (e: any, val: any) => {
-        console.log(val)
+        ChartLogger.debug('Chart Type Changed', val)
         setChartType(val)
     }
     const handleChartKeyChange = (e: any, val: any) => {
-        console.log(val)
+        ChartLogger.debug('Chart Key Changed', val)
         setSelectedVar(val)
     }
 
@@ -116,17 +110,6 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
     }, [windowDimensions])
     if (props.forecastObj?.[0] === undefined) return <div>Loading...</div>
     return (
-        //<Box
-        //    className={styles.weatherChart}
-        //    sx={{
-        //        position: 'relative',
-        //        width: '100%',
-        //        height: '100%',
-        //        padding: '8px',
-        //        paddingRight: '0',
-        //        marginRight: '1rem',
-        //    }}
-        //>
         <Paper
             className={styles.chartContainer}
             elevation={0}
@@ -167,7 +150,6 @@ export const WeatherChart: React.FC<WeatherChartProps> = (
                 textColor={'white'}
             />
         </Paper>
-        //</Box>
     )
 }
 
@@ -193,7 +175,6 @@ const ChartComponent: React.FC<ChartComponentProps> = (props) => {
                 position: 'relative',
                 zIndex: 1000,
                 height: '100%',
-                top: '-2rem',
             }}
         >
             {props.chartType === 'Week' ? (

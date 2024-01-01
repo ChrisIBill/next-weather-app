@@ -9,7 +9,7 @@ import {
 } from '@/lib/obj/forecastStore'
 import { convertToUserTemp } from '@/lib/obj/temperature'
 import { useUserPrefsStore } from '@/lib/stores'
-import { useTheme } from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
 import {
     Area,
     AreaChart,
@@ -21,14 +21,16 @@ import {
 } from 'recharts'
 import { ChartKeysType, legendPayloads } from './weatherChart'
 import {
+    CustomizedLegend,
     CustomizedTooltip,
     CustomizedYAxisTickGenerator,
-    RenderToggler,
 } from './chartComponents'
 import { useEffect, useState } from 'react'
 import { MappableObject } from '@/lib/genInterfaces'
+import { LegendWrapperStyle } from './chartStyles'
+import { isMobile } from 'react-device-detect'
 
-const CHART_COLORS = ['#EA79F6', '#9C74FB']
+const HourlyChartColors = ['#EA79F6', '#9C74FB']
 
 export interface HourlyWeatherChartProps {
     forecastObj: DailyWeatherForecastObjectType[]
@@ -42,11 +44,8 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
 ) => {
     const [isMounted, setIsMounted] = useState(false)
     const wrapperDimensions = {
-        //height: props.parentRef.current?.offsetHeight ?? 0,
-        //width: props.parentRef.current?.offsetWidth ?? 0,
         ...props.chartDimensions,
     }
-    console.log('Wrapper Dimensions: ', wrapperDimensions)
     const selectedForecastDay = useSelectedForecastDay(props.forecastObj)
     const setStateStore = useForecastSetStore()
     const palette = useTheme().palette
@@ -56,13 +55,12 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
         props.chartKey === 'Humidity',
         props.chartKey === 'Wind',
     ]
-    const isSmall = window.innerWidth < 600
-    const isMedium = window.innerWidth < 900
-    console.log('Selected Forecast Obj: ', selectedForecastDay)
-    console.log('Forecast Obj: ', props.forecastObj)
+    const minActTemp = selectedForecastDay?.temperatureObj._celsiusRange[0] ?? 0
+    const minAppTemp =
+        selectedForecastDay?.temperatureObj._appCelsiusRange[0] ?? 0
+    const minTemp = Math.min(minActTemp, minAppTemp) - 10
     const data = selectedForecastDay?.hourly_weather.map((hour, index) => {
-        console.log('Hour: ', hour)
-        const time = hour.timeObj.dateObj.format('HH:mm')
+        const time = hour.timeObj.dateObj.format('hh:mm A')
         switch (props.chartKey) {
             case 'Temperature':
                 return {
@@ -72,7 +70,12 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                         hour.temperatureObj._appCelsius,
                     ],
                     temperature: hour.temperatureObj._celsius,
+                    temperatureRange: [minTemp, hour.temperatureObj._celsius],
                     feelsLike: hour.temperatureObj._appCelsius,
+                    apparentTemperatureRange: [
+                        minTemp,
+                        hour.temperatureObj._appCelsius,
+                    ],
                 }
             case 'Precipitation':
                 return {
@@ -107,9 +110,6 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
     }
     console.log('Data: ', data)
 
-    const domainVal =
-        props.chartKey == 'Precipitation' ? [0, 100] : ['auto', 'auto']
-
     const labelStrings: MappableObject = {
         Temperature: ['Temperature: ', 'Feels Like: '],
     }
@@ -127,16 +127,17 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 //width={wrapperDimensions.width}
                 //height={wrapperDimensions.height}
                 margin={{
-                    top: 20,
+                    top: 10,
                     right: 0,
-                    left: 0,
-                    bottom: 20,
+                    left: 10,
+                    bottom: 10,
                 }}
                 data={data}
                 onClick={(nextState, e) => handleChartClick(nextState, e)}
                 style={{
                     color: 'white',
                 }}
+                throttleDelay={100}
             >
                 <XAxis
                     dataKey="hour"
@@ -145,24 +146,37 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     color={palette.text.primary}
                     tick={{
                         fill: palette.text.primary,
-                        fontSize: isSmall ? 10 : 12,
+                        fontSize: '0.9rem',
+                    }}
+                    axisLine={{
+                        stroke: palette.text.primary,
                     }}
                 />
                 <YAxis
-                    domain={domainVal}
                     yAxisId="left"
+                    domain={['dataMin', 'dataMax']}
                     tick={
                         <CustomizedYAxisTickGenerator
                             chartKey={props.chartKey}
                             fill={palette.text.primary}
                         />
                     }
+                    axisLine={{
+                        stroke: isPrecipitation
+                            ? HourlyChartColors[1]
+                            : palette.text.primary,
+                    }}
                 />
                 <YAxis
                     yAxisId="right"
                     hide={!isPrecipitation}
-                    domain={['auto', 'auto']}
+                    domain={[0, 100]}
                     orientation="right"
+                    tickFormatter={(value) => `${value}%`}
+                    stroke={palette.text.primary}
+                    axisLine={{
+                        stroke: HourlyChartColors[0],
+                    }}
                 />
                 <Tooltip
                     content={
@@ -174,40 +188,60 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                 />
                 <Legend
                     verticalAlign="top"
-                    height={38}
                     layout="vertical"
-                    wrapperStyle={{
-                        left: isSmall ? '200px' : '300px',
-                        top: '-18px',
-                    }}
-                    // style={{
-                    //     left: '300px',
-                    //     top: '-18px',
+                    // height={45}
+                    content={<CustomizedLegend />}
+
+                    // wrapperStyle={LegendWrapperStyle as React.CSSProperties}
+                    // formatter={(value, entry, index) => {
+                    //     return (
+                    //         <Typography variant="caption" color="textPrimary">
+                    //             {value}
+                    //         </Typography>
+                    //     )
                     // }}
-                    //payload={legendPayloads[props.chartKey] as Payload[]}
                 />
                 <defs>
-                    <linearGradient id="color0" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient
+                        // gradientUnits="userSpaceOnUse"
+                        id="color0"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                    >
                         <stop
                             offset="5%"
-                            stopColor="#890A97"
+                            stopColor={HourlyChartColors[0]}
                             stopOpacity={0.8}
                         />
                         <stop
                             offset="95%"
-                            stopColor="#890A97"
+                            stopColor={HourlyChartColors[0]}
                             stopOpacity={0}
                         />
                     </linearGradient>
-                    <linearGradient id="color1" x1="" y1="0" x2="0" y2="1">
+                    <linearGradient
+                        // gradientUnits="userSpaceOnUse"
+                        id="color1"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                        style={{
+                            position: 'absolute',
+                            top: '0',
+                            bottom: '0',
+                        }}
+                    >
                         <stop
                             offset="5%"
-                            stopColor="#3704AD"
+                            stopColor={HourlyChartColors[1]}
                             stopOpacity={0.8}
                         />
                         <stop
                             offset="95%"
-                            stopColor="#3704AD"
+                            stopColor={HourlyChartColors[1]}
                             stopOpacity={0}
                         />
                     </linearGradient>
@@ -218,8 +252,8 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     yAxisId="left"
                     hide={!isTemperature}
                     type="monotone"
-                    dataKey="temperature"
-                    stroke={CHART_COLORS[0]}
+                    dataKey="temperatureRange"
+                    stroke={HourlyChartColors[0]}
                     fillOpacity={1}
                     fill="url(#color0)"
                 />
@@ -229,8 +263,8 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     hide={!isTemperature}
                     yAxisId="left"
                     type="monotone"
-                    dataKey="feelsLike"
-                    stroke={CHART_COLORS[1]}
+                    dataKey="apparentTemperatureRange"
+                    stroke={HourlyChartColors[1]}
                     fillOpacity={1}
                     fill="url(#color1)"
                 />
@@ -238,10 +272,10 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     hide={!isPrecipitation}
                     legendType={isPrecipitation ? 'line' : 'none'}
                     name="Chance of Precipitation"
-                    yAxisId="left"
+                    yAxisId="right"
                     type="monotone"
                     dataKey="chance"
-                    stroke={CHART_COLORS[0]}
+                    stroke={HourlyChartColors[0]}
                     fillOpacity={1}
                     fill="url(#color0)"
                 />
@@ -249,10 +283,10 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     hide={!isPrecipitation}
                     legendType={isPrecipitation ? 'line' : 'none'}
                     name="Precipitation Volume"
-                    yAxisId="right"
+                    yAxisId="left"
                     type="monotone"
                     dataKey="volume"
-                    stroke={CHART_COLORS[1]}
+                    stroke={HourlyChartColors[1]}
                     fillOpacity={1}
                     fill="url(#color1)"
                 />
@@ -264,7 +298,7 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     type="monotone"
                     dataKey="windSpeed"
                     fillOpacity={1}
-                    stroke={CHART_COLORS[0]}
+                    stroke={HourlyChartColors[0]}
                     fill="url(#color0)"
                 />
                 <Area
@@ -273,7 +307,7 @@ export const HourlyWeatherChart: React.FC<HourlyWeatherChartProps> = (
                     name="Wind Gust"
                     yAxisId="left"
                     type="monotone"
-                    stroke={CHART_COLORS[1]}
+                    stroke={HourlyChartColors[1]}
                     dataKey="windGust"
                     fillOpacity={1}
                     fill="url(#color1)"
