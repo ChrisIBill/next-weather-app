@@ -46,9 +46,7 @@ const NavBar: React.FC<NavBarProps> = (props) => {
             <AppBar
                 className={styles.MuiAppBar}
                 data-theme={theme.palette.mode}
-                sx={{
-                    pointerEvents: 'all',
-                }}
+                sx={{}}
             >
                 <Toolbar
                     className={styles.Toolbar}
@@ -111,24 +109,30 @@ export const HideOnScroll = (props: Props) => {
     const scrollTrigger = useScrollTrigger()
     const [trigger, setTrigger] = useState(scrollTrigger)
     NavBarLogger.debug('HideOnScroll', { trigger, scrollPosition })
-    const handleMouseEnter = () => {
-        NavBarLogger.debug('Mouse Enter NavBar')
-        setTrigger(false)
-    }
     useEffect(() => {
         setTrigger(scrollTrigger)
     }, [scrollTrigger])
     return (
         <div
+            onMouseEnter={() => setTrigger(false)}
+            onMouseLeave={() => setTrigger(scrollTrigger)}
             style={{
                 position: 'fixed',
-                height: '4rem',
+                top: 0,
                 width: '100vw',
-                pointerEvents: 'none',
+                height: '4rem',
+                zIndex: 1000,
             }}
-            onMouseEnter={handleMouseEnter}
         >
-            <Slide appear={true} direction="down" in={!trigger}>
+            <Slide
+                appear={true}
+                direction="down"
+                in={!trigger}
+                onMouseEnter={() => setTrigger(false)}
+                style={{
+                    position: 'fixed',
+                }}
+            >
                 {children}
             </Slide>
         </div>
