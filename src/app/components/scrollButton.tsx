@@ -1,6 +1,7 @@
 import Fab from '@mui/material/Fab'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { RefObject, useEffect, useState } from 'react'
+import ErrorBoundary from '@/lib/errorBoundary'
 
 export interface ScrollButtonProps {
     scrollRef: RefObject<HTMLDivElement>
@@ -30,21 +31,22 @@ export const ScrollButton: React.FC<ScrollButtonProps> = (
     }, [])
     if (!mounted) return null
     props.scrollRef.current?.addEventListener('scroll', toggleVisible)
-    console.log('Event listener added')
 
     return (
-        <Fab
-            onClick={scrollToTop}
-            sx={{
-                position: 'fixed',
-                display: visible ? 'inline' : 'none',
-                width: '3rem',
-                height: '3rem',
-                bottom: '1rem',
-                right: '1rem',
-            }}
-        >
-            <KeyboardArrowUpIcon />
-        </Fab>
+        <ErrorBoundary fallback={<></>}>
+            <Fab
+                onClick={scrollToTop}
+                sx={{
+                    position: 'fixed',
+                    display: visible ? 'inline' : 'none',
+                    width: '3rem',
+                    height: '3rem',
+                    bottom: '1rem',
+                    right: '1rem',
+                }}
+            >
+                <KeyboardArrowUpIcon />
+            </Fab>
+        </ErrorBoundary>
     )
 }
