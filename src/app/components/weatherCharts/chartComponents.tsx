@@ -1,178 +1,25 @@
-import {
-    Tabs,
-    Tab,
-    Button,
-    Typography,
-    SpeedDial,
-    SpeedDialIcon,
-    SpeedDialAction,
-    Box,
-    useTheme,
-    styled,
-} from '@mui/material'
+import { useTheme, styled, Typography } from '@mui/material'
 import React from 'react'
-import { ChartDataKeys, ChartKeysType, ChartTimespanType } from './weatherChart'
-import styles from './weatherChart.module.scss'
+import {
+    ChartDataKeys,
+    ChartKeyToStateMap,
+    ChartKeysType,
+} from './weatherChart'
 import { WiRaindrops, WiHumidity, WiThermometer } from 'react-icons/wi'
 import { LuWind } from 'react-icons/lu'
-import paletteHandler from '@/lib/paletteHandler'
-import { useUserPrefsStore } from '@/lib/stores'
+import { UserPreferencesKeysType, useUserPrefsStore } from '@/lib/stores'
 import { convertToUserTemp } from '@/lib/obj/temperature'
 import { convertToUserWindSpeed } from '@/lib/obj/wind'
-import { log } from 'next-axiom'
+import logger from '@/lib/pinoLogger'
+import { convertToUserUnit } from '@/lib/obj/forecastClass'
+import _ from 'lodash'
+import { Bar } from 'recharts'
 
-export interface WeatherChartControlsProps {
-    selectedKey: ChartKeysType
-    selectedTimespan: ChartTimespanType
-    chartWidth?: number
-    chartKeys: ChartKeysType[]
-    handleKeySelect: (e: any, val: any) => void
-    handleTimespanSelect: (e: any, timespan: ChartTimespanType) => void
-}
+export const ChartLogger = logger.child({ module: 'WeatherChart' })
 
-const ChartHeaderStyles = styled('div')(({ theme }) => ({
-    [theme.breakpoints.down('sm')]: {
-        paddingLeft: '0px',
-    },
-    [theme.breakpoints.up('sm')]: {
-        paddingLeft: '60px',
-    },
-}))
-
-const ChartHeaderTab = styled(Tab)(({ theme }) => ({
-    [theme.breakpoints.up('sm')]: {
-        minWidth: '80px',
-        padding: '10px 14px',
-    },
-    [theme.breakpoints.down('sm')]: {
-        minWidth: '60px',
-        padding: '4px 6px',
-    },
-}))
-
-export const WeatherChartHeader: React.FC<WeatherChartControlsProps> = (
-    props
-) => {
-    const palette = useTheme().palette
-
-    return (
-        <ChartHeaderStyles
-            className={styles.chartHeader}
-            style={{
-                position: 'relative',
-                width: '100%',
-                top: '4px',
-            }}
-        >
-            <Tabs
-                value={props.selectedTimespan}
-                onChange={props.handleTimespanSelect}
-                sx={{
-                    minHeight: '56px',
-                    zIndex: 2000,
-                }}
-            >
-                <ChartHeaderTab
-                    label="Day"
-                    value="Day"
-                    className={styles.chartHeaderTab}
-                    sx={{
-                        borderRadius: '16px',
-                        marginRight: '8px',
-                        marginLeft: '8px',
-                        marginBottom: '8px',
-                    }}
-                    style={{
-                        backgroundColor:
-                            props.selectedTimespan === 'Day'
-                                ? palette.primary.dark
-                                : palette.primary.main,
-                        boxShadow:
-                            props.selectedTimespan === 'Day' ? 'none' : '',
-                        color: palette.primary.contrastText,
-                    }}
-                />
-                <ChartHeaderTab
-                    label="Week"
-                    value="Week"
-                    className={styles.chartHeaderTab}
-                    sx={{
-                        borderRadius: '16px',
-                        marginRight: '8px',
-                        marginLeft: '8px',
-                        marginBottom: '8px',
-                    }}
-                    style={{
-                        backgroundColor:
-                            props.selectedTimespan === 'Week'
-                                ? palette.primary.dark
-                                : palette.primary.main,
-                        boxShadow:
-                            props.selectedTimespan === 'Week' ? 'none' : '',
-
-                        color: palette.primary.contrastText,
-                    }}
-                />
-            </Tabs>
-            <WeatherChartDial
-                handleDialSelect={props.handleKeySelect}
-                chartKey={props.selectedKey}
-            />
-        </ChartHeaderStyles>
-    )
-}
-
-export interface ChartDialActionsProps {
-    size?: number
-}
-const ChartDialActionsMap = ({ size = 24 }: ChartDialActionsProps) => {
-    return [
-        { icon: <WiThermometer size={size} />, name: 'Temperature' },
-        { icon: <WiRaindrops size={size} />, name: 'Precipitation' },
-        //{ icon: <WiHumidity size={size} />, name: 'Humidity' },
-        { icon: <LuWind size={size} />, name: 'Wind' },
-    ]
-}
-
-export interface WeatherChartDialProps {
-    handleDialSelect: (e: any, val: any) => void
-    chartKey: ChartKeysType
-}
-
-export const WeatherChartDial: React.FC<WeatherChartDialProps> = (props) => {
-    /*TODO:
-     * Need to handle position of dial so it doesn't
-     * overlap vital parts of chart
-     */
-    return (
-        <Box
-            sx={{
-                position: 'absolute',
-                right: '0',
-                height: 320,
-                transform: 'translateZ(0px)',
-                flexGrow: 1,
-                zIndex: 2000,
-            }}
-        >
-            <SpeedDial
-                ariaLabel={'ChartDial'}
-                direction={'down'}
-                sx={{}}
-                icon={ChartKeyIcons({ chartKey: props.chartKey, size: 24 })}
-            >
-                {ChartDialActionsMap({ size: 24 }).map((action) => (
-                    <SpeedDialAction
-                        key={action.name}
-                        icon={action.icon}
-                        onClick={(e) => props.handleDialSelect(e, action.name)}
-                        tooltipTitle={action.name}
-                    />
-                ))}
-            </SpeedDial>
-        </Box>
-    )
-}
+export const ChartComponentLogger = ChartLogger.child({
+    component: 'ChartComponent',
+})
 
 export interface ChartKeyButtonProps {
     chartKey: ChartDataKeys
@@ -196,6 +43,7 @@ interface CustomizedYAxisTickProps {
     chartKey: string
     [key: string]: any
 }
+
 export const CustomizedYAxisTickGenerator: React.FC<
     CustomizedYAxisTickProps
 > = (props: CustomizedYAxisTickProps) => {
@@ -212,24 +60,51 @@ export const CustomizedYAxisTickGenerator: React.FC<
             stroke={props.stroke}
             textAnchor={props.textAnchor}
         >
-            <TickTextGenerator {...props} />
+            <GenericYaxisStateTick {...props} />
         </text>
     )
 }
-const TickTextGenerator: React.FC<any> = (props: any) => {
-    switch (props.chartKey) {
-        case 'Temperature':
-            return <CustomizedYAxisTemperatureTick {...props} />
-        case 'Precipitation':
-            return <CustomizedYAxisPrecipitationTick {...props} />
-        case 'Wind':
-            return <CustomizedYAxisWindTick {...props} />
-        default:
-            return <CustomizedYAxisTemperatureTick {...props} />
-    }
+
+export interface CustomizedYAxisTickTextProps {
+    chartKey: ChartKeysType
+    [key: string]: any
 }
 
-const TickTextStyled = styled('tspan')(({ theme }) => ({
+const GenericYaxisStateTick: React.FC<CustomizedYAxisTickProps> = (
+    props: CustomizedYAxisTickProps
+) => {
+    const stateString = ChartKeyToStateMap[props.chartKey]
+    const state = useUserPrefsStore(
+        (state) => state[stateString as UserPreferencesKeysType]
+    )
+
+    const val = props.payload.value
+    if (typeof val !== 'number' || typeof state === 'number') {
+        ChartComponentLogger.error('val or state is not a number', {
+            props,
+            val,
+            state,
+            stateString,
+        })
+        return null
+    }
+    const userValue = convertToUserUnit(val, state)
+    if (typeof userValue === 'undefined') {
+        ChartComponentLogger.error('userValue is undefined', {
+            props,
+        })
+        return null
+    }
+    const temperatureString = userValue + state
+
+    return (
+        <TickTextStyled x={props.x} dy={'0.355em'}>
+            {temperatureString}
+        </TickTextStyled>
+    )
+}
+
+export const TickTextStyled = styled('tspan')(({ theme }) => ({
     [theme.breakpoints.up('lg')]: {
         fontSize: '1rem',
     },
@@ -240,55 +115,17 @@ const TickTextStyled = styled('tspan')(({ theme }) => ({
         fontSize: '0.8rem',
     },
 }))
-const CustomizedYAxisTemperatureTick: React.FC<any> = (props: any) => {
-    const palette = useTheme().palette
-    const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
-    const val = props.payload.value
-    if (typeof val !== 'number') return null
-    const userTemp = convertToUserTemp(val, tempUnit)
-    if (typeof userTemp !== 'number') {
-        log.error('userTemp is undefined', {
-            props,
-        })
-        return null
-    }
-    const temperatureString = userTemp.toFixed(0) + tempUnit
-    return (
-        <TickTextStyled x={props.x} dy={'0.355em'}>
-            {temperatureString}
-        </TickTextStyled>
-    )
-}
-const CustomizedYAxisPrecipitationTick: React.FC<any> = (props: any) => {
-    //const precipUnit = useUserPrefsStore((state) => state.precipitationUnit)
-    const precipitationString = props.payload.value + '%'
-    return (
-        <TickTextStyled x={props.x} dy={'0.355em'}>
-            {precipitationString}
-        </TickTextStyled>
-    )
-}
-const CustomizedYAxisWindTick: React.FC<any> = (props: any) => {
-    const windUnit = useUserPrefsStore((state) => state.windUnit)
-    const windString =
-        convertToUserWindSpeed(props.payload.value, windUnit) + windUnit
-    return (
-        <TickTextStyled
-            x={props.x}
-            dy={'0.355em'}
-            style={{
-                fontSize: ['mph', 'kph'].includes(windUnit) ? '0.9rem' : '1rem',
-            }}
-        >
-            {windString}
-        </TickTextStyled>
-    )
-}
+
+const CustomizedTooltipLogger = ChartLogger.child({
+    component: 'CustomizedTooltip',
+})
+
 export const CustomizedTooltip: React.FC<any> = (props: any) => {
     const palette = useTheme().palette
     const { payload, wrapperStyle, cursorStyle, labelStrings, ...styles } =
         props
-    console.log('CustomizedTooltip', { props })
+    CustomizedTooltipLogger.debug('Rendering CustomizedTooltip', { props })
+
     return (
         <div
             className={'recharts-default-tooltip'}
@@ -297,9 +134,20 @@ export const CustomizedTooltip: React.FC<any> = (props: any) => {
                 padding: '10px',
                 backgroundColor: palette.background.paper,
                 whiteSpace: 'nowrap',
+                display: 'flex',
+                flexDirection: 'column',
+                border: `4px solid ${palette.divider}`,
             }}
         >
-            <p className={'recharts-tooltip-label'} style={{}}></p>
+            <p
+                className={'recharts-tooltip-label'}
+                style={{
+                    alignSelf: 'center',
+                    color: palette.text.primary,
+                }}
+            >
+                {props.label}
+            </p>
             <ul
                 style={{
                     listStyleType: 'none',
@@ -323,44 +171,42 @@ const TooltipTextGenerator: React.FC<any> = (props: any) => {
     }
 }
 const TemperatureTooltipContent: React.FC<any> = (props: any) => {
-    const tempUnit = useUserPrefsStore((state) => state.temperatureUnit)
+    const state = useUserPrefsStore((state) => state.temperatureUnit)
     const palette = useTheme().palette
     const { payload, label, active } = props
+    const payloadVals = payload.map((entry: any) => entry.value[1])
+    const rangeVals = payload.length > 0 ? payload[0].value : []
+    const values =
+        rangeVals.length > payloadVals.length ? rangeVals : payloadVals
+
     const labelStrings = props.labelStrings ?? ['', '']
-    console.log('TemperatureTooltipContent', { props, labelStrings })
+    CustomizedTooltipLogger.debug('Rendering TemperatureTooltipContent', {
+        props,
+        labelStrings,
+        payloadVals,
+        rangeVals,
+    })
     return (
-        <ul
-            style={{
-                listStyleType: 'none',
-            }}
-        >
-            {payload.map((entry: any, index: number) => (
-                <li
-                    key={`item-${index}`}
-                    style={{
-                        ...entry,
-                        color: palette.text.primary,
-                    }}
-                >
-                    {labelStrings[index] +
-                        convertToUserTemp(
-                            entry.value as number,
-                            tempUnit
-                        )!.toFixed(0) +
-                        tempUnit}
-                </li>
-            ))}
-        </ul>
+        <GenericTooltipContent
+            state={state}
+            labelStrings={labelStrings}
+            appendStrings={[` ${state}`, ` ${state}`]}
+            {...props}
+            values={values.map((val: any) => convertToUserTemp(val, state))}
+        />
     )
 }
 
 const PrecipitationTooltipWrapper: React.FC<any> = (props: any) => {
     const state = useUserPrefsStore((state) => state.precipitationUnit)
-    const str = state === 'inch' ? 'in.' : state
+    const values = props.payload.map((entry: any) => entry.value)
+    if (values.length > 1) values[1] = convertToUserUnit(values[1], state)
     return (
         <GenericTooltipContent
+            state={state}
             labelStrings={['', '']}
-            appendStrings={['%', ` ${str}`]}
+            appendStrings={['%', ` ${state}`]}
+            values={values}
             {...props}
         />
     )
@@ -368,9 +214,25 @@ const PrecipitationTooltipWrapper: React.FC<any> = (props: any) => {
 
 const WindTooltipWrapper: React.FC<any> = (props: any) => {
     const state = useUserPrefsStore((state) => state.windUnit)
+    //need to add the first value to the second value to get the total gust speed
+    const values =
+        props.payload.length > 1
+            ? [
+                  props.payload[0].value,
+                  props.payload[0].value + props.payload[1].value,
+              ]
+            : []
+    CustomizedTooltipLogger.debug('Rendering WindTooltipWrapper', {
+        props,
+        values,
+    })
 
     return (
         <GenericTooltipContent
+            state={state}
+            values={values.map((val: any) =>
+                convertToUserWindSpeed(val, state)
+            )}
             labelStrings={['Wind Speed: ', 'Gust Speed: ']}
             appendStrings={[` ${state}`, ` ${state}`]}
             {...props}
@@ -382,7 +244,17 @@ const GenericTooltipContent: React.FC<any> = (props: any) => {
     const prepend = typeof props.prepend === 'string' ? props.prepend : ''
     const palette = useTheme().palette
     const { payload, label, active } = props
-    const labelStrings = props.labelStrings ?? ['', '']
+    const values = props.values ?? payload.map((entry: any) => entry.value)
+    const labelStrings = props.labelStrings ?? [
+        payload?.[0]?.name + ':' ?? '',
+        payload?.[1]?.name + ':' ?? '',
+    ]
+    CustomizedTooltipLogger.debug('GenericTooltipContent', {
+        props,
+        labelStrings,
+        values,
+    })
+
     const appendStrings = props.appendStrings ?? ['', '']
     return (
         <ul
@@ -390,15 +262,15 @@ const GenericTooltipContent: React.FC<any> = (props: any) => {
                 listStyleType: 'none',
             }}
         >
-            {payload.map((entry: any, index: number) => (
+            {values.map((value: any, index: number) => (
                 <li
                     key={`item-${index}`}
                     style={{
-                        ...entry,
+                        ...payload[index],
                         color: palette.text.primary,
                     }}
                 >
-                    {labelStrings[index] + entry.value + appendStrings[index]}
+                    {labelStrings[index] + ' ' + value + appendStrings[index]}
                 </li>
             ))}
         </ul>
@@ -416,4 +288,115 @@ export const RenderToggler: React.FC<RenderTogglerProps> = (
     if (props.render) {
         return <>{props.children}</>
     } else return null
+}
+
+export const CustomizedLegend: React.FC<any> = (props: any) => {
+    ChartComponentLogger.debug('Rendering CustomizedLegend', { props })
+    const palette = useTheme().palette
+    const { payload, wrapperStyle, cursorStyle, labelStrings, ...styles } =
+        props
+    return (
+        <div
+            style={{
+                width: '100%',
+                height: '0',
+            }}
+        >
+            <ul
+                style={{
+                    overflowY: 'hidden',
+                    overflowX: 'auto',
+                    position: 'absolute',
+                    top: '-3rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    flexWrap: 'nowrap',
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    padding: '0 0.5rem',
+                    borderRadius: '16px',
+                    listStyle: 'inside',
+                }}
+            >
+                {payload.map((entry: any, index: number) =>
+                    entry.type === 'none' ? null : (
+                        <li
+                            key={`item-${index}`}
+                            style={{
+                                whiteSpace: 'nowrap',
+                                position: 'relative',
+                                color: entry.color,
+                            }}
+                        >
+                            <Typography
+                                style={{
+                                    color: palette.text.primary,
+                                }}
+                                variant="caption"
+                                noWrap
+                            >
+                                {entry.value}
+                            </Typography>
+                        </li>
+                    )
+                )}
+            </ul>
+        </div>
+    )
+}
+export const RenderShape = (props: any) => {
+    const {
+        height,
+        width,
+        fill,
+        x,
+        y,
+        stopColor,
+        startColor,
+        gradientKey,
+        index,
+        background,
+    } = props
+    const y1Percent = _.clamp(y / background.height, 0, 1)
+    const y2Percent = _.clamp((y + height) / background.height, 0, 1)
+    ChartComponentLogger.debug('Rendering RenderShape', {
+        props,
+        index,
+        y1Percent,
+        y2Percent,
+    })
+    return (
+        <svg
+            x={x}
+            y={'10px'}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{
+                height: `${background.height}px`,
+            }}
+        >
+            <defs>
+                <linearGradient
+                    id={gradientKey + index}
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stopColor={stopColor} opacity="1" />
+                    <stop offset="100%" stopColor={startColor} opacity="1" />
+                </linearGradient>
+                <clipPath id={`clip-${index}`}>
+                    <rect y={y - background.y} width={width} height={height} />
+                </clipPath>
+            </defs>
+            <rect
+                id={`rect-${index}`}
+                fill={`url(#${gradientKey + index})`}
+                y={y - background.y}
+                width={width}
+                height={background.height}
+                clipPath={`url(#clip-${index})`}
+            />
+        </svg>
+    )
 }
