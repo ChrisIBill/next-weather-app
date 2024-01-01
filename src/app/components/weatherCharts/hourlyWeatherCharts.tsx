@@ -28,7 +28,6 @@ import {
 import { useEffect, useState } from 'react'
 import { MappableObject } from '@/lib/genInterfaces'
 import { LegendWrapperStyle } from './chartStyles'
-import { isMobile } from 'react-device-detect'
 
 const HourlyChartColors = ['#EA79F6', '#9C74FB']
 
