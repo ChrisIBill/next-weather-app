@@ -5,7 +5,6 @@ import { createPinoBrowserSend, createWriteStream } from 'pino-logflare'
 const stream = createWriteStream({
     apiKey: process.env.NEXT_PUBLIC_LOGFLARE_KEY!,
     sourceToken: 'c6bd59e5-463f-4e88-a27a-ec69832bcb7a',
-    endpoint: 'https://api.logflare.app/logs',
     fromBrowser: false,
 })
 
@@ -13,7 +12,6 @@ const stream = createWriteStream({
 const send = createPinoBrowserSend({
     apiKey: process.env.NEXT_PUBLIC_LOGFLARE_KEY!,
     sourceToken: '2871dcb3-baf6-416f-9050-415ab388a776',
-    endpoint: 'https://api.logflare.app/logs',
     fromBrowser: true,
 })
 
