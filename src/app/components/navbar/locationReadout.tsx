@@ -2,7 +2,6 @@ import { getLocationDisplayStrings } from '@/lib/location'
 import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { Typography, useTheme } from '@mui/material'
 import styles from './navbar.module.scss'
-import { log } from 'next-axiom'
 
 export interface LocationReadoutProps {
     isSearchExpanded: boolean
@@ -22,7 +21,6 @@ export const LocationReadout: React.FC<LocationReadoutProps> = (
             !displayStrings.admin)
     )
         return null
-    log.debug('LocationReadout', { location, displayStrings })
     return (
         <div
             className={styles.flexContainer}

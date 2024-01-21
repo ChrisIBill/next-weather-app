@@ -82,5 +82,6 @@ export function getLocationDisplayStrings(location: LocationInterface) {
         obj.admin =
             location.administrative_area_level_1 + ', ' + location.country
     } else if (location.country) obj.admin = location.country
+    console.log('LocationReader: ', obj)
     return obj
 }

@@ -379,7 +379,6 @@ const RenderGenericStateLabel = (props: any) => {
 }
 
 export const TemperatureLabelList: React.FC<MappableObject> = (props) => {
-    console.log('TemperatureLabelList', { props })
     const temperatureUnit = useUserPrefsStore((state) => state.temperatureUnit)
     const palette = useTheme().palette
     return <LabelList dataKey={props.dataKey} position={props.position} />

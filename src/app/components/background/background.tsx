@@ -166,7 +166,6 @@ const CelestialIconsHandlerDynamic = dynamic<CelestialIconsHandlerProps>(
 const ClockworkBackgroundComponents: React.FC<ClockworkProps> = (
     props: ClockworkProps
 ) => {
-    console.log('ClockworkBackgroundComponents', props)
     const [isClient, setIsClient] = React.useState(false)
     const ref = React.useRef<HTMLDivElement>(null)
 

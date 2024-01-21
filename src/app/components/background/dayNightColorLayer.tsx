@@ -132,7 +132,6 @@ export interface DayNightColorLayerProps extends ColorLayerProps {
 export const DayNightColorLayer: React.FC<DayNightColorLayerProps> = (
     props: DayNightColorLayerProps
 ) => {
-    console.log('DayNightColorLayer', props)
     const palette = useTheme().palette
     const backgroundColors = useBackgroundColors()
     const timeOfDay = props.timeOfDay ?? 'day'
