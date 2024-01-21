@@ -39,13 +39,8 @@ export interface ThemeProviderProps {
 
 const getInitialTheme = () => {
     let theme = 'light'
-    console.log('getting initial theme')
     if (typeof window === 'undefined') return theme
     if (localStorage !== undefined && localStorage.getItem('theme')) {
-        console.log(
-            'localStorage.getItem("theme")',
-            localStorage.getItem('theme')
-        )
         const local = localStorage.getItem('theme')
         const parsed = local ? local : 'light'
         if (['light', 'dark'].includes(parsed)) {

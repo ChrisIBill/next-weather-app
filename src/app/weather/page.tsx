@@ -16,7 +16,6 @@ import { SelectedForecastReadout } from '../components/weatherReports/selectedFo
 import { DayTemperatureClass } from '@/lib/obj/temperature'
 import WindClass from '@/lib/obj/wind'
 import { CloudClass } from '@/lib/obj/cloudClass'
-import { CurrentForecastStateHandler } from '@/lib/obj/forecastStore'
 import { styled, useTheme } from '@mui/material'
 import { ScrollButton } from '../components/scrollButton'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -24,6 +23,7 @@ import dynamic from 'next/dynamic'
 import { HourlyWeatherReportProps } from '../components/weatherReports/hourlyWeatherReport'
 import { LocationInterface, handleLocation } from '@/lib/location'
 import logger from '@/lib/pinoLogger'
+import { CurrentForecastStateHandler } from '../components/stateHandlers'
 
 const weatherPageLogger = logger.child({ module: 'Weather Page' })
 
