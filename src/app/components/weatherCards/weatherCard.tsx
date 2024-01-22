@@ -26,6 +26,9 @@ import {
     useForecastObjStore,
     useForecastSetStore,
 } from '@/lib/obj/forecastStore'
+import logger from '@/lib/pinoLogger'
+import { useState } from 'react'
+import { WeatherCardsLogger } from './weatherCards'
 
 export interface WeatherCardProps {
     forecastObj: DailyWeatherForecastObjectType
@@ -34,11 +37,14 @@ export interface WeatherCardProps {
 export const WeatherCard: React.FC<WeatherCardProps> = (
     props: WeatherCardProps
 ) => {
+    WeatherCardsLogger.debug('Rendering WeatherCard')
     const palette = useTheme().palette
+    const [selectedDay, setSelectedDay] = useState<number>(0)
 
     const setForecastStoreState = useForecastSetStore()
 
     const handleCardSelect = (day: number) => {
+        setSelectedDay(day)
         setForecastStoreState.setTime([props.index, undefined])
         setForecastStoreState.setTemperatureMagnitude(
             props.forecastObj?.temperatureObj.getAvgTemp()
@@ -71,11 +77,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             sx={{
                 position: 'absolute',
                 width: '200%',
-                paddingBottom: '250%',
-                //top: '0px',
-                //left: '0px',
-                //bottom: '0px',
-                //right: '0px',
+                //paddingBottom: '250%',
                 backgroundColor: `${palette.primary.main}`,
                 color: `${palette.primary.contrastText}`,
                 borderRadius: '16px',
@@ -85,7 +87,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = (
             <CardActionArea
                 className={styles.actionArea}
                 onClick={(event) => handleCardSelect(props.index)}
-                //disabled={props.index == props.selectedDay}
+                disabled={props.index == selectedDay}
                 sx={{
                     position: 'absolute',
                     backgroundColor:
