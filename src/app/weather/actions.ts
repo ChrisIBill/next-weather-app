@@ -40,7 +40,9 @@ async function handleLocation(
             location.address +
             '&key=' +
             process.env.GOOGLE_API_KEY
+
         const result = await fetch(geocodingURL)
+
         if (result.status === 200) {
             const data = await result.json()
             return {
@@ -50,43 +52,59 @@ async function handleLocation(
                 } as CoordinatesType,
                 address: data,
             }
-        }
-    } else throw new Error('Failed to get coordinates, invalid location data')
-    throw new Error('Why is this needed')
+        } else
+            throw new Error('Failed to get coordinates', {
+                cause: 'Bad Response from Google: ' + result,
+            })
+    } else
+        throw new Error('Failed to get coordinates', {
+            cause: 'Bad Location Object: ' + location,
+        })
 }
 
 export async function getWeather(location: LocationType) {
     //TODO: cache handling
-    const { coords, address } = await handleLocation(location)
-    if (!coords) {
-        actionsLogger.error('Failed to get coordinates')
-    } else
-        actionsLogger.info(
-            'Coordinates from geocoding: ',
-            coords,
-            address,
-            address.geometry
-        )
-    const reqURL =
-        process.env.OPEN_METEO_API_URL +
-        `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
-        DEFAULT_WEATHER_PARAMS
+    try {
+        const { coords, address } = await handleLocation(location)
+        //Coords are critical, address is not so will conditionally catch ReferenceError
+        if (!coords)
+            throw new Error('Coordinates undefined', { cause: location })
+        if (!address)
+            throw new ReferenceError('Address undefined', { cause: location })
+        actionsLogger.info('Coordinates from geocoding: ', coords, address)
+        const reqURL =
+            process.env.OPEN_METEO_API_URL +
+            `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
+            DEFAULT_WEATHER_PARAMS
 
-    const result = await fetch(reqURL, {
-        next: { revalidate: 3600 },
-    })
+        const result = await fetch(reqURL, {
+            next: { revalidate: 3600 },
+        })
 
-    if (!result.ok) {
-        actionsLogger.error(result.status)
+        if (!result.ok) {
+            actionsLogger.error(result.status)
+            return JSON.stringify({
+                result: result.status,
+                forecast: null,
+                address,
+            })
+        }
         return JSON.stringify({
             result: result.status,
-            forecast: null,
+            forecast: forecastFormater(await result.json()),
             address,
         })
+    } catch (e) {
+        actionsLogger.error(e)
+        if (e instanceof ReferenceError) {
+            //Error is recoverable
+        } else {
+            //Error is not recoverable
+            return JSON.stringify({
+                result: 500,
+                forecast: null,
+                address: null,
+            })
+        }
     }
-    return JSON.stringify({
-        result: result.status,
-        forecast: forecastFormater(await result.json()),
-        address,
-    })
 }
