@@ -2,6 +2,21 @@
     width: 100%;
     height: fit-content;
     overflow: scroll;
+    overflow-x: hidden;
+}
+.html::-webkit-scrollbar-thumb {
+    width: 0px;
+    background: transparent;
+}
+.html::-webkit-scrollbar-track {
+    width: 0px;
+    background: transparent;
+}
+.html:hover::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-color-thumb);
+}
+.html:hover::-webkit-scrollbar-track {
+    background: var(--scrollbar-color-track);
 }
 .body {
     width: fit-content;

@@ -6,21 +6,27 @@ import React from 'react'
 import { Draggable } from '../draggable'
 import { log } from 'next-axiom'
 import { inspect } from 'util'
+import { CelestialIconsHandlerProps } from '../background/celestialIcons'
+import dynamic from 'next/dynamic'
+import logger from '@/lib/pinoLogger'
+
+export const WeatherCardsLogger = logger.child({ module: 'Weather Cards' })
 
 const CardListWrapperStyled = styled('div')(({ theme }) => ({
     //width: 'fit-content',
     margin: '1.5rem 0',
-    [theme.breakpoints.only('xs')]: {
+    height: '17.5rem',
+    overflow: 'visible',
+    //width: '49rem',
+    [theme.breakpoints.down('sm')]: {
         marginBottom: '2rem',
         width: '100%',
         height: '13.1rem',
-        overflow: 'scroll',
+        overflowX: 'scroll',
     },
-    [theme.breakpoints.only('sm')]: {
+    [theme.breakpoints.up('sm')]: {
         height: '12.5rem',
-        marginRight: '5rem',
         width: '35rem',
-        overflow: 'visible',
     },
     [theme.breakpoints.only('md')]: {
         height: '15rem',
@@ -36,10 +42,10 @@ const CardListWrapperStyled = styled('div')(({ theme }) => ({
 
 const CardWrapperStyled = styled('div')(({ theme }) => ({
     height: 'auto',
-    [theme.breakpoints.only('xs')]: {
+    [theme.breakpoints.down('sm')]: {
         width: '5rem',
     },
-    [theme.breakpoints.only('sm')]: {
+    [theme.breakpoints.up('sm')]: {
         width: '5rem',
     },
     [theme.breakpoints.only('md')]: {
@@ -55,6 +61,8 @@ export interface WeatherCardsProps {
 export const WeatherCards: React.FC<WeatherCardsProps> = (
     props: WeatherCardsProps
 ) => {
+    WeatherCardsLogger.debug('Rendering WeatherCards')
+
     const listWrapper = React.useRef<HTMLDivElement>(null)
 
     //If after sunset, show tomorrow's forecast first
@@ -63,9 +71,8 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
     //    const time = dayjs(todaysForecast.current_weather.time)
     //    showTomorrowFirst = !time.isBefore(todaysForecast.sunset)
     //}
-    const setScrollPosition = (element: any) => {
-        element.current.scrollLeft = 1000
-    }
+
+    //Expensive operations handled once for all cards
 
     //need a generator to create the formatted data for the cards
     const weatherCards = props.forecastObj.slice(0, 7).map((weather, index) => {
@@ -96,7 +103,9 @@ export const WeatherCards: React.FC<WeatherCardsProps> = (
             ref={listWrapper}
             style={{}}
         >
-            <ul className={styles.cardsList}>{weatherCards}</ul>
+            <ul className={styles.cardsList} style={{}}>
+                {weatherCards}
+            </ul>
         </CardListWrapperStyled>
     )
 }

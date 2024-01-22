@@ -8,6 +8,7 @@ import { useTheme } from '@mui/material'
 import { AnimationLevelsEnum, useUserPrefsStore } from '@/lib/stores'
 import { useForecastObjStore } from '@/lib/obj/forecastStore'
 import { PosCoordinates } from '@/lib/interfaces'
+import ErrorBoundary from '@/lib/errorBoundary'
 
 export interface CelestialIconsHandlerProps {
     wrapperWidth: number
@@ -45,17 +46,29 @@ export const CelestialIconsHandler: React.FC<CelestialIconsHandlerProps> = (
             }}
         >
             {props.isCard || animationLevel <= AnimationLevelsEnum.Low ? (
-                <StaticCelestialIcons iconSize={iconSize} />
-            ) : (
-                <CelestialIconsPathGenerator
-                    //timeObj={props.timeObj}
-                    isCard={props.isCard}
+                <StaticCelestialIcons
                     iconSize={iconSize}
-                    xScale={xScale}
-                    yScale={yScale}
-                    wrapperWidth={width}
-                    wrapperHeight={height}
+                    isCard={props.isCard}
                 />
+            ) : (
+                <ErrorBoundary
+                    fallback={
+                        <StaticCelestialIcons
+                            iconSize={iconSize}
+                            isCard={props.isCard}
+                        />
+                    }
+                >
+                    <CelestialIconsPathGenerator
+                        //timeObj={props.timeObj}
+                        isCard={props.isCard}
+                        iconSize={iconSize}
+                        xScale={xScale}
+                        yScale={yScale}
+                        wrapperWidth={width}
+                        wrapperHeight={height}
+                    />
+                </ErrorBoundary>
             )}
         </div>
     )
@@ -68,9 +81,11 @@ export interface CelestialIconsProps {
 
 export interface StaticCelestialIconsProps extends CelestialIconsProps {}
 
-export const StaticCelestialIcons: React.FC<CelestialIconsProps> = (
-    props: CelestialIconsProps
-) => {
+//const StaticCelestialIcons: React.FC<StaticCelestialIconsProps> = (
+const StaticCelestialIcons = memo(function StaticCelestialIcons(
+    props: StaticCelestialIconsProps
+) {
+    //TODO: Should be possible to use same exact component across all cards, no additional rendering needed
     const palette = useTheme().palette
     const isDay = palette.mode === 'light' ? true : false
     return (
@@ -80,14 +95,12 @@ export const StaticCelestialIcons: React.FC<CelestialIconsProps> = (
                 backgroundColor: 'transparent',
                 width: props.iconSize,
                 height: props.iconSize,
-                //top: '-30%',
-                //left: '50%',
             }}
         >
             <CelestialIcon isDay={isDay} size={props.iconSize} />
         </div>
     )
-}
+})
 
 interface CelestialIconsPathGeneratorProps extends CelestialIconsProps {
     isCard?: boolean
@@ -98,74 +111,54 @@ interface CelestialIconsPathGeneratorProps extends CelestialIconsProps {
     yScale: number
 }
 
-export const CelestialIconsPathGenerator = memo(
-    function CelestialIconPathGenerator(
-        props: CelestialIconsPathGeneratorProps
-    ) {
-        //const [bezierPath, setBezierPath] = React.useState([])
-        console.log('RERENDERING CelestialIconPathGenerator')
-        const [p0, p1, p2, p3] = [
-            { x: 0 * props.xScale, y: 110 * props.yScale },
-            { x: 100 * props.xScale, y: 50 * props.yScale },
-            { x: 200 * props.xScale, y: 50 * props.yScale },
-            { x: 300 * props.xScale, y: 110 * props.yScale },
-        ]
-        //let bezierPath = ''
-        const bezierPath = new Array(100)
-            .fill(undefined)
-            .map((_, i) => bezierCurve(i / 100, p0, p1, p2, p3))
-        const bezierString = bezierPath.reduce((acc, { x, y }) => {
-            return `${acc} L${x} ${y}`
-        }, `M${p0.x} ${p0.y}`)
-        //for (let i = 0; i < 100; i++) {
-        //    const { x, y } = bezierCurve(i/100, p0, p1, p2, p3)
-        //    set
-        //}
-        return (
-            <svg
-                className={styles.CelestialsSVG}
-                style={{
-                    position: 'absolute',
-                }}
-                width={props.wrapperWidth}
-                height={props.wrapperHeight}
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                {/* <path d={bezierString} stroke="#111" /> */}
-                <CelestialIcons
-                    timeObj={props.timeObj}
-                    bezierPath={bezierPath}
-                    bezierString={bezierString}
-                    iconSize={props.iconSize}
-                    wrapperWidth={props.wrapperWidth}
-                    wrapperHeight={props.wrapperHeight}
-                    //xScale={props.xScale}
-                    //yScale={props.yScale}
-                />
-            </svg>
-        )
-    }
-)
+const CelestialIconsPathGenerator = memo(function CelestialIconPathGenerator(
+    props: CelestialIconsPathGeneratorProps
+) {
+    const [p0, p1, p2, p3] = [
+        { x: 0 * props.xScale, y: 110 * props.yScale },
+        { x: 100 * props.xScale, y: 50 * props.yScale },
+        { x: 200 * props.xScale, y: 50 * props.yScale },
+        { x: 300 * props.xScale, y: 110 * props.yScale },
+    ]
+    const bezierPath = new Array(100)
+        .fill(undefined)
+        .map((_, i) => bezierCurve(i / 100, p0, p1, p2, p3))
+    const bezierString = bezierPath.reduce((acc, { x, y }) => {
+        return `${acc} L${x} ${y}`
+    }, `M${p0.x} ${p0.y}`)
+    return (
+        <svg
+            className={styles.CelestialsSVG}
+            style={{
+                position: 'absolute',
+            }}
+            width={props.wrapperWidth}
+            height={props.wrapperHeight}
+            version="1.1"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            {/* DON'T DELETE THIS COMMENTED OUT PATH, IT'S FOR DEBUGGING */}
+            {/* <path d={bezierString} stroke="#111" /> */}
+            <DynamicCelestialIcons
+                bezierPath={bezierPath}
+                bezierString={bezierString}
+                iconSize={props.iconSize}
+                wrapperWidth={props.wrapperWidth}
+                wrapperHeight={props.wrapperHeight}
+            />
+        </svg>
+    )
+})
 
-export const CelestialIconsStateWrapper: React.FC<any> = (props: any) => {
-    const timePercent = useForecastObjStore((state) => state.timePercent.state)
-    const isDay = useForecastObjStore((state) => state.isDay.state)
-    return <CelestialIcons {...props} timePercent={timePercent} isDay={isDay} />
-}
-
-export interface DynamicCelestialIconsProps extends CelestialIconsProps {
+interface DynamicCelestialIconsProps extends CelestialIconsProps {
     isCard?: boolean
-    timeObj?: DayTimeClassType[]
     bezierPath: PosCoordinates[]
     bezierString: string
     wrapperWidth: number
     wrapperHeight: number
 }
 
-export interface PageCelestialIconsProps extends DynamicCelestialIconsProps {}
-
-export const CelestialIcons: React.FC<PageCelestialIconsProps> = (
+const DynamicCelestialIcons: React.FC<DynamicCelestialIconsProps> = (
     props: DynamicCelestialIconsProps
 ) => {
     const [firstTime, setFirstTime] = React.useState(true)
