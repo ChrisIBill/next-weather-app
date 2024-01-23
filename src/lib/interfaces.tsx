@@ -92,8 +92,8 @@ export interface WeatherMetadata {
     generationTime?: string
 }
 export interface CurrentWeatherDataType {
-    time?: string
-    time2?: number
+    //time?: string
+    time?: number
     interval?: number
     temperature_2m?: number
     relativehumidity_2m?: number
@@ -114,8 +114,8 @@ export interface CurrentWeatherDataType {
     [index: string]: {} | string | number | undefined
 }
 export interface HourlyWeatherDataType {
-    time?: string
-    time2?: number
+    //time?: string
+    time?: number
     temperature_2m?: number
     relativehumidity_2m?: number
     dewpoint_2m?: number
@@ -138,8 +138,8 @@ export interface HourlyWeatherDataType {
     [index: string]: {} | string | number | undefined
 }
 export interface DailyWeatherDataType {
-    time?: string
-    time2?: number
+    //time?: string
+    time?: number
     weathercode?: number
     avg_cloudcover?: number
     temperature_2m_max?: number

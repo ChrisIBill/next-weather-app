@@ -90,8 +90,8 @@ export function forecastFormater(weatherApiData: any) {
         .map((day, index) => {
             const dsum = getAvgCloudCover(index)
             return {
-                time: adf.time[index],
-                time2: dayjs(adf.time[index]).unix(),
+                //time: adf.time[index],
+                time: dayjs(adf.time[index]).unix(),
                 weathercode: adf.weathercode[index],
                 temperature_2m_max: adf.temperature_2m_max[index],
                 temperature_2m_min: adf.temperature_2m_min[index],

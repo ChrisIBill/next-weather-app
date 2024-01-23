@@ -58,9 +58,8 @@ function handleWeatherForecast(
     location: LocationInterface
 ): FullForecastObjectType {
     const forecastObj = forecast.map((day) => {
-        if (!day.time2)
-            throw new Error('Invalid forecast object: missing time2')
-        const timeObj = new DayTimeClass(day.time2, day.sunrise2, day.sunset2)
+        if (!day.time) throw new Error('Invalid forecast data')
+        const timeObj = new DayTimeClass(day.time, day.sunrise2, day.sunset2)
         const tempObj = new DayTemperatureClass(
             [day.temperature_2m_max, day.temperature_2m_min],
             [day.apparent_temperature_max, day.apparent_temperature_min]
@@ -106,9 +105,7 @@ function handleWeatherForecast(
             }),
             current_weather: day.current_weather
                 ? {
-                      timeObj: timeObj.createCurrent(
-                          day.current_weather.time2!
-                      ),
+                      timeObj: timeObj.createCurrent(day.current_weather.time!),
                       precipitationObj: new PrecipitationClass(
                           day.current_weather.precipitation!,
                           day.current_weather!.snowfall!,
