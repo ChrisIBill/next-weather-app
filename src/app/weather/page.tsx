@@ -157,7 +157,7 @@ export default function Page({
     searchParams: { [key: string]: string | string[] | undefined }
 }) {
     weatherPageLogger.debug('rendering weather page')
-    const searchParams2 = useSearchParams()
+    const weatherParams = useSearchParams()
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
     weatherPageLogger.info('Timezone: ', timezone)
 
@@ -173,9 +173,9 @@ export default function Page({
 
     useEffect(() => {
         const [lat, lon, address] = [
-            searchParams2.get('lat'),
-            searchParams2.get('lon'),
-            searchParams2.get('address'),
+            weatherParams.get('lat'),
+            weatherParams.get('lon'),
+            weatherParams.get('address'),
         ]
         weatherPageLogger.debug('Search Parameters for weather page: ', {
             lat,
@@ -196,7 +196,7 @@ export default function Page({
                     handleWeatherForecast(value.forecast, value.address)
                 )
             })
-    }, [searchParams, searchParams2])
+    }, [weatherParams, timezone])
 
     const { width, height } = useWindowDimensions() ?? {
         width: 0,
