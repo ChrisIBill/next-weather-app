@@ -59,7 +59,7 @@ function handleWeatherForecast(
 ): FullForecastObjectType {
     const forecastObj = forecast.map((day) => {
         if (!day.time) throw new Error('Invalid forecast data')
-        const timeObj = new DayTimeClass(day.time, day.sunrise2, day.sunset2)
+        const timeObj = new DayTimeClass(day.time, day.sunrise, day.sunset)
         const tempObj = new DayTemperatureClass(
             [day.temperature_2m_max, day.temperature_2m_min],
             [day.apparent_temperature_max, day.apparent_temperature_min]
@@ -158,6 +158,8 @@ export default function Page({
 }) {
     weatherPageLogger.debug('rendering weather page')
     const searchParams2 = useSearchParams()
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    weatherPageLogger.info('Timezone: ', timezone)
 
     const scrollRef = useRef<HTMLDivElement>(null)
     const [location, setLocation] = useState<any>([])
@@ -183,7 +185,7 @@ export default function Page({
         const location = address
             ? handleWeatherSearch({ address })
             : handleWeatherSearch({ lat, lon })
-        getWeather(location)
+        getWeather(location, timezone)
             .then((response) => {
                 return JSON.parse(response)
             })

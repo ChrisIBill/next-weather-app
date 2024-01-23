@@ -1,4 +1,9 @@
 import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+import logger from '../pinoLogger'
+
+const TimeLogger = logger.child({ module: 'Time Class' })
 
 export const UNIX_HOURS_OF_DAY = [
     0, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000,
@@ -189,6 +194,15 @@ export default class DayTimeClass implements DayTimeClassType {
         this.sunrise = sunrise ?? value + 21600 //6:00 AM
         this.sunset = sunset ?? value + 64800 //6:00 PM
         this.hours = this.constructHours()
+        TimeLogger.debug(
+            {
+                value: this.value,
+                sunrise: this.sunrise,
+                sunset: this.sunset,
+                dateObj: this.dateObj,
+            },
+            'DayTimeClass dateObj'
+        )
     }
     constructHours = () => {
         return UNIX_HOURS_OF_DAY.map((hour) => {
@@ -204,8 +218,8 @@ export default class DayTimeClass implements DayTimeClassType {
     createCurrent(value: number) {
         this.current = new HourTimeClass(
             value - this.value,
-            this.sunrise,
-            this.sunset,
+            this.sunrise - this.value,
+            this.sunset - this.value,
             this
         )
         return this.current
@@ -219,7 +233,7 @@ export default class DayTimeClass implements DayTimeClassType {
             if (this.dateObj.isValid()) return this.dateObj
             else throw new Error('Invalid dayjs object')
         } catch (e) {
-            console.error(
+            TimeLogger.error(
                 `${e} \n
                 Ocucred generating dayjs object for DayTimeClass: ${this} \n
                 From value: ${this.value}`
@@ -229,7 +243,7 @@ export default class DayTimeClass implements DayTimeClassType {
     }
 
     _calcTimePercents = () => {
-        console.log('CALCULATING TIME PERCENTS')
+        TimeLogger.debug('Calculating time percents for DayTimeClass: ')
         try {
             const [sunrise, sunset] = [
                 this.sunrise - this.value,
@@ -265,9 +279,9 @@ export default class DayTimeClass implements DayTimeClassType {
             })
             return true
         } catch (e) {
-            console.error(
-                `${e} while calculating time percents for DayTimeClass: `,
-                this
+            TimeLogger.error(
+                { error: e, day: this },
+                `while calculating time percents for DayTimeClass: `
             )
             this.hours.forEach((hour, index) => {
                 const hourDefaults = DEFAULT_HOUR_DATA[index]
@@ -310,6 +324,15 @@ export class HourTimeClass implements HourTimeClassType {
         this._isDay = undefined
         this._timePercent = undefined
         this._timeOfDay = this.calcTimeOfDay
+        TimeLogger.debug(
+            {
+                value: this.value,
+                sunrise: this.sunrise,
+                sunset: this.sunset,
+                dateObj: this.dateObj,
+            },
+            'HourTimeClass dateObj'
+        )
     }
     getIsDay = () => {
         if (typeof this._isDay === 'undefined') {
@@ -353,17 +376,23 @@ export class HourTimeClass implements HourTimeClassType {
                 }
             }
         } catch (e) {
-            console.error(
-                `Error calculating time of day for HourTimeClass: `,
-                this
+            TimeLogger.error(
+                { error: e, hour: this },
+                `Error calculating time of day for HourTimeClass: `
             )
             return 'night'
         }
     }
 }
 
-export function getTimeClassType(time: TimeClassType): TimeType {
+export function getTimeClassType(time: TimeClassType): TimeType | undefined {
     if (time instanceof DayTimeClass) return 'day'
     else if (time instanceof HourTimeClass) return 'hour'
-    else throw new Error('Invalid time type')
+    else {
+        TimeLogger.error(
+            { time },
+            'Error getting time class type, returning undefined'
+        )
+        return undefined
+    }
 }

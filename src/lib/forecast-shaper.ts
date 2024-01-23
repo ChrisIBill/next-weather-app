@@ -33,7 +33,6 @@ function getApiMetadata(weatherApiData: any) {
 
 export function forecastFormater(weatherApiData: any) {
     //TODO: add error handling
-    const metadata = getApiMetadata(weatherApiData)
     const current_weather = {
         ...weatherApiData.current,
         time2: dayjs(weatherApiData.current.time).unix(),
@@ -43,9 +42,7 @@ export function forecastFormater(weatherApiData: any) {
     current_weather.sunset = weatherApiData.daily.sunset[0]
 
     const adf = weatherApiData.daily
-    const adu = weatherApiData.daily_units
     const hdf = weatherApiData.hourly
-    const hdu = weatherApiData.hourly_units
 
     const hdf_keys = Object.keys(weatherApiData.hourly)
     function getHourlyWeather(
@@ -58,7 +55,7 @@ export function forecastFormater(weatherApiData: any) {
         const r = index * 24
         const ret: HourlyWeatherDataType[] = new Array(24)
         for (let i = 0; i < 24; i++) {
-            if (!hdf.time[r + i].includes(date))
+            if (hdf.time[r + i] < date || hdf.time[r + i] >= date + 86400)
                 throw new RangeError(
                     'Hourly weather data does not match date',
                     { cause: `Hourly Time ${hdf.time[r + i]} Date: ${date}` }
@@ -83,24 +80,19 @@ export function forecastFormater(weatherApiData: any) {
         return Math.round(sum / 24)
     }
 
-    const avg_cloudcover = getAvgCloudCover(0)
-
     const weather_forecast: WeatherForecastType = new Array(8)
         .fill({})
         .map((day, index) => {
             const dsum = getAvgCloudCover(index)
             return {
-                //time: adf.time[index],
-                time: dayjs(adf.time[index]).unix(),
+                time: adf.time[index],
+                sunrise: adf.sunrise[index],
+                sunset: adf.sunset[index],
                 weathercode: adf.weathercode[index],
                 temperature_2m_max: adf.temperature_2m_max[index],
                 temperature_2m_min: adf.temperature_2m_min[index],
                 apparent_temperature_max: adf.apparent_temperature_max[index],
                 apparent_temperature_min: adf.apparent_temperature_min[index],
-                sunrise: adf.sunrise[index],
-                sunrise2: dayjs(adf.sunrise[index]).unix(),
-                sunset: adf.sunset[index],
-                sunset2: dayjs(adf.sunset[index]).unix(),
                 uv_index_max: adf.uv_index_max[index],
                 precipitation_sum: adf.precipitation_sum[index],
                 rain_sum: adf.rain_sum[index],
@@ -119,5 +111,4 @@ export function forecastFormater(weatherApiData: any) {
             }
         })
     return weather_forecast
-    //return {metadata, current_weather, weather_forecast[8]}
 }

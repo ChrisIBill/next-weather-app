@@ -1,10 +1,18 @@
 'use server'
 
+import util from 'util'
 import { forecastFormater } from '@/lib/forecast-shaper'
 import { CoordinatesType, LocationType } from '@/lib/interfaces'
 import logger from '@/lib/pinoLogger'
-const DEFAULT_WEATHER_PARAMS =
-    '&current=temperature_2m,relativehumidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weathercode,cloudcover,pressure_msl,surface_pressure,windspeed_10m,winddirection_10m&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,surface_pressure,cloudcover,visibility,windspeed_10m,winddirection_10m,windgusts_10m,temperature_80m,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,sunrise,sunset,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant&forecast_days=8&timeformat=unixtime'
+const DEFAULT_WEATHER_PARAMS = `&current=temperature_2m,relativehumidity_2m,apparent_temperature,is_day,precipitation,\
+rain,showers,snowfall,weathercode,cloudcover,pressure_msl,surface_pressure,windspeed_10m,\
+winddirection_10m&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,\
+precipitation_probability,precipitation,rain,showers,snowfall,snow_depth,weathercode,pressure_msl,\
+surface_pressure,cloudcover,visibility,windspeed_10m,winddirection_10m,windgusts_10m,temperature_80m,\
+uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,\
+sunrise,sunset,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_hours,precipitation_probability_max,\
+windspeed_10m_max,windgusts_10m_max,winddirection_10m_dominant&timeformat=unixtime&forecast_days=8\
+`
 
 const actionsLogger = logger.child({ module: 'Weather Server Actions' })
 interface LocationInterface {
@@ -62,28 +70,37 @@ async function handleLocation(
         })
 }
 
-export async function getWeather(location: LocationType) {
+export async function getWeather(location: LocationType, timezone: string) {
     //TODO: cache handling
     let result
     try {
+        actionsLogger.info({ location }, 'Location: ')
         const { coords, address } = await handleLocation(location)
         //Coords are critical, address is not so will conditionally catch ReferenceError
         if (!coords)
             throw new Error('Coordinates undefined', { cause: location })
         if (!address)
             throw new ReferenceError('Address undefined', { cause: location })
-        actionsLogger.info('Coordinates from geocoding: ', coords, address)
+        actionsLogger.info({ coords, address }, 'Coordinates from geocoding: ')
         const reqURL =
             process.env.OPEN_METEO_API_URL +
             `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
-            DEFAULT_WEATHER_PARAMS
+            DEFAULT_WEATHER_PARAMS +
+            `&timezone=${timezone}`
 
         result = await fetch(reqURL, {
             next: { revalidate: 3600 },
         })
 
         if (!result.ok) {
-            actionsLogger.error(result.status)
+            actionsLogger.error(
+                {
+                    result,
+                    reqURL,
+                    coords,
+                },
+                'Result from API not ok: '
+            )
             return JSON.stringify({
                 result: result.status,
                 forecast: null,
@@ -96,8 +113,11 @@ export async function getWeather(location: LocationType) {
             address,
         })
     } catch (e) {
+        actionsLogger.error(
+            { error: util.inspect(e) },
+            'Exception occured in server action getWeather: '
+        )
         if (e instanceof ReferenceError && result) {
-            actionsLogger.error('Handled Exception: ', e)
             //Error is recoverable
             return JSON.stringify({
                 result: 400,
