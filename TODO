@@ -4,4 +4,5 @@ lightning, snow, heat effects and components
 better landing page
     would like search bar to be front and center, either merge with playground slider or move slider component to side
 better search bar helper text and search sanitization/entry
+Search bar error message, styling and input val.
 

@@ -64,6 +64,7 @@ async function handleLocation(
 
 export async function getWeather(location: LocationType) {
     //TODO: cache handling
+    let result
     try {
         const { coords, address } = await handleLocation(location)
         //Coords are critical, address is not so will conditionally catch ReferenceError
@@ -77,7 +78,7 @@ export async function getWeather(location: LocationType) {
             `?latitude=${coords.latitude}&longitude=${coords.longitude}` +
             DEFAULT_WEATHER_PARAMS
 
-        const result = await fetch(reqURL, {
+        result = await fetch(reqURL, {
             next: { revalidate: 3600 },
         })
 
@@ -95,9 +96,14 @@ export async function getWeather(location: LocationType) {
             address,
         })
     } catch (e) {
-        actionsLogger.error(e)
-        if (e instanceof ReferenceError) {
+        if (e instanceof ReferenceError && result) {
+            actionsLogger.error('Handled Exception: ', e)
             //Error is recoverable
+            return JSON.stringify({
+                result: 400,
+                forecast: forecastFormater(await result.json()),
+                address: null,
+            })
         } else {
             //Error is not recoverable
             return JSON.stringify({
